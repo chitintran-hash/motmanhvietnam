@@ -27,7 +27,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.2 }}
-              className="text-6xl md:text-[5.5rem] lg:text-[6.5rem] font-display font-black text-foreground mb-8 leading-[0.9] tracking-tighter uppercase"
+              className="text-5xl md:text-[4.5rem] lg:text-[5.5rem] font-display font-black text-foreground mb-8 leading-[1.1] tracking-tighter uppercase"
             >
               Mang một mảnh <br />
               <span className="text-terracotta relative inline-block">
