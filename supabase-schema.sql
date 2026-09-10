@@ -19,6 +19,9 @@ CREATE TABLE IF NOT EXISTS public.mm_profiles (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
+-- Đảm bảo có cột email nếu bảng đã được tạo từ trước mà thiếu
+ALTER TABLE public.mm_profiles ADD COLUMN IF NOT EXISTS email TEXT;
+
 -- ==========================================
 -- 2. COLLECTIONS (Bộ sưu tập sản phẩm)
 -- ==========================================

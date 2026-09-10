@@ -30,9 +30,9 @@ export default function NewProductPage() {
       <div className="bg-white rounded-2xl border-2 border-foreground/10 shadow-[4px_4px_0px_rgba(0,0,0,0.05)] p-6 md:p-8">
         <form action={formAction} className="space-y-6 max-w-3xl">
           
-          {errorMessage && (
-            <div className="p-4 bg-red-50 text-red-500 rounded-lg text-sm font-medium">
-              {errorMessage}
+          {errorMessage?.message && (
+            <div className={`p-4 rounded-lg text-sm font-medium ${errorMessage.success ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
+              {errorMessage.message}
             </div>
           )}
 
