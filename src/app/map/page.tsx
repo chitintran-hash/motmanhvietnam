@@ -1,13 +1,16 @@
 "use client";
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { MapPin, KeyRound, Sparkles } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { MapPin, KeyRound, Sparkles, X, ArrowRight } from "lucide-react";
 import Badge from "@/components/ui/Badge";
+import Link from "next/link";
+import Image from "next/image";
 
 export default function MapPage() {
   const [code, setCode] = useState("");
   const [unlocked, setUnlocked] = useState<string[]>([]);
   const [error, setError] = useState(false);
+  const [activeNode, setActiveNode] = useState<string | null>(null);
   
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,6 +139,7 @@ export default function MapPage() {
             <div className="relative w-full h-full max-w-[400px] mx-auto">
               {/* Hanoi Node */}
               <motion.div 
+                onClick={() => setActiveNode("Hà Nội")}
                 animate={{ 
                   scale: unlocked.includes("Hà Nội") ? 1 : 0.8,
                   opacity: unlocked.includes("Hà Nội") ? 1 : 0.5
@@ -157,6 +161,7 @@ export default function MapPage() {
 
               {/* HCM Node */}
               <motion.div 
+                onClick={() => setActiveNode("Sài Gòn")}
                 animate={{ 
                   scale: unlocked.includes("Sài Gòn") ? 1 : 0.8,
                   opacity: unlocked.includes("Sài Gòn") ? 1 : 0.5
@@ -179,6 +184,67 @@ export default function MapPage() {
           </div>
         </div>
       </div>
+
+      {/* Side Panel for Node Details */}
+      <AnimatePresence>
+        {activeNode && (
+          <motion.div
+            initial={{ opacity: 0, x: '100%' }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed top-0 right-0 bottom-0 w-full md:w-[400px] bg-[#FAFAFA] border-l-4 border-foreground z-50 shadow-2xl flex flex-col"
+          >
+            <div className="p-6 flex items-center justify-between border-b border-foreground/10">
+              <span className="text-xs font-bold uppercase tracking-widest text-foreground/40 font-mono">TRẠM DỪNG</span>
+              <button onClick={() => setActiveNode(null)} className="p-2 hover:bg-foreground/5 transition-colors">
+                <X className="w-6 h-6 text-foreground" />
+              </button>
+            </div>
+            
+            <div className="p-8 flex-1 overflow-y-auto">
+              <div className="w-full aspect-square bg-[#F5F2EB] border border-foreground/10 mb-8 flex items-center justify-center p-8">
+                <Image 
+                  src={activeNode === 'Hà Nội' ? "https://illustrations.popsy.co/amber/home-office.svg" : "https://illustrations.popsy.co/amber/street-food.svg"} 
+                  alt={activeNode}
+                  width={200}
+                  height={200}
+                  className="object-contain"
+                />
+              </div>
+              
+              <h2 className="font-display font-black text-4xl uppercase tracking-tighter mb-4">{activeNode}</h2>
+              <p className="text-foreground-muted font-medium mb-8 leading-relaxed">
+                {activeNode === 'Hà Nội' 
+                  ? "Chiếc xe đạp chở đầy hoa cúc họa mi lướt qua những con phố rêu phong. Tiếng rao của cô bán xôi đầu ngõ hòa cùng hơi ấm của tách cà phê trứng... Đó là cách một ngày ở Hà Nội bắt đầu."
+                  : "Đến nhanh và đi cũng vội. Cơn mưa chiều Sài Gòn làm dịu đi cái nóng oi ả, nhường chỗ cho những ngọn đèn đường vàng vọt hắt xuống dòng người hối hả ngược xuôi."
+                }
+              </p>
+
+              <div className="space-y-4">
+                <Link href={`/collection/manh-${activeNode === 'Hà Nội' ? 'ha-noi' : 'sai-gon'}`} className="w-full flex items-center justify-between p-4 bg-foreground text-white hover:bg-terracotta transition-colors group">
+                  <span className="text-xs font-bold uppercase tracking-widest">XEM SẢN PHẨM</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link href={`/story-hub/${activeNode === 'Hà Nội' ? 'hanoi-01' : 'saigon-01'}`} className="w-full flex items-center justify-between p-4 border-2 border-foreground bg-transparent text-foreground hover:bg-foreground/5 transition-colors group">
+                  <span className="text-xs font-bold uppercase tracking-widest">ĐỌC CÂU CHUYỆN</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {activeNode && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setActiveNode(null)}
+          className="fixed inset-0 bg-background/50 backdrop-blur-sm z-40"
+        />
+      )}
     </div>
   );
 }

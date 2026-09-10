@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { QrCode, Sparkles } from "lucide-react";
+import { QrCode, Sparkles, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 interface StoryCardProps {
+  id?: string;
   city: string;
   name: string;
   collectionNumber: string;
@@ -11,7 +13,7 @@ interface StoryCardProps {
   excerpt: string;
 }
 
-export default function StoryCard({ city, name, collectionNumber, imageUrl, excerpt }: StoryCardProps) {
+export default function StoryCard({ id = "hanoi-01", city, name, collectionNumber, imageUrl, excerpt }: StoryCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
 
   return (
@@ -70,11 +72,14 @@ export default function StoryCard({ city, name, collectionNumber, imageUrl, exce
           </p>
 
           <div className="mt-auto w-full flex flex-col items-center pt-6 border-t border-foreground/10">
-            <div className="p-3 bg-white border border-foreground/10 rounded-sm mb-3">
-              <QrCode className="w-12 h-12 text-foreground" />
-            </div>
+            <Link href={`/story-hub/${id}`} className="group w-full flex items-center justify-between p-3 bg-foreground text-white hover:bg-terracotta transition-colors mb-4">
+              <span className="text-xs font-bold uppercase tracking-widest">
+                ĐỌC CHI TIẾT
+              </span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
             <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/60">
-              Quét để mở khóa mảnh này
+              Hoặc quét để mở khóa
             </span>
           </div>
         </div>

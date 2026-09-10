@@ -3,17 +3,28 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ShoppingBag, Menu, X, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import SearchOverlay from "@/components/ui/SearchOverlay";
 
 const navLinks = [
   { name: "TRANG CHỦ", href: "/" },
   { name: "KHÁM PHÁ SẢN PHẨM", href: "/collection" },
   { name: "BẢN ĐỒ DI SẢN", href: "/map" },
   { name: "STORY HUB", href: "/story-hub" },
+  { name: "ĐỘI NGŨ", href: "/team" },
 ];
 
 export default function Header({ session }: { session?: any }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [lang, setLang] = useState("VI");
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    // Demo local storage cart
+    const count = localStorage.getItem("cartCount") || "2"; // Default to 2 for demo
+    setCartCount(parseInt(count));
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,7 +59,7 @@ export default function Header({ session }: { session?: any }) {
         </nav>
 
         <div className="flex items-center gap-4">
-          <button className="hidden md:flex p-2 text-foreground-muted hover:text-terracotta transition-colors">
+          <button onClick={() => setIsSearchOpen(true)} className="hidden md:flex p-2 text-foreground-muted hover:text-terracotta transition-colors">
             <Search className="w-5 h-5" />
           </button>
           
@@ -71,14 +82,18 @@ export default function Header({ session }: { session?: any }) {
           </div>
           
           <div className="hidden md:flex items-center gap-1 border-l border-foreground/10 pl-4 text-xs font-bold text-foreground-muted">
-            <span className="text-foreground">VI</span>
+            <span onClick={() => setLang('VI')} className={`cursor-pointer transition-colors ${lang === 'VI' ? 'text-foreground' : 'hover:text-foreground'}`}>VI</span>
             <span className="text-foreground/30 font-normal">|</span>
-            <span className="hover:text-foreground cursor-pointer transition-colors">EN</span>
+            <span onClick={() => setLang('EN')} className={`cursor-pointer transition-colors ${lang === 'EN' ? 'text-foreground' : 'hover:text-foreground'}`}>EN</span>
           </div>
 
           <Link href="/cart" className="relative p-2 text-foreground-muted hover:text-terracotta transition-colors">
             <ShoppingBag className="w-5 h-5" />
-            <span className="absolute top-0 right-0 w-4 h-4 bg-terracotta text-white text-[10px] flex items-center justify-center rounded-full font-bold border-2 border-background">0</span>
+            {cartCount > 0 && (
+              <span className="absolute top-0 right-0 w-4 h-4 bg-terracotta text-white text-[10px] flex items-center justify-center rounded-full font-bold border-2 border-background">
+                {cartCount}
+              </span>
+            )}
           </Link>
           
           <button 
@@ -126,6 +141,7 @@ export default function Header({ session }: { session?: any }) {
           </motion.div>
         )}
       </AnimatePresence>
+      <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </header>
   );
 }
