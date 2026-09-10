@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Package, Users, ShoppingCart, LayoutDashboard, Map, BookOpen, Layers } from 'lucide-react';
+import { Package, Users, ShoppingCart, LayoutDashboard, Map, BookOpen, Layers, UserCircle } from 'lucide-react';
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 
@@ -22,6 +22,7 @@ export default async function AdminLayout({
     { name: 'Người dùng', href: '/admin/users', icon: <Users className="w-5 h-5" /> },
     { name: 'Story Hub', href: '/admin/stories', icon: <BookOpen className="w-5 h-5" /> },
     { name: 'Digital Map', href: '/admin/map', icon: <Map className="w-5 h-5" /> },
+    { name: 'Đội ngũ', href: '/admin/team', icon: <UserCircle className="w-5 h-5" /> },
   ];
 
   return (

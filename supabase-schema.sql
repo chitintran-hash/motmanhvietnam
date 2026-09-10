@@ -212,3 +212,45 @@ CREATE POLICY "Public read product_images" ON storage.objects FOR SELECT USING (
 CREATE POLICY "Admins insert product_images" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'product_images' AND public.is_admin());
 CREATE POLICY "Admins update product_images" ON storage.objects FOR UPDATE USING (bucket_id = 'product_images' AND public.is_admin());
 CREATE POLICY "Admins delete product_images" ON storage.objects FOR DELETE USING (bucket_id = 'product_images' AND public.is_admin());
+
+-- ==========================================
+-- 9. TEAM MEMBERS
+-- ==========================================
+CREATE TABLE IF NOT EXISTS public.mm_team_members (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    full_name TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
+    student_id TEXT,
+    email TEXT,
+    role_title TEXT,
+    department TEXT,
+    short_description TEXT,
+    bio TEXT,
+    contribution TEXT,
+    achievements JSONB DEFAULT '[]'::jsonb,
+    skills JSONB DEFAULT '[]'::jsonb,
+    avatar_url TEXT,
+    cover_image_url TEXT,
+    facebook_url TEXT,
+    instagram_url TEXT,
+    tiktok_url TEXT,
+    portfolio_url TEXT,
+    display_order INTEGER DEFAULT 0,
+    status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'active', 'hidden')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+ALTER TABLE public.mm_team_members ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can read active team members" ON public.mm_team_members FOR SELECT USING (status = 'active' OR public.is_admin());
+CREATE POLICY "Admins manage team members" ON public.mm_team_members FOR ALL USING (public.is_admin());
+
+-- Tạo Storage Bucket cho team_images
+INSERT INTO storage.buckets (id, name, public) VALUES ('team_images', 'team_images', true) ON CONFLICT DO NOTHING;
+
+-- Policy cho Storage (Public đọc, Admin quản lý)
+CREATE POLICY "Public read team_images" ON storage.objects FOR SELECT USING (bucket_id = 'team_images');
+CREATE POLICY "Admins insert team_images" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'team_images' AND public.is_admin());
+CREATE POLICY "Admins update team_images" ON storage.objects FOR UPDATE USING (bucket_id = 'team_images' AND public.is_admin());
+CREATE POLICY "Admins delete team_images" ON storage.objects FOR DELETE USING (bucket_id = 'team_images' AND public.is_admin());
