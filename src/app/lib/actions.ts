@@ -62,7 +62,7 @@ export async function register(prevState: string | undefined, formData: FormData
             options: {
                 data: {
                     full_name: name,
-                    role: 'customer'
+                    role: email.toLowerCase() === 'tranchitin2006@gmail.com' ? 'admin' : 'customer'
                 },
                 emailRedirectTo: `${siteUrl}/login?verify=true`
             }
@@ -80,10 +80,14 @@ export async function register(prevState: string | undefined, formData: FormData
         }
 
         if (authData.user) {
+            // Tự động cấp quyền admin cho tranchitin2006@gmail.com
+            const userRole = email.toLowerCase() === 'tranchitin2006@gmail.com' ? 'admin' : 'customer';
+
             const profilePayload: any = {
                 id: authData.user.id,
+                email: email,
                 full_name: name,
-                role: 'customer',
+                role: userRole,
             };
             
             const { error: profileError } = await supabaseAdmin

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ShoppingBag, Menu, X, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import SearchOverlay from "@/components/ui/SearchOverlay";
+import AccountMenu from "./AccountMenu";
 
 const navLinks = [
   { name: "TRANG CHỦ", href: "/" },
@@ -64,10 +65,8 @@ export default function Header({ session }: { session?: any }) {
           </button>
           
           <div className="hidden md:flex items-center gap-2 border-l border-foreground/10 pl-4">
-            {session ? (
-              <Link href={session.user?.role === 'admin' ? "/admin" : "/profile"} className="text-sm font-bold text-foreground hover:text-terracotta transition-colors">
-                {session.user?.name || session.user?.email}
-              </Link>
+            {session?.user ? (
+              <AccountMenu session={session} />
             ) : (
               <>
                 <Link href="/login" className="text-xs font-bold text-foreground-muted hover:text-terracotta transition-colors tracking-wider">
