@@ -4,6 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, ArrowUpRight, User, Briefcase, Award, Zap, Link as LinkIcon, Globe } from 'lucide-react';
 
+export const revalidate = 0;
+
 export default async function TeamMemberDetailPage({ params }: { params: { slug: string } }) {
   const supabase = getSupabaseServer();
   

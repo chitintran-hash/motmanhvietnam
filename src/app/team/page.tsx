@@ -5,6 +5,8 @@ import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import TeamListClient from './TeamListClient';
 
+export const revalidate = 0;
+
 export default async function TeamHubPage() {
   const supabase = getSupabaseServer();
   const { data: teamMembers } = await supabase
@@ -26,7 +28,7 @@ export default async function TeamHubPage() {
               THE ARCHITECTS
             </span>
           </div>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-black text-foreground mb-6 uppercase tracking-tighter">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-black text-foreground mb-6 uppercase tracking-tighter leading-[1.15]">
             ĐỘI NGŨ<br/>MỘT MẢNH VIỆT NAM
           </h1>
           <p className="text-foreground-muted font-medium leading-relaxed text-lg max-w-2xl border-l-2 border-foreground/10 pl-6">

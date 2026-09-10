@@ -108,6 +108,7 @@ export async function createTeamMemberAction(prevState: any, formData: FormData)
 
   revalidatePath('/admin/team', 'layout');
   revalidatePath('/team', 'layout');
+  revalidatePath('/', 'layout');
   redirect('/admin/team');
 }
 
@@ -203,6 +204,7 @@ export async function updateTeamMemberAction(prevState: any, formData: FormData)
 
   revalidatePath('/admin/team', 'layout');
   revalidatePath('/team', 'layout');
+  revalidatePath('/', 'layout');
   redirect('/admin/team');
 }
 
@@ -222,6 +224,7 @@ export async function deleteTeamMemberAction(id: string) {
     
     revalidatePath('/admin/team', 'layout');
     revalidatePath('/team', 'layout');
+    revalidatePath('/', 'layout');
     return { success: true };
   } catch (error: any) {
     return { success: false, message: error.message };

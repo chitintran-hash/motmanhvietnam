@@ -43,7 +43,7 @@ export default function MapPage() {
                 PASSPORT
               </span>
             </div>
-            <h1 className="text-5xl md:text-6xl font-display font-black text-foreground mb-4 uppercase tracking-tighter leading-[0.9]">
+            <h1 className="text-5xl md:text-6xl font-display font-black text-foreground mb-4 uppercase tracking-tighter leading-[1.2] md:leading-[1.15]">
               BẢN ĐỒ<br/>DI SẢN
             </h1>
             <p className="text-foreground-muted font-medium leading-relaxed border-l-2 border-foreground/10 pl-4">
