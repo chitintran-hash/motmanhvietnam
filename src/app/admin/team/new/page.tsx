@@ -145,9 +145,9 @@ export default function NewTeamMemberPage() {
             <h2 className="text-xl font-bold uppercase tracking-widest mb-4 border-b-2 border-foreground/10 pb-2">Kỹ năng & Thành tựu</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Kỹ năng (JSON Array)</label>
+                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Kỹ năng</label>
                 <div className="text-xs text-foreground/50 mb-2 flex items-start gap-1">
-                  <Info className="w-4 h-4 shrink-0" /> Nhập dưới dạng mảng JSON: ["UX UI", "Content"]
+                  <Info className="w-4 h-4 shrink-0" /> Ngăn cách các kỹ năng bằng dấu phẩy (VD: UX UI, Content)
                 </div>
                 <textarea 
                   name="skills" 
@@ -158,9 +158,9 @@ export default function NewTeamMemberPage() {
                 ></textarea>
               </div>
               <div>
-                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Thành tựu (JSON Array)</label>
+                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Thành tựu</label>
                 <div className="text-xs text-foreground/50 mb-2 flex items-start gap-1">
-                  <Info className="w-4 h-4 shrink-0" /> Nhập dưới dạng mảng JSON: ["Làm mockup", "Website"]
+                  <Info className="w-4 h-4 shrink-0" /> Ngăn cách các thành tựu bằng dấu phẩy (VD: Làm mockup, Xây dựng website)
                 </div>
                 <textarea 
                   name="achievements" 
@@ -202,7 +202,7 @@ export default function NewTeamMemberPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Avatar */}
               <div>
-                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Ảnh đại diện (Avatar)</label>
+                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Ảnh đại diện (Avatar) <span className="text-terracotta normal-case font-normal">(Nên dưới 1MB)</span></label>
                 <div className="flex flex-col gap-4">
                   <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-foreground/10 border-dashed rounded-xl cursor-pointer hover:bg-background-alt transition-colors">
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -221,7 +221,7 @@ export default function NewTeamMemberPage() {
               
               {/* Cover Image */}
               <div>
-                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Ảnh bìa (Cover)</label>
+                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Ảnh bìa (Cover) <span className="text-terracotta normal-case font-normal">(Nên dưới 1MB)</span></label>
                 <div className="flex flex-col gap-4">
                   <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-foreground/10 border-dashed rounded-xl cursor-pointer hover:bg-background-alt transition-colors">
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -259,8 +259,9 @@ export default function NewTeamMemberPage() {
                   name="status"
                   className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors appearance-none"
                 >
-                  <option value="draft">Bản nháp (Draft)</option>
                   <option value="active">Đang hiện (Active)</option>
+                  <option value="draft">Bản nháp (Draft)</option>
+
                   <option value="hidden">Đang ẩn (Hidden)</option>
                 </select>
               </div>

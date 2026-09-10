@@ -84,8 +84,8 @@ export async function createTeamMemberAction(prevState: any, formData: FormData)
       short_description,
       bio,
       contribution,
-      achievements: achievements ? JSON.parse(achievements) : [],
-      skills: skills ? JSON.parse(skills) : [],
+      achievements: achievements ? achievements.split(',').map(s => s.trim()).filter(s => s) : [],
+      skills: skills ? skills.split(',').map(s => s.trim()).filter(s => s) : [],
       facebook_url,
       instagram_url,
       tiktok_url,
@@ -106,8 +106,8 @@ export async function createTeamMemberAction(prevState: any, formData: FormData)
     return { success: false, message: 'Lỗi hệ thống: ' + error.message };
   }
 
-  revalidatePath('/admin/team');
-  revalidatePath('/team');
+  revalidatePath('/admin/team', 'layout');
+  revalidatePath('/team', 'layout');
   redirect('/admin/team');
 }
 
@@ -162,8 +162,8 @@ export async function updateTeamMemberAction(prevState: any, formData: FormData)
       short_description,
       bio,
       contribution,
-      achievements: achievements ? JSON.parse(achievements) : [],
-      skills: skills ? JSON.parse(skills) : [],
+      achievements: achievements ? achievements.split(',').map(s => s.trim()).filter(s => s) : [],
+      skills: skills ? skills.split(',').map(s => s.trim()).filter(s => s) : [],
       facebook_url,
       instagram_url,
       tiktok_url,
@@ -201,8 +201,8 @@ export async function updateTeamMemberAction(prevState: any, formData: FormData)
     return { success: false, message: 'Lỗi hệ thống: ' + error.message };
   }
 
-  revalidatePath('/admin/team');
-  revalidatePath('/team');
+  revalidatePath('/admin/team', 'layout');
+  revalidatePath('/team', 'layout');
   redirect('/admin/team');
 }
 
@@ -220,8 +220,8 @@ export async function deleteTeamMemberAction(id: string) {
       return { success: false, message: error.message };
     }
     
-    revalidatePath('/admin/team');
-    revalidatePath('/team');
+    revalidatePath('/admin/team', 'layout');
+    revalidatePath('/team', 'layout');
     return { success: true };
   } catch (error: any) {
     return { success: false, message: error.message };
