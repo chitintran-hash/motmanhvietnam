@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import { Inter, Lora } from "next/font/google";
+import { Be_Vietnam_Pro, Montserrat } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
-const inter = Inter({
-  variable: "--font-inter",
+const beVietnam = Be_Vietnam_Pro({
+  weight: ['400', '500', '600', '700'],
+  variable: "--font-be-vietnam",
   subsets: ["latin", "vietnamese"],
 });
 
-const lora = Lora({
-  variable: "--font-lora",
+const montserrat = Montserrat({
+  weight: ['700', '800', '900'],
+  variable: "--font-montserrat",
   subsets: ["latin", "vietnamese"],
 });
 
@@ -30,7 +32,7 @@ export default async function RootLayout({
   const session = await auth();
   
   return (
-    <html lang="vi" className={`${inter.variable} ${lora.variable}`}>
+    <html lang="vi" className={`${beVietnam.variable} ${montserrat.variable}`}>
       <body className="antialiased min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-terracotta selection:text-white">
         <Header session={session} />
         <main className="flex-1 w-full relative">

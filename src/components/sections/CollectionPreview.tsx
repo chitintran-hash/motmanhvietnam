@@ -2,52 +2,71 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import ProductCard from "../ui/ProductCard";
 
 const mockProducts = [
-  { id: 1, name: "Mảnh Hà Nội", color: "bg-red-900", desc: "Sáng mùa thu và ly cà phê trứng." },
-  { id: 2, name: "Mảnh Hội An", color: "bg-yellow-600", desc: "Đêm rằm ánh đèn lồng trên phố cổ." },
-  { id: 3, name: "Mảnh TP.HCM", color: "bg-blue-800", desc: "Cơn mưa bất chợt dưới hiên nhà." },
-  { id: 4, name: "Mảnh Miền Tây", color: "bg-green-700", desc: "Tiếng ghe máy xuôi dòng sông nước." },
+  {
+    slug: "manh-ha-noi",
+    name: "MẢNH HÀ NỘI",
+    city: "Hà Nội",
+    collectionNumber: "COLL_01",
+    price: "350,000 ₫",
+    imageUrl: "https://illustrations.popsy.co/amber/home-office.svg", // Placeholder
+    isNew: true
+  },
+  {
+    slug: "manh-sai-gon",
+    name: "MẢNH SÀI GÒN",
+    city: "Sài Gòn",
+    collectionNumber: "COLL_01",
+    price: "350,000 ₫",
+    imageUrl: "https://illustrations.popsy.co/amber/street-food.svg", // Placeholder
+    isNew: true
+  },
+  {
+    slug: "manh-da-nang",
+    name: "MẢNH ĐÀ NẴNG",
+    city: "Đà Nẵng",
+    collectionNumber: "COLL_01",
+    price: "350,000 ₫",
+    imageUrl: "https://illustrations.popsy.co/amber/surfer.svg", // Placeholder
+    isNew: true
+  }
 ];
 
 export default function CollectionPreview() {
   return (
-    <section className="py-24 bg-background">
-      <div className="container mx-auto px-6 max-w-7xl">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-          <div>
-            <span className="text-terracotta font-medium tracking-wider text-sm uppercase mb-2 block">Collection 01</span>
-            <h2 className="text-3xl md:text-5xl font-serif font-bold">Những Mảnh Đầu Tiên</h2>
+    <section className="py-32">
+      <div className="container mx-auto px-6 max-w-[1400px]">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-3 mb-4">
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta">COLLECTION 01</span>
+              <div className="w-12 h-px bg-terracotta/50"></div>
+            </div>
+            <h2 className="text-4xl md:text-6xl font-display font-black text-foreground mb-4 uppercase tracking-tight">
+              Những Mảnh Đầu Tiên
+            </h2>
+            <p className="text-lg text-foreground-muted font-medium">
+              Ba thành phố. Ba nhịp sống. Ba mảnh ký ức để bắt đầu hành trình khám phá Việt Nam.
+            </p>
           </div>
-          <Link href="/collection" className="group flex items-center gap-2 text-foreground/70 hover:text-terracotta transition-colors font-medium">
-            Xem toàn bộ 6 mẫu
+          <Link href="/collection" className="group flex items-center gap-3 px-6 py-3 bg-transparent border-2 border-foreground text-foreground font-bold tracking-widest text-xs uppercase hover:bg-foreground hover:text-white transition-colors">
+            Xem Toàn Bộ
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {mockProducts.map((product, index) => (
             <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 30 }}
+              key={product.slug}
+              initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className="group cursor-pointer"
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
             >
-              <div className="aspect-[4/5] rounded-2xl bg-white shadow-sm overflow-hidden mb-4 relative flex items-center justify-center">
-                {/* Placeholder for Box/Pin Image */}
-                <div className={`w-32 h-32 rounded-full ${product.color} opacity-20 blur-2xl absolute`}></div>
-                <div className="relative z-10 w-24 h-24 rounded-xl border border-foreground/10 bg-background/50 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500">
-                  <span className="font-serif font-bold text-foreground/40 text-4xl">?</span>
-                </div>
-                
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-                  <span className="text-white font-medium">Khám phá mảnh ghép</span>
-                </div>
-              </div>
-              <h3 className="font-serif font-bold text-lg mb-1">{product.name}</h3>
-              <p className="text-foreground/60 text-sm font-light">{product.desc}</p>
+              <ProductCard {...product} />
             </motion.div>
           ))}
         </div>

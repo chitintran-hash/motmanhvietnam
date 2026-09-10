@@ -1,101 +1,157 @@
 "use client";
 import { motion } from "framer-motion";
 import { Sparkles, ShoppingBag } from "lucide-react";
+import ProductCard from "@/components/ui/ProductCard";
 
-const products = [
-  { id: 1, name: "Mảnh Hà Nội", color: "bg-red-900", desc: "Sáng mùa thu và ly cà phê trứng.", isSpecial: false },
-  { id: 2, name: "Mảnh Hội An", color: "bg-yellow-600", desc: "Đêm rằm ánh đèn lồng trên phố cổ.", isSpecial: false },
-  { id: 3, name: "Mảnh TP.HCM", color: "bg-blue-800", desc: "Cơn mưa bất chợt dưới hiên nhà.", isSpecial: false },
-  { id: 4, name: "Mảnh Miền Tây", color: "bg-green-700", desc: "Tiếng ghe máy xuôi dòng sông nước.", isSpecial: false },
-  { id: 5, name: "Mảnh Tây Nguyên", color: "bg-orange-800", desc: "Tiếng cồng chiêng bên ánh lửa bập bùng.", isSpecial: false },
-  { id: 6, name: "Mảnh Huế", color: "bg-purple-800", desc: "Nét trầm mặc bên dòng Hương Giang.", isSpecial: false },
-  { id: 7, name: "Mảnh Bí Ẩn", color: "bg-gradient-to-br from-gold to-terracotta", desc: "Mảnh ghép đặc biệt với tỉ lệ xuất hiện cực thấp.", isSpecial: true },
+const mockProducts = [
+  {
+    slug: "manh-ha-noi",
+    name: "MẢNH HÀ NỘI",
+    city: "Hà Nội",
+    collectionNumber: "COLL_01",
+    price: "129,000 ₫",
+    imageUrl: "https://illustrations.popsy.co/amber/home-office.svg",
+  },
+  {
+    slug: "manh-sai-gon",
+    name: "MẢNH SÀI GÒN",
+    city: "Sài Gòn",
+    collectionNumber: "COLL_01",
+    price: "129,000 ₫",
+    imageUrl: "https://illustrations.popsy.co/amber/street-food.svg",
+  },
+  {
+    slug: "manh-da-nang",
+    name: "MẢNH ĐÀ NẴNG",
+    city: "Đà Nẵng",
+    collectionNumber: "COLL_01",
+    price: "129,000 ₫",
+    imageUrl: "https://illustrations.popsy.co/amber/surfer.svg",
+  },
+  {
+    slug: "manh-hoi-an",
+    name: "MẢNH HỘI AN",
+    city: "Hội An",
+    collectionNumber: "COLL_01",
+    price: "129,000 ₫",
+    imageUrl: "https://illustrations.popsy.co/amber/plant.svg",
+  },
+  {
+    slug: "manh-hue",
+    name: "MẢNH HUẾ",
+    city: "Huế",
+    collectionNumber: "COLL_01",
+    price: "129,000 ₫",
+    imageUrl: "https://illustrations.popsy.co/amber/painting.svg",
+  },
+  {
+    slug: "manh-tay-nguyen",
+    name: "MẢNH TÂY NGUYÊN",
+    city: "Tây Nguyên",
+    collectionNumber: "COLL_01",
+    price: "129,000 ₫",
+    imageUrl: "https://illustrations.popsy.co/amber/camping.svg",
+  }
 ];
 
 export default function CollectionPage() {
   return (
-    <div className="min-h-screen pt-32 pb-24 bg-background">
-      <div className="container mx-auto px-6 max-w-7xl">
-        <div className="text-center mb-20">
+    <div className="min-h-screen pt-32 pb-24 relative">
+      <div className="container mx-auto px-6 max-w-[1400px]">
+        <div className="text-center mb-24 max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-foreground/5 text-sm font-medium mb-6 text-foreground/80"
+            className="inline-flex items-center gap-3 mb-6"
           >
-            <Sparkles className="w-4 h-4 text-terracotta" />
-            Bản Thử Nghiệm
+            <div className="w-12 h-px bg-terracotta/50"></div>
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta">
+              MÙA 01
+            </span>
+            <div className="w-12 h-px bg-terracotta/50"></div>
           </motion.div>
+          
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-5xl font-serif font-bold mb-6"
+            className="text-5xl md:text-6xl font-display font-black text-foreground mb-8 uppercase tracking-tighter"
           >
-            Collection 01: Những Mảnh Đầu Tiên
+            NHỮNG MẢNH ĐẦU TIÊN
           </motion.h1>
+          
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-foreground/70 max-w-2xl mx-auto text-lg font-light leading-relaxed"
+            className="text-foreground-muted text-lg font-medium leading-relaxed"
           >
-            6 mẫu thường và 1 mẫu đặc biệt. Mỗi Blind Box mang đến sự bất ngờ, một câu chuyện chưa được kể và một mảnh ghép chờ bạn khám phá.
+            6 mẫu thường và 1 mẫu đặc biệt ẩn giấu. Mỗi Blind Box mang đến sự bất ngờ, một câu chuyện chưa được kể và một mảnh ghép để bắt đầu bộ sưu tập Việt Nam của riêng bạn.
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {products.map((product, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
+          {mockProducts.map((product, index) => (
             <motion.div
-              key={product.id}
+              key={product.slug}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className={`group flex flex-col ${product.isSpecial ? 'xl:col-span-2 sm:col-span-2' : ''}`}
             >
-              <div className={`aspect-square md:aspect-[4/5] rounded-3xl ${product.isSpecial ? 'bg-foreground' : 'bg-white'} shadow-sm overflow-hidden mb-6 relative flex items-center justify-center border border-foreground/5`}>
-                <div className={`w-40 h-40 rounded-full ${product.color} opacity-20 blur-3xl absolute`}></div>
-                
-                <div className="relative z-10 w-32 h-32 rounded-2xl border border-white/10 bg-background/20 backdrop-blur-md flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500">
-                  <span className={`font-serif font-bold text-6xl ${product.isSpecial ? 'text-gold' : 'text-foreground/30'}`}>?</span>
-                </div>
-                
-                {product.isSpecial && (
-                  <div className="absolute top-4 right-4 bg-gold text-background text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
-                    <Sparkles className="w-3 h-3" /> SECRET
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex justify-between items-start gap-4">
-                <div>
-                  <h3 className={`font-serif font-bold text-xl mb-2 ${product.isSpecial ? 'text-terracotta' : 'text-foreground'}`}>{product.name}</h3>
-                  <p className="text-foreground/60 text-sm font-light leading-relaxed">{product.desc}</p>
-                </div>
-              </div>
+              <ProductCard {...product} />
             </motion.div>
           ))}
+
+          {/* Secret Piece Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="lg:col-span-3 xl:col-span-3 mt-8"
+          >
+            <div className="bg-foreground border border-foreground/10 p-8 sm:p-12 shadow-2xl relative flex flex-col md:flex-row items-center justify-between overflow-hidden gap-8">
+              {/* Subtle gold noise overlay */}
+              <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E')] mix-blend-color-burn"></div>
+              
+              <div className="relative z-10 flex-1">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-gold/20 text-gold text-[10px] font-bold uppercase tracking-widest mb-6">
+                  <Sparkles className="w-3 h-3" />
+                  MẢNH BÍ ẨN
+                </div>
+                <h3 className="font-display font-black text-4xl text-[#F5F2EB] mb-4 uppercase tracking-wider">
+                  SECRET PIECE
+                </h3>
+                <p className="text-[#F5F2EB]/60 font-medium max-w-md leading-relaxed">
+                  Mảnh ghép đặc biệt với tỉ lệ xuất hiện cực thấp. Mang một ý nghĩa lịch sử sâu sắc và thiết kế hoàn toàn khác biệt.
+                </p>
+              </div>
+
+              <div className="relative z-10 w-48 h-48 md:w-64 md:h-64 rounded-sm border-2 border-gold/30 bg-gold/5 flex items-center justify-center backdrop-blur-sm shadow-[0_0_50px_rgba(204,165,44,0.1)]">
+                <span className="font-display font-black text-8xl text-gold/20">?</span>
+              </div>
+            </div>
+          </motion.div>
         </div>
 
         {/* Purchase CTA */}
         <motion.div 
           initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="mt-24 max-w-4xl mx-auto bg-foreground text-background rounded-3xl p-8 md:p-12 text-center flex flex-col items-center relative overflow-hidden"
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mt-32 max-w-4xl mx-auto bg-[#F5F2EB] border-4 border-foreground p-12 text-center relative"
         >
-          <div className="absolute top-0 right-0 w-64 h-64 bg-terracotta/20 rounded-full blur-[80px]"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-jade/20 rounded-full blur-[80px]"></div>
+          <div className="absolute top-2 left-2 w-full h-full border-4 border-terracotta -z-10 pointer-events-none translate-x-2 translate-y-2"></div>
           
-          <div className="relative z-10">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">Sở hữu Mảnh ghép của bạn</h2>
-            <p className="text-background/70 mb-8 max-w-xl mx-auto font-light">
-              Mỗi Blind Box có giá 129.000đ. Đặt hàng trước ngay hôm nay để trở thành những người đầu tiên thắp sáng Bản đồ Di sản.
-            </p>
-            <button onClick={() => alert("Đã thêm Blind Box vào giỏ hàng thành công!")} className="group flex items-center justify-center gap-2 px-8 py-4 bg-terracotta text-white rounded-full font-medium hover:bg-terracotta-hover transition-all w-full md:w-auto mx-auto hover:shadow-lg hover:shadow-terracotta/20">
-              <ShoppingBag className="w-5 h-5" />
-              Pre-order Blind Box — 129.000đ
-            </button>
-          </div>
+          <h2 className="text-3xl md:text-5xl font-display font-black mb-6 uppercase tracking-tight">
+            MUA BLIND BOX ONLINE
+          </h2>
+          <p className="text-foreground-muted mb-10 max-w-xl mx-auto font-medium">
+            Giá 129.000đ cho mỗi Blind Box. Mỗi hộp sẽ chứa ngẫu nhiên một Pin và Thẻ Câu Chuyện. Bạn đã sẵn sàng thử vận may?
+          </p>
+          <button onClick={() => alert("Đã thêm Blind Box vào giỏ hàng thành công!")} className="group inline-flex items-center justify-center gap-3 px-10 py-5 bg-terracotta text-white font-bold tracking-widest text-sm uppercase hover:bg-terracotta-hover transition-all shadow-[6px_6px_0px_rgba(42,42,39,1)] hover:shadow-[2px_2px_0px_rgba(42,42,39,1)] hover:translate-x-[4px] hover:translate-y-[4px]">
+            <ShoppingBag className="w-5 h-5" />
+            ĐẶT MUA NGAY — 129.000₫
+          </button>
         </motion.div>
       </div>
     </div>

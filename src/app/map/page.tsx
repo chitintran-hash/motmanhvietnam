@@ -1,86 +1,112 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Search, MapPin, CheckCircle } from "lucide-react";
+import { MapPin, KeyRound, Sparkles } from "lucide-react";
+import Badge from "@/components/ui/Badge";
 
 export default function MapPage() {
   const [code, setCode] = useState("");
   const [unlocked, setUnlocked] = useState<string[]>([]);
+  const [error, setError] = useState(false);
   
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
-    if (code.toLowerCase() === "hanoi") {
+    setError(false);
+    const input = code.toLowerCase().trim();
+    
+    if (input === "hanoi") {
       if(!unlocked.includes("Hà Nội")) setUnlocked([...unlocked, "Hà Nội"]);
       setCode("");
-    } else if (code.toLowerCase() === "hcm") {
-      if(!unlocked.includes("TP. Hồ Chí Minh")) setUnlocked([...unlocked, "TP. Hồ Chí Minh"]);
+    } else if (input === "hcm") {
+      if(!unlocked.includes("Sài Gòn")) setUnlocked([...unlocked, "Sài Gòn"]);
       setCode("");
+    } else {
+      setError(true);
     }
   };
 
   return (
-    <div className="min-h-screen pt-32 pb-24 bg-background flex flex-col items-center relative overflow-hidden">
-      {/* Background elements */}
-      <div className="absolute top-0 w-full h-[500px] bg-gradient-to-b from-jade/10 to-transparent"></div>
+    <div className="min-h-screen pt-32 pb-24 relative overflow-hidden flex flex-col items-center">
+      {/* Grid Pattern Background */}
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h40v40H0V0zm20 20h20v20H20V20zM0 20h20v20H0V20z\' fill=\'%232a2a27\' fill-opacity=\'0.02\' fill-rule=\'evenodd\'/%3E%3C/svg%3E')] -z-10"></div>
       
-      <div className="container mx-auto px-6 max-w-6xl relative z-10 flex flex-col lg:flex-row gap-16 items-center">
-        {/* Left side: Form */}
-        <div className="w-full lg:w-1/3 flex flex-col gap-10">
+      <div className="container mx-auto px-6 max-w-[1400px] relative z-10 flex flex-col lg:flex-row gap-16 items-start">
+        {/* Left side: Passport / Form */}
+        <div className="w-full lg:w-[400px] flex flex-col gap-8 shrink-0 lg:sticky lg:top-32">
           <div>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold mb-6">Bản đồ Di sản</h1>
-            <p className="text-foreground/70 font-light leading-relaxed text-lg">
-              Nhập mã bí mật đính kèm trên Thẻ Câu Chuyện trong mỗi hộp Blind Box để thắp sáng mảnh ghép của bạn.
+            <div className="inline-flex items-center gap-3 mb-6">
+              <div className="w-8 h-px bg-terracotta"></div>
+              <span className="text-xs font-bold uppercase tracking-[0.3em] text-terracotta">
+                PASSPORT
+              </span>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-display font-black text-foreground mb-4 uppercase tracking-tighter leading-[0.9]">
+              BẢN ĐỒ<br/>DI SẢN
+            </h1>
+            <p className="text-foreground-muted font-medium leading-relaxed border-l-2 border-foreground/10 pl-4">
+              Nhập mã bí mật trên Thẻ Câu Chuyện trong Blind Box để thắp sáng mảnh ghép của bạn.
             </p>
           </div>
           
           <form onSubmit={handleUnlock} className="flex flex-col gap-4">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Nhập mã (vd: hanoi, hcm)"
-                className="w-full px-6 py-4 rounded-xl border border-foreground/10 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-terracotta/50 uppercase tracking-widest font-medium"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-              />
-              <button 
-                type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-terracotta rounded-lg flex items-center justify-center text-white hover:bg-terracotta-hover transition-colors"
-              >
-                <Search className="w-5 h-5" />
-              </button>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-foreground/60">
+                MÃ MỞ KHÓA
+              </label>
+              <div className="flex">
+                <input
+                  type="text"
+                  placeholder="VD: HANOI, HCM"
+                  className="flex-1 px-4 py-4 border-2 border-foreground bg-transparent focus:outline-none focus:ring-0 focus:border-terracotta uppercase tracking-[0.2em] font-mono font-bold text-foreground"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                />
+                <button 
+                  type="submit"
+                  className="px-6 py-4 bg-foreground text-white hover:bg-terracotta transition-colors border-y-2 border-r-2 border-foreground"
+                >
+                  <KeyRound className="w-5 h-5" />
+                </button>
+              </div>
+              {error && (
+                <p className="text-terracotta text-xs font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
+                   Mã không hợp lệ. Vui lòng thử lại.
+                </p>
+              )}
             </div>
-            {unlocked.length > 0 && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-2 text-jade bg-jade/10 px-4 py-3 rounded-lg text-sm font-medium"
-              >
-                <CheckCircle className="w-5 h-5" />
-                Mảnh ghép mới đã được thắp sáng!
-              </motion.div>
-            )}
           </form>
 
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-foreground/5">
-            <h3 className="font-serif font-bold text-xl mb-4 flex items-center gap-2">
-              <MapPin className="w-6 h-6 text-terracotta" />
-              Bộ sưu tập của bạn
-            </h3>
+          <div className="bg-[#F5F2EB] p-8 border-2 border-foreground shadow-[6px_6px_0px_rgba(42,42,39,1)]">
+            <div className="flex items-center justify-between border-b-2 border-foreground/10 pb-4 mb-4">
+              <h3 className="font-display font-bold text-sm uppercase tracking-widest flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-terracotta" />
+                BỘ SƯU TẬP
+              </h3>
+              <span className="font-mono font-bold text-foreground/50">
+                {unlocked.length}/64
+              </span>
+            </div>
+            
             {unlocked.length === 0 ? (
-              <p className="text-foreground/50 text-sm font-light italic">Bạn chưa khám phá mảnh ghép nào.</p>
+              <p className="text-foreground/50 text-sm font-medium italic">
+                Bạn chưa khám phá mảnh ghép nào.
+              </p>
             ) : (
-              <ul className="space-y-3">
+              <ul className="space-y-4">
                 {unlocked.map((place, idx) => (
                   <motion.li 
                     key={idx}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center gap-3 p-3 bg-background rounded-lg border border-foreground/5"
+                    className="flex items-center justify-between p-3 border border-foreground/20 bg-white"
                   >
-                    <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center">
-                      <span className="text-gold font-bold text-xs">{idx + 1}</span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 h-6 bg-gold text-background text-[10px] font-bold flex items-center justify-center uppercase tracking-tighter">
+                        0{idx + 1}
+                      </div>
+                      <span className="font-bold font-display uppercase tracking-widest text-sm text-foreground">{place}</span>
                     </div>
-                    <span className="font-medium text-foreground">{place}</span>
+                    <Badge variant="retro">ĐÃ MỞ</Badge>
                   </motion.li>
                 ))}
               </ul>
@@ -88,42 +114,68 @@ export default function MapPage() {
           </div>
         </div>
 
-        {/* Right side: Mock Map */}
-        <div className="w-full lg:w-2/3 h-[600px] bg-white rounded-3xl shadow-xl border border-foreground/10 relative flex items-center justify-center p-8 overflow-hidden">
-          <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-foreground to-transparent"></div>
+        {/* Right side: Stylized Map */}
+        <div className="w-full flex-1 h-[600px] lg:h-[800px] bg-[#E3DECE] border-4 border-foreground relative flex items-center justify-center p-8 overflow-hidden shadow-2xl">
+          {/* Stylized Grid Overlay */}
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h100v100H0V0zm20 20h60v60H20V20zM0 20h100v20H0V20z\' fill=\'%232a2a27\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'/%3E%3C/svg%3E')] pointer-events-none"></div>
           
-          <div className="relative w-full h-full max-w-[500px] mx-auto">
-            {/* Map Placeholder Image or SVG */}
-            <div className="absolute inset-0 bg-[url('https://upload.wikimedia.org/wikipedia/commons/4/4e/Vietnam_blank_map.svg')] bg-contain bg-no-repeat bg-center opacity-10"></div>
+          <div className="absolute top-4 right-4 bg-foreground text-background px-4 py-2 font-mono text-xs font-bold tracking-widest uppercase">
+            LAT: 14.0583° N / LNG: 108.2772° E
+          </div>
+
+          <div className="relative w-full h-full max-w-[600px] mx-auto flex items-center justify-center">
+            {/* Base Map Placeholder - Using a highly stylized dotted SVG approach */}
+            <div className="absolute inset-0 opacity-20 pointer-events-none">
+               {/* Placeholder for actual stylized SVG map */}
+               <div className="w-full h-full flex items-center justify-center">
+                 <div className="w-[40%] h-[80%] bg-foreground/30 blur-3xl rounded-full"></div>
+               </div>
+            </div>
             
             {/* Interactive Nodes */}
-            <motion.div 
-              animate={{ 
-                backgroundColor: unlocked.includes("Hà Nội") ? "#c84b31" : "#e9ecef",
-                scale: unlocked.includes("Hà Nội") ? 1.1 : 1,
-                boxShadow: unlocked.includes("Hà Nội") ? "0 0 40px rgba(200, 75, 49, 0.4)" : "none"
-              }}
-              className="w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center transition-all duration-700 absolute top-[15%] right-[30%] shadow-lg cursor-pointer group"
-            >
-              <span className={`font-serif font-bold z-10 ${unlocked.includes("Hà Nội") ? 'text-white' : 'text-foreground/30'}`}>Hà Nội</span>
-              {unlocked.includes("Hà Nội") && (
-                <div className="absolute w-full h-full bg-terracotta rounded-full animate-ping opacity-20"></div>
-              )}
-            </motion.div>
+            <div className="relative w-full h-full max-w-[400px] mx-auto">
+              {/* Hanoi Node */}
+              <motion.div 
+                animate={{ 
+                  scale: unlocked.includes("Hà Nội") ? 1 : 0.8,
+                  opacity: unlocked.includes("Hà Nội") ? 1 : 0.5
+                }}
+                className="absolute top-[20%] right-[35%] cursor-pointer group flex flex-col items-center"
+              >
+                <div className={`w-12 h-12 flex items-center justify-center rounded-full border-2 ${unlocked.includes("Hà Nội") ? 'bg-terracotta border-terracotta' : 'bg-transparent border-foreground/30 border-dashed'} transition-colors relative z-10`}>
+                  {unlocked.includes("Hà Nội") ? (
+                    <Sparkles className="w-5 h-5 text-white" />
+                  ) : (
+                    <div className="w-2 h-2 bg-foreground/30 rounded-full"></div>
+                  )}
+                </div>
+                <span className={`mt-2 font-display font-bold text-xs uppercase tracking-widest ${unlocked.includes("Hà Nội") ? 'text-terracotta' : 'text-foreground/50'}`}>Hà Nội</span>
+                {unlocked.includes("Hà Nội") && (
+                  <div className="absolute top-0 w-12 h-12 bg-terracotta rounded-full animate-ping opacity-20"></div>
+                )}
+              </motion.div>
 
-            <motion.div 
-              animate={{ 
-                backgroundColor: unlocked.includes("TP. Hồ Chí Minh") ? "#2d6a4f" : "#e9ecef",
-                scale: unlocked.includes("TP. Hồ Chí Minh") ? 1.1 : 1,
-                boxShadow: unlocked.includes("TP. Hồ Chí Minh") ? "0 0 40px rgba(45, 106, 79, 0.4)" : "none"
-              }}
-              className="w-24 h-24 md:w-28 md:h-28 rounded-full flex items-center justify-center transition-all duration-700 absolute bottom-[25%] right-[40%] shadow-lg cursor-pointer group"
-            >
-              <span className={`font-serif font-bold z-10 text-center leading-tight ${unlocked.includes("TP. Hồ Chí Minh") ? 'text-white' : 'text-foreground/30'}`}>TP.HCM</span>
-              {unlocked.includes("TP. Hồ Chí Minh") && (
-                <div className="absolute w-full h-full bg-jade rounded-full animate-ping opacity-20"></div>
-              )}
-            </motion.div>
+              {/* HCM Node */}
+              <motion.div 
+                animate={{ 
+                  scale: unlocked.includes("Sài Gòn") ? 1 : 0.8,
+                  opacity: unlocked.includes("Sài Gòn") ? 1 : 0.5
+                }}
+                className="absolute bottom-[20%] right-[45%] cursor-pointer group flex flex-col items-center"
+              >
+                <div className={`w-12 h-12 flex items-center justify-center rounded-full border-2 ${unlocked.includes("Sài Gòn") ? 'bg-jade border-jade' : 'bg-transparent border-foreground/30 border-dashed'} transition-colors relative z-10`}>
+                  {unlocked.includes("Sài Gòn") ? (
+                    <Sparkles className="w-5 h-5 text-white" />
+                  ) : (
+                    <div className="w-2 h-2 bg-foreground/30 rounded-full"></div>
+                  )}
+                </div>
+                <span className={`mt-2 font-display font-bold text-xs uppercase tracking-widest ${unlocked.includes("Sài Gòn") ? 'text-jade' : 'text-foreground/50'}`}>Sài Gòn</span>
+                {unlocked.includes("Sài Gòn") && (
+                  <div className="absolute top-0 w-12 h-12 bg-jade rounded-full animate-ping opacity-20"></div>
+                )}
+              </motion.div>
+            </div>
           </div>
         </div>
       </div>

@@ -1,38 +1,52 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #faf8f5;
-  --color-foreground: #2b2722;
+  --color-background: #F5F2EB;
+  --color-background-alt: #E3DECE;
+  --color-foreground: #2A2A27;
+  --color-foreground-muted: #4B4942;
   
-  /* Primary Heritage Colors */
-  --color-terracotta: #c84b31;
-  --color-terracotta-hover: #b03f26;
-  --color-jade: #2d6a4f;
-  --color-jade-hover: #1b4332;
-  --color-gold: #f4a261;
-  --color-sand: #e9ecef;
+  /* Heritage Palette */
+  --color-terracotta: #8C2E24;
+  --color-terracotta-hover: #5E322F;
+  --color-orange: #C1531A;
+  --color-jade: #577243;
+  --color-jade-dark: #2A3A2F;
+  --color-gold: #CCA52C;
+  --color-neutral: #7D796F;
 
   /* Fonts */
-  --font-sans: var(--font-inter);
-  --font-serif: var(--font-lora);
+  --font-sans: var(--font-be-vietnam);
+  --font-display: var(--font-montserrat);
 }
 
 :root {
-  --background: #faf8f5;
-  --foreground: #2b2722;
+  --background: #F5F2EB;
+  --foreground: #2A2A27;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1a1816;
-    --foreground: #e6e2dd;
-  }
-}
+/* No dark mode for scrapbook style, keep it consistent paper look */
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  /* Paper texture overlay */
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.25;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
 }
 
 /* Custom Scrollbar for a premium feel */
@@ -48,4 +62,14 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #b03f26;
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
 }

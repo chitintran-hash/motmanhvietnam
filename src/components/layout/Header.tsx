@@ -1,14 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ShoppingBag, Menu, X } from "lucide-react";
+import { ShoppingBag, Menu, X, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
-  { name: "Trang chủ", href: "/" },
-  { name: "Bộ sưu tập", href: "/collection" },
-  { name: "Bản đồ di sản", href: "/map" },
-  { name: "Pixel Memory", href: "/pixel-memory" },
+  { name: "TRANG CHỦ", href: "/" },
+  { name: "KHÁM PHÁ SẢN PHẨM", href: "/collection" },
+  { name: "BẢN ĐỒ DI SẢN", href: "/map" },
+  { name: "STORY HUB", href: "/story-hub" },
 ];
 
 export default function Header({ session }: { session?: any }) {
@@ -24,45 +24,62 @@ export default function Header({ session }: { session?: any }) {
   }, []);
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-background/90 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6'}`}>
-      <div className="container mx-auto px-6 md:px-12 flex items-center justify-between max-w-7xl">
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-background/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-5'}`}>
+      <div className="container mx-auto px-6 max-w-[1400px] flex items-center justify-between">
+        {/* Left: Logo */}
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-full bg-terracotta flex items-center justify-center text-white font-serif font-bold text-xl group-hover:bg-terracotta-hover transition-colors shadow-md">
-            M
-          </div>
-          <span className="font-serif font-semibold text-xl tracking-wide hidden sm:block">Một Mảnh Việt Nam</span>
+          <span className="font-display font-black text-xl tracking-tighter text-foreground group-hover:text-terracotta transition-colors">
+            MỘT MẢNH VIỆT NAM
+          </span>
         </Link>
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-10">
           {navLinks.map((link) => (
-            <Link key={link.name} href={link.href} className="text-sm font-medium hover:text-terracotta transition-colors relative group uppercase tracking-wider">
+            <Link 
+              key={link.name} 
+              href={link.href} 
+              className="text-xs font-bold text-foreground-muted hover:text-terracotta transition-colors uppercase tracking-widest relative group"
+            >
               {link.name}
-              <span className="absolute -bottom-1.5 left-0 w-0 h-[2px] bg-terracotta transition-all duration-300 group-hover:w-full"></span>
+              <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-terracotta transition-all duration-300 group-hover:w-full"></span>
             </Link>
           ))}
         </nav>
 
         <div className="flex items-center gap-4">
-          {session ? (
-            <Link href={session.user?.role === 'admin' ? "/admin" : "/profile"} className="hidden md:block text-sm font-medium hover:text-terracotta transition-colors">
-              {session.user?.name || session.user?.email}
-            </Link>
-          ) : (
-            <div className="hidden md:flex items-center gap-4">
-              <Link href="/login" className="text-sm font-medium hover:text-terracotta transition-colors">
-                Đăng nhập
-              </Link>
-              <Link href="/register" className="text-sm font-medium bg-terracotta text-white px-4 py-2 rounded-full hover:bg-terracotta-hover transition-colors">
-                Đăng ký
-              </Link>
-            </div>
-          )}
-          
-          <button className="relative p-2 hover:bg-foreground/5 rounded-full transition-colors">
-            <ShoppingBag className="w-5 h-5" />
-            <span className="absolute top-0 right-0 w-4 h-4 bg-terracotta text-white text-[10px] flex items-center justify-center rounded-full font-bold">0</span>
+          <button className="hidden md:flex p-2 text-foreground-muted hover:text-terracotta transition-colors">
+            <Search className="w-5 h-5" />
           </button>
+          
+          <div className="hidden md:flex items-center gap-2 border-l border-foreground/10 pl-4">
+            {session ? (
+              <Link href={session.user?.role === 'admin' ? "/admin" : "/profile"} className="text-sm font-bold text-foreground hover:text-terracotta transition-colors">
+                {session.user?.name || session.user?.email}
+              </Link>
+            ) : (
+              <>
+                <Link href="/login" className="text-xs font-bold text-foreground-muted hover:text-terracotta transition-colors tracking-wider">
+                  ĐĂNG NHẬP
+                </Link>
+                <span className="text-foreground/20">/</span>
+                <Link href="/register" className="text-xs font-bold text-terracotta hover:text-terracotta-hover transition-colors tracking-wider">
+                  ĐĂNG KÝ
+                </Link>
+              </>
+            )}
+          </div>
+          
+          <div className="hidden md:flex items-center gap-1 border-l border-foreground/10 pl-4 text-xs font-bold text-foreground-muted">
+            <span className="text-foreground">VI</span>
+            <span className="text-foreground/30 font-normal">|</span>
+            <span className="hover:text-foreground cursor-pointer transition-colors">EN</span>
+          </div>
+
+          <Link href="/cart" className="relative p-2 text-foreground-muted hover:text-terracotta transition-colors">
+            <ShoppingBag className="w-5 h-5" />
+            <span className="absolute top-0 right-0 w-4 h-4 bg-terracotta text-white text-[10px] flex items-center justify-center rounded-full font-bold border-2 border-background">0</span>
+          </Link>
           
           <button 
             className="md:hidden p-2 hover:bg-foreground/5 rounded-full transition-colors"
