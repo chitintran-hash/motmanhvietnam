@@ -41,7 +41,7 @@ export default function Header({ session }: { session?: any }) {
         {/* Left: Logo */}
         <Link href="/" className="flex items-center gap-3 group">
           <span className="font-display font-black text-xl tracking-tighter text-foreground group-hover:text-terracotta transition-colors">
-            MỘT MẢNH VIỆT NAM
+            MỘT MẢNH <span className="text-terracotta group-hover:text-terracotta transition-colors">VIỆT NAM</span>
           </span>
         </Link>
 

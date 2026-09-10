@@ -11,17 +11,7 @@ export default function Hero() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center min-h-[calc(100vh-8rem)]">
           {/* Left Column: Typography */}
           <div className="flex flex-col justify-center order-2 lg:order-1">
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              className="inline-flex items-center gap-3 mb-6"
-            >
-              <div className="w-8 h-px bg-terracotta"></div>
-              <span className="text-xs font-bold uppercase tracking-[0.3em] text-terracotta">
-                MỘT MẢNH VIỆT NAM
-              </span>
-            </motion.div>
+
 
             <motion.h1 
               initial={{ opacity: 0, y: 30 }}
@@ -32,7 +22,6 @@ export default function Hero() {
               Mang một mảnh <br />
               <span className="text-terracotta relative inline-block">
                 Việt Nam
-                <span className="absolute -bottom-1 left-0 w-full h-1 bg-terracotta/30"></span>
               </span> <br />
               theo bên mình
             </motion.h1>
