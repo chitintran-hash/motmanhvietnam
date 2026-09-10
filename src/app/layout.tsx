@@ -20,15 +20,19 @@ export const metadata: Metadata = {
   keywords: ["Một Mảnh Việt Nam", "Blind Box", "Pin di sản", "quà lưu niệm", "văn hóa Việt Nam", "phụ kiện"],
 };
 
-export default function RootLayout({
+import { auth } from "@/auth";
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+  
   return (
     <html lang="vi" className={`${inter.variable} ${lora.variable}`}>
       <body className="antialiased min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-terracotta selection:text-white">
-        <Header />
+        <Header session={session} />
         <main className="flex-1 w-full relative">
           {children}
         </main>

@@ -91,7 +91,7 @@ export default function CollectionPage() {
             <p className="text-background/70 mb-8 max-w-xl mx-auto font-light">
               Mỗi Blind Box có giá 129.000đ. Đặt hàng trước ngay hôm nay để trở thành những người đầu tiên thắp sáng Bản đồ Di sản.
             </p>
-            <button className="group flex items-center justify-center gap-2 px-8 py-4 bg-terracotta text-white rounded-full font-medium hover:bg-terracotta-hover transition-all w-full md:w-auto mx-auto hover:shadow-lg hover:shadow-terracotta/20">
+            <button onClick={() => alert("Đã thêm Blind Box vào giỏ hàng thành công!")} className="group flex items-center justify-center gap-2 px-8 py-4 bg-terracotta text-white rounded-full font-medium hover:bg-terracotta-hover transition-all w-full md:w-auto mx-auto hover:shadow-lg hover:shadow-terracotta/20">
               <ShoppingBag className="w-5 h-5" />
               Pre-order Blind Box — 129.000đ
             </button>

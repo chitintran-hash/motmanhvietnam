@@ -11,7 +11,7 @@ const navLinks = [
   { name: "Pixel Memory", href: "/pixel-memory" },
 ];
 
-export default function Header() {
+export default function Header({ session }: { session?: any }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -44,6 +44,21 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
+          {session ? (
+            <Link href={session.user?.role === 'admin' ? "/admin" : "/profile"} className="hidden md:block text-sm font-medium hover:text-terracotta transition-colors">
+              {session.user?.name || session.user?.email}
+            </Link>
+          ) : (
+            <div className="hidden md:flex items-center gap-4">
+              <Link href="/login" className="text-sm font-medium hover:text-terracotta transition-colors">
+                Đăng nhập
+              </Link>
+              <Link href="/register" className="text-sm font-medium bg-terracotta text-white px-4 py-2 rounded-full hover:bg-terracotta-hover transition-colors">
+                Đăng ký
+              </Link>
+            </div>
+          )}
+          
           <button className="relative p-2 hover:bg-foreground/5 rounded-full transition-colors">
             <ShoppingBag className="w-5 h-5" />
             <span className="absolute top-0 right-0 w-4 h-4 bg-terracotta text-white text-[10px] flex items-center justify-center rounded-full font-bold">0</span>
