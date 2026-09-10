@@ -6,13 +6,14 @@ import { ArrowLeft, ArrowUpRight, User, Briefcase, Award, Zap, Link as LinkIcon,
 
 export const revalidate = 0;
 
-export default async function TeamMemberDetailPage({ params }: { params: { slug: string } }) {
+export default async function TeamMemberDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const supabase = getSupabaseServer();
+  const { slug } = await params;
   
   const { data: member } = await supabase
     .from('mm_team_members')
     .select('*')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .single();
 
   if (!member || member.status !== 'active') {
