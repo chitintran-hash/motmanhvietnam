@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Map, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -9,7 +9,7 @@ const carouselSlides = [
   {
     id: "hanoi",
     city: "HÀ NỘI",
-    image: "/images/hanoi-hero.jpg",
+    image: "https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&q=80&w=800",
   },
   {
     id: "saigon",
@@ -28,6 +28,13 @@ export default function Hero() {
 
   const nextSlide = () => setActiveSlide((p) => (p + 1) % carouselSlides.length);
   const prevSlide = () => setActiveSlide((p) => (p - 1 + carouselSlides.length) % carouselSlides.length);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((p) => (p + 1) % carouselSlides.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-24 pb-12">
@@ -122,7 +129,7 @@ export default function Hero() {
                       initial={false}
                       animate={{ x, scale, zIndex, rotate, opacity }}
                       transition={{ duration: 0.6, type: "spring", bounce: 0.2 }}
-                      className="absolute w-[80%] max-w-[380px] aspect-[4/5]"
+                      className="absolute w-[85%] max-w-[420px] aspect-[4/5]"
                       onClick={() => isNext && nextSlide()}
                     >
                       {/* Scrapbook Frame */}
@@ -133,9 +140,6 @@ export default function Hero() {
                           border: "1px solid rgba(0,0,0,0.05)"
                         }}
                       >
-                        {/* Tape effect */}
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-8 bg-white/70 backdrop-blur-sm -rotate-2 z-20" style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.1)", borderRadius: "1px" }}></div>
-                        
                         {/* Inner Image Area */}
                         <div className="relative w-full h-[85%] overflow-hidden bg-beige" style={{ borderRadius: "1% 2% 1% 2% / 2% 1% 2% 1%" }}>
                           <Image 
@@ -147,12 +151,9 @@ export default function Hero() {
                           <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.1)] pointer-events-none"></div>
                         </div>
 
-                        {/* Label & Stamp */}
-                        <div className="absolute bottom-4 left-0 w-full flex justify-between items-center px-6">
-                           <span className="font-display font-black text-3xl tracking-wider text-foreground/80">{slide.city}</span>
-                           <div className="w-12 h-12 rounded-full border-2 border-primary-red/50 flex items-center justify-center rotate-[15deg] opacity-70">
-                             <span className="text-[8px] font-bold text-primary-red uppercase text-center leading-none tracking-widest">Post<br/>VN</span>
-                           </div>
+                        {/* Label */}
+                        <div className="absolute bottom-4 left-0 w-full flex justify-center items-center px-6">
+                           <span className="font-display font-black text-4xl tracking-wider text-foreground/80">{slide.city}</span>
                         </div>
                       </div>
                     </motion.div>
