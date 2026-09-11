@@ -90,7 +90,7 @@ export default function Hero() {
                   if (!isActive && !isNext && !isPrev && carouselSlides.length > 2) return null;
 
                   // Transforms based on position
-                  let x = 0;
+                  let x: string | number = 0;
                   let scale = 1;
                   let zIndex = 0;
                   let rotate = 0;
@@ -120,7 +120,7 @@ export default function Hero() {
                     <motion.div
                       key={slide.id}
                       initial={false}
-                      animate={{ x: `${x}`, scale, zIndex, rotate, opacity }}
+                      animate={{ x, scale, zIndex, rotate, opacity }}
                       transition={{ duration: 0.6, type: "spring", bounce: 0.2 }}
                       className="absolute w-[80%] max-w-[380px] aspect-[4/5]"
                       onClick={() => isNext && nextSlide()}
