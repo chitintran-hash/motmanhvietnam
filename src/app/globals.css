@@ -1,18 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #F5F2EB;
-  --color-background-alt: #E3DECE;
+  --color-background: #F6EBD9;
+  --color-background-alt: #D9C9A7;
   --color-foreground: #2A2A27;
   --color-foreground-muted: #4B4942;
   
-  /* Heritage Palette */
-  --color-terracotta: #8C2E24;
-  --color-terracotta-hover: #5E322F;
-  --color-orange: #C1531A;
-  --color-jade: #577243;
-  --color-jade-dark: #2A3A2F;
-  --color-gold: #CCA52C;
+  /* Heritage Palette (New Redesign) */
+  --color-primary-red: #890808;
+  --color-primary-green: #2E5B46;
+  --color-cream: #F6EBD9;
+  --color-beige: #D9C9A7;
+  --color-navy: #1F3A5F;
+  --color-yellow: #E6C36A;
+  --color-orange: #D9784A;
+  --color-teal: #4E8F98;
+
+  /* Legacy fallbacks mapped to new colors */
+  --color-terracotta: #890808;
+  --color-terracotta-hover: #A30D0D;
+  --color-jade: #2E5B46;
+  --color-jade-dark: #1A3B2B;
+  --color-gold: #E6C36A;
   --color-neutral: #7D796F;
 
   /* Fonts */
@@ -21,7 +30,7 @@
 }
 
 :root {
-  --background: #F5F2EB;
+  --background: #F6EBD9;
   --foreground: #2A2A27;
 }
 
@@ -44,7 +53,7 @@ body::before {
   height: 100vh;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.25;
+  opacity: 0.05;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   mix-blend-mode: multiply;
 }

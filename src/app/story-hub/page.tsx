@@ -32,18 +32,18 @@ const stories = [
 export default function StoryHubPage() {
   return (
     <div className="min-h-screen pt-32 pb-24 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[#F5F2EB] -z-20"></div>
+      <div className="absolute inset-0 bg-cream -z-20"></div>
       <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E')] opacity-[0.03] pointer-events-none -z-10"></div>
       
       <div className="container mx-auto px-6 max-w-[1400px] relative z-10">
         <div className="mb-16">
           <div className="inline-flex items-center gap-3 mb-6">
-            <div className="w-8 h-px bg-terracotta"></div>
-            <span className="text-xs font-bold uppercase tracking-[0.3em] text-terracotta">
+            <div className="w-8 h-1 bg-primary-red"></div>
+            <span className="text-xs font-bold uppercase tracking-[0.3em] text-primary-red">
               ARCHIVE
             </span>
           </div>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-black text-foreground mb-6 uppercase tracking-tighter">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-black text-primary-red mb-6 uppercase tracking-tighter">
             STORY HUB
           </h1>
           <p className="text-foreground-muted font-medium leading-relaxed text-lg max-w-2xl border-l-2 border-foreground/10 pl-6">

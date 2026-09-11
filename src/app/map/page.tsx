@@ -38,12 +38,12 @@ export default function MapPage() {
         <div className="w-full lg:w-[400px] flex flex-col gap-8 shrink-0 lg:sticky lg:top-32">
           <div>
             <div className="inline-flex items-center gap-3 mb-6">
-              <div className="w-8 h-px bg-terracotta"></div>
-              <span className="text-xs font-bold uppercase tracking-[0.3em] text-terracotta">
+              <div className="w-8 h-px bg-primary-green"></div>
+              <span className="text-xs font-bold uppercase tracking-[0.3em] text-primary-green">
                 PASSPORT
               </span>
             </div>
-            <h1 className="text-5xl md:text-6xl font-display font-black text-foreground mb-4 uppercase tracking-tighter leading-[1.2] md:leading-[1.15]">
+            <h1 className="text-5xl md:text-6xl font-display font-black text-primary-green mb-4 uppercase tracking-tighter leading-[1.3] md:leading-[1.25]">
               BẢN ĐỒ<br/>DI SẢN
             </h1>
             <p className="text-foreground-muted font-medium leading-relaxed border-l-2 border-foreground/10 pl-4">
@@ -60,29 +60,29 @@ export default function MapPage() {
                 <input
                   type="text"
                   placeholder="VD: HANOI, HCM"
-                  className="flex-1 px-4 py-4 border-2 border-foreground bg-transparent focus:outline-none focus:ring-0 focus:border-terracotta uppercase tracking-[0.2em] font-mono font-bold text-foreground"
+                  className="flex-1 px-4 py-4 border-2 border-primary-green bg-transparent focus:outline-none focus:ring-0 focus:border-primary-green uppercase tracking-[0.2em] font-mono font-bold text-primary-green placeholder-primary-green/30"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                 />
                 <button 
                   type="submit"
-                  className="px-6 py-4 bg-foreground text-white hover:bg-terracotta transition-colors border-y-2 border-r-2 border-foreground"
+                  className="px-6 py-4 bg-primary-green text-cream hover:bg-primary-red transition-colors border-y-2 border-r-2 border-primary-green"
                 >
                   <KeyRound className="w-5 h-5" />
                 </button>
               </div>
               {error && (
-                <p className="text-terracotta text-xs font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
+                <p className="text-primary-red text-xs font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
                    Mã không hợp lệ. Vui lòng thử lại.
                 </p>
               )}
             </div>
           </form>
 
-          <div className="bg-[#F5F2EB] p-8 border-2 border-foreground shadow-[6px_6px_0px_rgba(42,42,39,1)]">
-            <div className="flex items-center justify-between border-b-2 border-foreground/10 pb-4 mb-4">
-              <h3 className="font-display font-bold text-sm uppercase tracking-widest flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-terracotta" />
+          <div className="bg-cream p-8 border-2 border-primary-green shadow-[6px_6px_0px_rgba(46,91,70,1)]">
+            <div className="flex items-center justify-between border-b-2 border-primary-green/20 pb-4 mb-4">
+              <h3 className="font-display font-bold text-sm uppercase tracking-widest flex items-center gap-2 text-primary-green">
+                <MapPin className="w-4 h-4 text-primary-green" />
                 BỘ SƯU TẬP
               </h3>
               <span className="font-mono font-bold text-foreground/50">
@@ -101,13 +101,13 @@ export default function MapPage() {
                     key={idx}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center justify-between p-3 border border-foreground/20 bg-white"
+                    className="flex items-center justify-between p-3 border-2 border-primary-green bg-white shadow-[2px_2px_0px_rgba(46,91,70,1)]"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 bg-gold text-background text-[10px] font-bold flex items-center justify-center uppercase tracking-tighter">
+                      <div className="w-6 h-6 bg-yellow text-navy text-[10px] font-black flex items-center justify-center uppercase tracking-tighter">
                         0{idx + 1}
                       </div>
-                      <span className="font-bold font-display uppercase tracking-widest text-sm text-foreground">{place}</span>
+                      <span className="font-bold font-display uppercase tracking-widest text-sm text-primary-green">{place}</span>
                     </div>
                     <Badge variant="retro">ĐÃ MỞ</Badge>
                   </motion.li>
@@ -118,11 +118,11 @@ export default function MapPage() {
         </div>
 
         {/* Right side: Stylized Map */}
-        <div className="w-full flex-1 h-[600px] lg:h-[800px] bg-[#E3DECE] border-4 border-foreground relative flex items-center justify-center p-8 overflow-hidden shadow-2xl">
+        <div className="w-full flex-1 h-[600px] lg:h-[800px] bg-cream border-4 border-primary-green relative flex items-center justify-center p-8 overflow-hidden shadow-2xl">
           {/* Stylized Grid Overlay */}
           <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h100v100H0V0zm20 20h60v60H20V20zM0 20h100v20H0V20z\' fill=\'%232a2a27\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'/%3E%3C/svg%3E')] pointer-events-none"></div>
           
-          <div className="absolute top-4 right-4 bg-foreground text-background px-4 py-2 font-mono text-xs font-bold tracking-widest uppercase">
+          <div className="absolute top-4 right-4 bg-primary-green text-cream px-4 py-2 font-mono text-xs font-bold tracking-widest uppercase">
             LAT: 14.0583° N / LNG: 108.2772° E
           </div>
 
@@ -146,16 +146,16 @@ export default function MapPage() {
                 }}
                 className="absolute top-[20%] right-[35%] cursor-pointer group flex flex-col items-center"
               >
-                <div className={`w-12 h-12 flex items-center justify-center rounded-full border-2 ${unlocked.includes("Hà Nội") ? 'bg-terracotta border-terracotta' : 'bg-transparent border-foreground/30 border-dashed'} transition-colors relative z-10`}>
+                <div className={`w-12 h-12 flex items-center justify-center rounded-full border-2 ${unlocked.includes("Hà Nội") ? 'bg-primary-red border-primary-red' : 'bg-transparent border-primary-green/30 border-dashed'} transition-colors relative z-10`}>
                   {unlocked.includes("Hà Nội") ? (
-                    <Sparkles className="w-5 h-5 text-white" />
+                    <Sparkles className="w-5 h-5 text-cream" />
                   ) : (
-                    <div className="w-2 h-2 bg-foreground/30 rounded-full"></div>
+                    <div className="w-2 h-2 bg-primary-green/30 rounded-full"></div>
                   )}
                 </div>
-                <span className={`mt-2 font-display font-bold text-xs uppercase tracking-widest ${unlocked.includes("Hà Nội") ? 'text-terracotta' : 'text-foreground/50'}`}>Hà Nội</span>
+                <span className={`mt-2 font-display font-bold text-xs uppercase tracking-widest ${unlocked.includes("Hà Nội") ? 'text-primary-red' : 'text-primary-green/50'}`}>Hà Nội</span>
                 {unlocked.includes("Hà Nội") && (
-                  <div className="absolute top-0 w-12 h-12 bg-terracotta rounded-full animate-ping opacity-20"></div>
+                  <div className="absolute top-0 w-12 h-12 bg-primary-red rounded-full animate-ping opacity-20"></div>
                 )}
               </motion.div>
 
@@ -168,16 +168,16 @@ export default function MapPage() {
                 }}
                 className="absolute bottom-[20%] right-[45%] cursor-pointer group flex flex-col items-center"
               >
-                <div className={`w-12 h-12 flex items-center justify-center rounded-full border-2 ${unlocked.includes("Sài Gòn") ? 'bg-jade border-jade' : 'bg-transparent border-foreground/30 border-dashed'} transition-colors relative z-10`}>
+                <div className={`w-12 h-12 flex items-center justify-center rounded-full border-2 ${unlocked.includes("Sài Gòn") ? 'bg-primary-red border-primary-red' : 'bg-transparent border-primary-green/30 border-dashed'} transition-colors relative z-10`}>
                   {unlocked.includes("Sài Gòn") ? (
-                    <Sparkles className="w-5 h-5 text-white" />
+                    <Sparkles className="w-5 h-5 text-cream" />
                   ) : (
-                    <div className="w-2 h-2 bg-foreground/30 rounded-full"></div>
+                    <div className="w-2 h-2 bg-primary-green/30 rounded-full"></div>
                   )}
                 </div>
-                <span className={`mt-2 font-display font-bold text-xs uppercase tracking-widest ${unlocked.includes("Sài Gòn") ? 'text-jade' : 'text-foreground/50'}`}>Sài Gòn</span>
+                <span className={`mt-2 font-display font-bold text-xs uppercase tracking-widest ${unlocked.includes("Sài Gòn") ? 'text-primary-red' : 'text-primary-green/50'}`}>Sài Gòn</span>
                 {unlocked.includes("Sài Gòn") && (
-                  <div className="absolute top-0 w-12 h-12 bg-jade rounded-full animate-ping opacity-20"></div>
+                  <div className="absolute top-0 w-12 h-12 bg-primary-red rounded-full animate-ping opacity-20"></div>
                 )}
               </motion.div>
             </div>
