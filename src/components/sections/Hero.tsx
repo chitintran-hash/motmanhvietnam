@@ -82,11 +82,12 @@ export default function Hero() {
               className="absolute z-30 top-[40%] right-[10%] lg:right-[5%]"
             >
               {/* Mock Box */}
-              <div className="w-56 h-64 bg-beige border-4 border-primary-red shadow-2xl rotate-3 flex flex-col items-center justify-center relative">
-                 <div className="absolute top-4 left-4 bg-yellow px-2 py-1">
+              <div className="w-56 h-64 bg-beige border-4 border-primary-red shadow-2xl rotate-3 flex flex-col items-center justify-center relative overflow-hidden group">
+                 <Image src="/images/ben-thanh.jpg" alt="Chợ Bến Thành" fill className="object-cover opacity-60 mix-blend-multiply group-hover:opacity-100 group-hover:mix-blend-normal transition-all duration-700" />
+                 <div className="absolute top-4 left-4 bg-yellow px-2 py-1 z-10">
                     <span className="text-[8px] font-bold text-navy uppercase tracking-widest">SÀI GÒN</span>
                  </div>
-                 <div className="text-center">
+                 <div className="text-center z-10 bg-cream/95 p-3 border-2 border-primary-red backdrop-blur-sm group-hover:opacity-0 transition-opacity duration-500">
                    <span className="font-display font-black text-5xl text-primary-red">BOX</span>
                    <p className="text-[12px] font-bold uppercase tracking-widest text-primary-red mt-2">BLIND BOX 01</p>
                  </div>
