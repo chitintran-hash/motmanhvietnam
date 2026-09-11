@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { User, LogOut, Package, Shield, ChevronDown, Layers } from 'lucide-react';
 
@@ -55,11 +56,12 @@ export default function AccountMenu({ session }: { session: any }) {
           
           <div className="border-t border-foreground/10 my-1"></div>
           
-          <form action="/api/auth/signout" method="POST">
-            <button type="submit" className="flex items-center gap-3 px-4 py-3 hover:bg-background-alt transition-colors text-sm font-bold text-red-500 w-full text-left">
-              <LogOut className="w-4 h-4" /> Đăng xuất
-            </button>
-          </form>
+          <button 
+            onClick={() => signOut({ callbackUrl: '/' })}
+            className="flex items-center gap-3 px-4 py-3 hover:bg-background-alt transition-colors text-sm font-bold text-red-500 w-full text-left"
+          >
+            <LogOut className="w-4 h-4" /> Đăng xuất
+          </button>
         </div>
       )}
     </div>
