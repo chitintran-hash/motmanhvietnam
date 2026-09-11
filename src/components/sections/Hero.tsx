@@ -1,10 +1,34 @@
 "use client";
-import { motion } from "framer-motion";
-import { ArrowRight, Map } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, Map, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
+const carouselSlides = [
+  {
+    id: "hanoi",
+    city: "HÀ NỘI",
+    image: "/images/hanoi-hero.jpg",
+  },
+  {
+    id: "saigon",
+    city: "SÀI GÒN",
+    image: "/images/saigon-hero.png",
+  },
+  {
+    id: "danang",
+    city: "ĐÀ NẴNG",
+    image: "/images/danang-hero.png",
+  }
+];
+
 export default function Hero() {
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  const nextSlide = () => setActiveSlide((p) => (p + 1) % carouselSlides.length);
+  const prevSlide = () => setActiveSlide((p) => (p - 1 + carouselSlides.length) % carouselSlides.length);
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-24 pb-12">
       <div className="container mx-auto px-6 max-w-[1400px] relative z-10">
@@ -52,69 +76,123 @@ export default function Hero() {
             </motion.div>
           </div>
 
-          {/* Right Column: Collector Desk Visuals */}
-          <div className="relative h-[600px] lg:h-full w-full order-1 lg:order-2 flex items-center justify-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, rotate: -5 }}
-              animate={{ opacity: 1, scale: 1, rotate: 0 }}
-              transition={{ duration: 1.2, type: "spring" }}
-              className="absolute z-20 top-[10%] left-[10%] lg:left-[5%]"
-            >
-              {/* Mock Postcard / Story Card */}
-              <div className="w-48 h-64 bg-cream border-2 border-primary-green p-4 shadow-xl -rotate-6 flex flex-col items-center justify-between relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-8 h-8 bg-primary-green flex items-center justify-center">
-                   <span className="text-cream font-bold text-[10px]">01</span>
-                </div>
-                <div className="w-full flex justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-primary-green font-mono">HÀ NỘI</span>
-                </div>
-                <div className="w-32 h-32 bg-beige/30 rounded-sm flex items-center justify-center border border-primary-green/20">
-                  <span className="text-xs font-bold text-primary-green/60 uppercase tracking-widest">STORY CARD</span>
-                </div>
-                <h4 className="font-display font-bold text-sm uppercase text-primary-green">Mảnh Ký Ức</h4>
-              </div>
-            </motion.div>
+          {/* Right Column: Collector Desk Visuals (Carousel) */}
+          <div className="relative h-[600px] lg:h-full w-full order-1 lg:order-2 flex flex-col items-center justify-center">
+            
+            {/* Carousel Container */}
+            <div className="relative w-full h-[500px] flex items-center justify-center overflow-visible">
+              <AnimatePresence initial={false} mode="popLayout">
+                {carouselSlides.map((slide, index) => {
+                  const isActive = index === activeSlide;
+                  const isNext = index === (activeSlide + 1) % carouselSlides.length;
+                  const isPrev = index === (activeSlide - 1 + carouselSlides.length) % carouselSlides.length;
+                  
+                  if (!isActive && !isNext && !isPrev && carouselSlides.length > 2) return null;
 
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.4, type: "spring" }}
-              className="absolute z-30 top-[40%] right-[10%] lg:right-[5%]"
-            >
-              {/* Mock Box */}
-              <div className="w-56 h-64 bg-beige border-4 border-primary-red shadow-2xl rotate-3 flex flex-col items-center justify-center relative overflow-hidden group">
-                 <Image src="/images/ben-thanh.jpg" alt="Chợ Bến Thành" fill className="object-cover opacity-60 mix-blend-multiply group-hover:opacity-100 group-hover:mix-blend-normal transition-all duration-700" />
-                 <div className="absolute top-4 left-4 bg-yellow px-2 py-1 z-10">
-                    <span className="text-[8px] font-bold text-navy uppercase tracking-widest">SÀI GÒN</span>
-                 </div>
-                 <div className="text-center z-10 bg-cream/95 p-3 border-2 border-primary-red backdrop-blur-sm group-hover:opacity-0 transition-opacity duration-500">
-                   <span className="font-display font-black text-5xl text-primary-red">BOX</span>
-                   <p className="text-[12px] font-bold uppercase tracking-widest text-primary-red mt-2">BLIND BOX 01</p>
-                 </div>
-              </div>
-            </motion.div>
+                  // Transforms based on position
+                  let x = 0;
+                  let scale = 1;
+                  let zIndex = 0;
+                  let rotate = 0;
+                  let opacity = 1;
 
-            <motion.div
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.8, type: "spring", bounce: 0.5 }}
-              className="absolute z-40 top-[50%] left-[30%] lg:left-[25%]"
-            >
-              {/* Mock Pin */}
-              <div className="w-24 h-24 bg-cream rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.15)] flex items-center justify-center border-4 border-yellow -rotate-12">
-                 <span className="font-display font-black text-xl text-primary-red">PIN</span>
-              </div>
-            </motion.div>
+                  if (isActive) {
+                    x = 0;
+                    scale = 1;
+                    zIndex = 30;
+                    rotate = -2;
+                    opacity = 1;
+                  } else if (isNext) {
+                    x = "65%";
+                    scale = 0.85;
+                    zIndex = 20;
+                    rotate = 4;
+                    opacity = 0.6;
+                  } else if (isPrev) {
+                    x = "-65%";
+                    scale = 0.85;
+                    zIndex = 20;
+                    rotate = -6;
+                    opacity = 0; // Hide previous to keep focus on next
+                  }
 
-            {/* Decorative Map Lines */}
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
-              <svg viewBox="0 0 100 100" className="w-full h-full stroke-primary-red" fill="none" strokeWidth="0.3" strokeDasharray="1 3">
-                <path d="M20,80 Q40,50 80,20" />
-                <path d="M10,40 Q50,90 90,60" />
-                <circle cx="80" cy="20" r="2" fill="currentColor" />
-                <circle cx="20" cy="80" r="2" fill="currentColor" />
-              </svg>
+                  return (
+                    <motion.div
+                      key={slide.id}
+                      initial={false}
+                      animate={{ x: `${x}`, scale, zIndex, rotate, opacity }}
+                      transition={{ duration: 0.6, type: "spring", bounce: 0.2 }}
+                      className="absolute w-[80%] max-w-[380px] aspect-[4/5]"
+                      onClick={() => isNext && nextSlide()}
+                    >
+                      {/* Scrapbook Frame */}
+                      <div 
+                        className={`w-full h-full bg-cream p-4 shadow-[10px_10px_30px_rgba(0,0,0,0.15)] relative ${isNext ? 'cursor-pointer' : ''}`}
+                        style={{ 
+                          borderRadius: "2% 3% 2% 4% / 3% 2% 4% 2%",
+                          border: "1px solid rgba(0,0,0,0.05)"
+                        }}
+                      >
+                        {/* Tape effect */}
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-8 bg-white/70 backdrop-blur-sm -rotate-2 z-20" style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.1)", borderRadius: "1px" }}></div>
+                        
+                        {/* Inner Image Area */}
+                        <div className="relative w-full h-[85%] overflow-hidden bg-beige" style={{ borderRadius: "1% 2% 1% 2% / 2% 1% 2% 1%" }}>
+                          <Image 
+                            src={slide.image} 
+                            alt={slide.city} 
+                            fill 
+                            className="object-cover sepia-[0.1] contrast-[1.1] saturate-[1.1] filter" 
+                          />
+                          <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.1)] pointer-events-none"></div>
+                        </div>
+
+                        {/* Label & Stamp */}
+                        <div className="absolute bottom-4 left-0 w-full flex justify-between items-center px-6">
+                           <span className="font-display font-black text-3xl tracking-wider text-foreground/80">{slide.city}</span>
+                           <div className="w-12 h-12 rounded-full border-2 border-primary-red/50 flex items-center justify-center rotate-[15deg] opacity-70">
+                             <span className="text-[8px] font-bold text-primary-red uppercase text-center leading-none tracking-widest">Post<br/>VN</span>
+                           </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
             </div>
+
+            {/* Navigation and Pagination Container */}
+            <div className="flex flex-col items-center mt-8 z-40 gap-6 w-full">
+              {/* Arrows */}
+              <div className="flex gap-4">
+                <button 
+                  onClick={prevSlide}
+                  className="w-12 h-12 rounded-full bg-cream backdrop-blur-sm border-2 border-foreground/10 flex items-center justify-center hover:bg-primary-red hover:text-cream hover:border-primary-red transition-colors shadow-sm"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button 
+                  onClick={nextSlide}
+                  className="w-12 h-12 rounded-full bg-cream backdrop-blur-sm border-2 border-foreground/10 flex items-center justify-center hover:bg-primary-red hover:text-cream hover:border-primary-red transition-colors shadow-sm"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Dots */}
+              <div className="flex gap-3">
+                {carouselSlides.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveSlide(index)}
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                      index === activeSlide ? "bg-primary-red scale-125" : "bg-foreground/20 hover:bg-foreground/40"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+            
           </div>
         </div>
       </div>
