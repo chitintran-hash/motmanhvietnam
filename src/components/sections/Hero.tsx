@@ -9,7 +9,7 @@ const carouselSlides = [
   {
     id: "hanoi",
     city: "HÀ NỘI",
-    image: "https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&q=80&w=800",
+    image: "/images/hanoi-hero-new.png",
   },
   {
     id: "saigon",
@@ -84,7 +84,7 @@ export default function Hero() {
           </div>
 
           {/* Right Column: Collector Desk Visuals (Carousel) */}
-          <div className="relative h-[600px] lg:h-full w-full order-1 lg:order-2 flex flex-col items-center justify-center">
+          <div className="relative h-[600px] lg:h-full w-full order-1 lg:order-2 flex flex-col items-center justify-center lg:-translate-x-12">
             
             {/* Carousel Container */}
             <div className="relative w-full h-[500px] flex items-center justify-center overflow-visible">
