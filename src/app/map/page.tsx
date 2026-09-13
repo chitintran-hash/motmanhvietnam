@@ -184,7 +184,7 @@ export default function MapPage() {
               
               {/* Hanoi Node */}
               <div 
-                className="absolute top-[32%] left-[48%] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group z-20"
+                className="absolute top-[18%] left-[52%] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group z-20"
               >
                 <div 
                   className="relative cursor-pointer flex items-center justify-center w-16 h-16 rounded-full"
@@ -207,7 +207,7 @@ export default function MapPage() {
 
               {/* Da Nang Node */}
               <div 
-                className="absolute top-[61%] left-[73%] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group z-20"
+                className="absolute top-[48%] left-[68%] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group z-20"
               >
                 <div 
                   className="relative cursor-pointer flex items-center justify-center w-16 h-16 rounded-full"
@@ -230,7 +230,7 @@ export default function MapPage() {
 
               {/* HCM Node */}
               <div 
-                className="absolute top-[84%] left-[49%] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group z-20"
+                className="absolute top-[80%] left-[54%] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group z-20"
               >
                 <div 
                   className="relative cursor-pointer flex items-center justify-center w-16 h-16 rounded-full"
