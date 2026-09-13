@@ -130,7 +130,7 @@ export default function MapPage() {
             {/* Base Map Image */}
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
                <Image 
-                 src="/images/vietnam-map.png"
+                 src="/images/vietnam-map.jpg"
                  alt="Bản đồ Việt Nam"
                  fill
                  className="object-contain drop-shadow-2xl"
