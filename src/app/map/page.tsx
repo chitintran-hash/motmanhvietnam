@@ -254,25 +254,7 @@ export default function MapPage() {
 
             </div>
 
-            {/* Default state hint */}
-            <AnimatePresence>
-              {!activeNode && (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-cream/90 backdrop-blur border border-primary-green/20 px-6 py-4 rounded-lg shadow-sm w-[90%] text-center"
-                >
-                  <div className="text-xs font-bold uppercase tracking-widest text-primary-green mb-1 flex items-center justify-center gap-2">
-                    <MapPin className="w-3.5 h-3.5" />
-                    CHỌN MỘT ĐIỂM TRÊN BẢN ĐỒ
-                  </div>
-                  <div className="text-sm text-foreground-muted">
-                    Khám phá những mảnh ký ức từ ba miền Việt Nam.
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+
           </div>
 
           {/* Heritage Discovery Panel (Slide-in) */}
