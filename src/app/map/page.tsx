@@ -167,21 +167,20 @@ export default function MapPage() {
         <div className="w-full lg:flex-1 relative flex flex-col lg:flex-row gap-6 items-start lg:items-stretch">
           
           {/* Map Container */}
-          <div className="w-full lg:w-[480px] lg:shrink-0 h-[600px] lg:h-[750px] relative overflow-hidden bg-cream mx-auto">
-            {/* The base map image without a thick border */}
-            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-               <Image 
-                 src="/images/vietnam-map.jpg"
-                 alt="Bản đồ Việt Nam"
-                 fill
-                 quality={100}
-                 unoptimized
-                 className="object-cover object-center"
-               />
-            </div>
+          <div className="w-full lg:w-[480px] lg:shrink-0 relative overflow-hidden bg-cream mx-auto rounded-lg shadow-sm">
+            {/* The base map image driving the container size */}
+            <Image 
+              src="/images/vietnam-map.jpg"
+              alt="Bản đồ Việt Nam"
+              width={600}
+              height={900}
+              quality={100}
+              unoptimized
+              className="w-full h-auto object-contain pointer-events-none"
+            />
             
             {/* Interactive Nodes */}
-            <div className="absolute inset-0 w-full h-full max-w-[480px] mx-auto z-10">
+            <div className="absolute inset-0 w-full h-full z-10">
               
               {/* Hanoi Node */}
               <div 
