@@ -185,17 +185,17 @@ export default function MapPage() {
               
               {/* Hanoi Node */}
               <div 
-                className="absolute top-[32%] left-[48%] flex items-center justify-center group"
+                className="absolute top-[32%] left-[48%] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group z-20"
               >
                 <div 
-                  className="relative cursor-pointer flex items-center justify-center w-12 h-12 -ml-6 -mt-6"
+                  className="relative cursor-pointer flex items-center justify-center w-16 h-16 rounded-full"
                   onClick={() => setActiveNode("Hà Nội")}
                 >
                   <motion.div
                     whileHover={{ scale: 1.12 }}
-                    className={`w-8 h-8 rounded-full transition-all z-20 relative
-                      ${unlocked.includes("Hà Nội") ? "bg-primary-red/20 shadow-[0_0_15px_rgba(219,68,55,0.5)]" : "bg-transparent"}
-                      ${activeNode === "Hà Nội" ? "ring-4 ring-primary-red/50 scale-110 bg-primary-red/10" : ""}
+                    className={`w-10 h-10 rounded-full transition-all relative
+                      ${unlocked.includes("Hà Nội") ? "bg-primary-red/30 shadow-[0_0_15px_rgba(219,68,55,0.6)]" : "bg-transparent group-hover:bg-primary-red/20"}
+                      ${activeNode === "Hà Nội" ? "ring-4 ring-primary-red/50 scale-110 bg-primary-red/20" : ""}
                     `}
                   />
                   {/* Tooltip on hover */}
@@ -208,17 +208,17 @@ export default function MapPage() {
 
               {/* Da Nang Node */}
               <div 
-                className="absolute top-[61%] left-[73%] flex items-center justify-center group"
+                className="absolute top-[61%] left-[73%] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group z-20"
               >
                 <div 
-                  className="relative cursor-pointer flex items-center justify-center w-12 h-12 -ml-6 -mt-6"
+                  className="relative cursor-pointer flex items-center justify-center w-16 h-16 rounded-full"
                   onClick={() => setActiveNode("Đà Nẵng")}
                 >
                   <motion.div
                     whileHover={{ scale: 1.12 }}
-                    className={`w-8 h-8 rounded-full transition-all z-20 relative
-                      ${unlocked.includes("Đà Nẵng") ? "bg-primary-red/20 shadow-[0_0_15px_rgba(219,68,55,0.5)]" : "bg-transparent"}
-                      ${activeNode === "Đà Nẵng" ? "ring-4 ring-primary-red/50 scale-110 bg-primary-red/10" : ""}
+                    className={`w-10 h-10 rounded-full transition-all relative
+                      ${unlocked.includes("Đà Nẵng") ? "bg-primary-red/30 shadow-[0_0_15px_rgba(219,68,55,0.6)]" : "bg-transparent group-hover:bg-primary-red/20"}
+                      ${activeNode === "Đà Nẵng" ? "ring-4 ring-primary-red/50 scale-110 bg-primary-red/20" : ""}
                     `}
                   />
                   {/* Tooltip on hover */}
@@ -231,17 +231,17 @@ export default function MapPage() {
 
               {/* HCM Node */}
               <div 
-                className="absolute top-[84%] left-[49%] flex items-center justify-center group"
+                className="absolute top-[84%] left-[49%] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group z-20"
               >
                 <div 
-                  className="relative cursor-pointer flex items-center justify-center w-12 h-12 -ml-6 -mt-6"
+                  className="relative cursor-pointer flex items-center justify-center w-16 h-16 rounded-full"
                   onClick={() => setActiveNode("Thành phố Hồ Chí Minh")}
                 >
                   <motion.div
                     whileHover={{ scale: 1.12 }}
-                    className={`w-8 h-8 rounded-full transition-all z-20 relative
-                      ${unlocked.includes("Thành phố Hồ Chí Minh") ? "bg-primary-red/20 shadow-[0_0_15px_rgba(219,68,55,0.5)]" : "bg-transparent"}
-                      ${activeNode === "Thành phố Hồ Chí Minh" ? "ring-4 ring-primary-red/50 scale-110 bg-primary-red/10" : ""}
+                    className={`w-10 h-10 rounded-full transition-all relative
+                      ${unlocked.includes("Thành phố Hồ Chí Minh") ? "bg-primary-red/30 shadow-[0_0_15px_rgba(219,68,55,0.6)]" : "bg-transparent group-hover:bg-primary-red/20"}
+                      ${activeNode === "Thành phố Hồ Chí Minh" ? "ring-4 ring-primary-red/50 scale-110 bg-primary-red/20" : ""}
                     `}
                   />
                   {/* Tooltip on hover */}
