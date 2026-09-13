@@ -127,12 +127,14 @@ export default function MapPage() {
           </div>
 
           <div className="relative w-full h-full max-w-[600px] mx-auto flex items-center justify-center">
-            {/* Base Map Placeholder - Using a highly stylized dotted SVG approach */}
-            <div className="absolute inset-0 opacity-20 pointer-events-none">
-               {/* Placeholder for actual stylized SVG map */}
-               <div className="w-full h-full flex items-center justify-center">
-                 <div className="w-[40%] h-[80%] bg-foreground/30 blur-3xl rounded-full"></div>
-               </div>
+            {/* Base Map Image */}
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+               <Image 
+                 src="/images/vietnam-map.png"
+                 alt="Bản đồ Việt Nam"
+                 fill
+                 className="object-contain drop-shadow-2xl"
+               />
             </div>
             
             {/* Interactive Nodes */}
@@ -153,7 +155,7 @@ export default function MapPage() {
                     <div className="w-2 h-2 bg-primary-green/30 rounded-full"></div>
                   )}
                 </div>
-                <span className={`mt-2 font-display font-bold text-xs uppercase tracking-widest ${unlocked.includes("Hà Nội") ? 'text-primary-red' : 'text-primary-green/50'}`}>Hà Nội</span>
+                {/* Hidden text since it's on the image */}
                 {unlocked.includes("Hà Nội") && (
                   <div className="absolute top-0 w-12 h-12 bg-primary-red rounded-full animate-ping opacity-20"></div>
                 )}
@@ -175,7 +177,7 @@ export default function MapPage() {
                     <div className="w-2 h-2 bg-primary-green/30 rounded-full"></div>
                   )}
                 </div>
-                <span className={`mt-2 font-display font-bold text-xs uppercase tracking-widest ${unlocked.includes("Sài Gòn") ? 'text-primary-red' : 'text-primary-green/50'}`}>Sài Gòn</span>
+                {/* Hidden text since it's on the image */}
                 {unlocked.includes("Sài Gòn") && (
                   <div className="absolute top-0 w-12 h-12 bg-primary-red rounded-full animate-ping opacity-20"></div>
                 )}
