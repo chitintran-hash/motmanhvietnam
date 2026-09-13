@@ -54,7 +54,7 @@ export async function register(prevState: string | undefined, formData: FormData
         }
 
         const supabaseAdmin = getSupabaseServer();
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : 'http://localhost:3000');
 
         const { data: authData, error: authError } = await supabaseAdmin.auth.signUp({
             email,
