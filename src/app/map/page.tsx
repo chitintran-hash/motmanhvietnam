@@ -33,7 +33,7 @@ export default function MapPage() {
       {/* Grid Pattern Background */}
       <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h40v40H0V0zm20 20h20v20H20V20zM0 20h20v20H0V20z\' fill=\'%232a2a27\' fill-opacity=\'0.02\' fill-rule=\'evenodd\'/%3E%3C/svg%3E')] -z-10"></div>
       
-      <div className="container mx-auto px-6 max-w-[1400px] relative z-10 flex flex-col lg:flex-row gap-16 items-start">
+      <div className="container mx-auto px-6 max-w-[1200px] relative z-10 flex flex-col lg:flex-row gap-16 items-start justify-center">
         {/* Left side: Passport / Form */}
         <div className="w-full lg:w-[400px] flex flex-col gap-8 shrink-0 lg:sticky lg:top-32">
           <div>
@@ -118,7 +118,7 @@ export default function MapPage() {
         </div>
 
         {/* Right side: Stylized Map */}
-        <div className="w-full flex-1 h-[600px] lg:h-[800px] bg-cream border-4 border-primary-green relative flex items-center justify-center p-8 overflow-hidden shadow-2xl">
+        <div className="w-full lg:w-[500px] lg:shrink-0 h-[600px] lg:h-[700px] bg-cream border-4 border-primary-green relative flex items-center justify-center p-4 overflow-hidden shadow-2xl mx-auto">
           {/* Stylized Grid Overlay */}
           <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h100v100H0V0zm20 20h60v60H20V20zM0 20h100v20H0V20z\' fill=\'%232a2a27\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'/%3E%3C/svg%3E')] pointer-events-none"></div>
           
@@ -133,7 +133,9 @@ export default function MapPage() {
                  src="/images/vietnam-map.jpg"
                  alt="Bản đồ Việt Nam"
                  fill
-                 className="object-contain drop-shadow-2xl"
+                 quality={100}
+                 unoptimized
+                 className="object-cover drop-shadow-2xl"
                />
             </div>
             
