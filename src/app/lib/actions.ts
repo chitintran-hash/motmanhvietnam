@@ -112,3 +112,57 @@ export async function register(prevState: string | undefined, formData: FormData
     
     redirect('/login?verify=true');
 }
+
+export async function forgotPassword(prevState: string | undefined, formData: FormData) {
+    try {
+        const email = formData.get('email') as string;
+        if (!email) {
+            return 'Vui lòng nhập email.';
+        }
+
+        const supabaseAdmin = getSupabaseServer();
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://motmanhvietnam.store');
+
+        const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
+            redirectTo: `${siteUrl}/reset-password`,
+        });
+
+        if (error) {
+            console.error("Forgot Password Error:", error);
+            return 'Không thể gửi email khôi phục. Vui lòng kiểm tra lại email.';
+        }
+        
+    } catch (error: any) {
+        console.error("Forgot Password Exception:", error);
+        return 'Đã xảy ra lỗi. Vui lòng thử lại sau.';
+    }
+
+    redirect('/forgot-password?success=true');
+}
+
+export async function resetPassword(prevState: string | undefined, formData: FormData) {
+    try {
+        const password = formData.get('password') as string;
+        
+        if (!password || password.length < 6) {
+            return 'Mật khẩu mới cần có ít nhất 6 ký tự.';
+        }
+
+        const supabaseAdmin = getSupabaseServer();
+
+        const { error } = await supabaseAdmin.auth.updateUser({
+            password: password
+        });
+
+        if (error) {
+            console.error("Reset Password Error:", error);
+            return 'Đã có lỗi xảy ra. Link khôi phục có thể đã hết hạn.';
+        }
+
+    } catch (error: any) {
+        console.error("Reset Password Exception:", error);
+        return 'Đã xảy ra lỗi. Vui lòng thử lại sau.';
+    }
+
+    redirect('/login?reset=true');
+}

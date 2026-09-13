@@ -29,6 +29,12 @@ export default function LoginPage() {
           </div>
         )}
 
+        {searchParams.get('reset') === 'true' && (
+          <div className="bg-jade/10 text-jade p-4 rounded-lg mb-6 text-sm text-center font-medium">
+            Đổi mật khẩu thành công! Vui lòng đăng nhập lại.
+          </div>
+        )}
+
         <form action={formAction} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-foreground/80 mb-1">Email</label>
@@ -41,7 +47,12 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-1">Mật khẩu</label>
+            <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium text-foreground/80">Mật khẩu</label>
+                <Link href="/forgot-password" className="text-xs text-terracotta hover:underline font-medium">
+                    Quên mật khẩu?
+                </Link>
+            </div>
             <input 
               type="password" 
               name="password"
