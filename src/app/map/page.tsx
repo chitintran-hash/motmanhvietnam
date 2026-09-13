@@ -185,25 +185,19 @@ export default function MapPage() {
               
               {/* Hanoi Node */}
               <div 
-                className="absolute top-[28%] left-[45%] flex items-center justify-center group"
+                className="absolute top-[32%] left-[48%] flex items-center justify-center group"
               >
                 <div 
-                  className="relative cursor-pointer"
+                  className="relative cursor-pointer flex items-center justify-center w-12 h-12 -ml-6 -mt-6"
                   onClick={() => setActiveNode("Hà Nội")}
                 >
                   <motion.div
                     whileHover={{ scale: 1.12 }}
-                    className={`w-6 h-6 flex items-center justify-center rounded-full transition-colors z-20 relative
-                      ${unlocked.includes("Hà Nội") 
-                        ? "bg-primary-red" 
-                        : "bg-transparent border-2 border-primary-red/80"}
-                      ${activeNode === "Hà Nội" ? "ring-4 ring-primary-red/30 scale-115" : ""}
+                    className={`w-8 h-8 rounded-full transition-all z-20 relative
+                      ${unlocked.includes("Hà Nội") ? "bg-primary-red/20 shadow-[0_0_15px_rgba(219,68,55,0.5)]" : "bg-transparent"}
+                      ${activeNode === "Hà Nội" ? "ring-4 ring-primary-red/50 scale-110 bg-primary-red/10" : ""}
                     `}
-                  >
-                    {!unlocked.includes("Hà Nội") && (
-                      <div className="w-1.5 h-1.5 bg-primary-red/80 rounded-full" />
-                    )}
-                  </motion.div>
+                  />
                   {/* Tooltip on hover */}
                   <div className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white px-3 py-2 shadow-lg rounded-md border border-foreground/10 z-30">
                     <div className="font-display font-bold text-sm text-primary-green">HÀ NỘI</div>
@@ -214,25 +208,19 @@ export default function MapPage() {
 
               {/* Da Nang Node */}
               <div 
-                className="absolute top-[56%] right-[28%] flex items-center justify-center group"
+                className="absolute top-[61%] left-[73%] flex items-center justify-center group"
               >
                 <div 
-                  className="relative cursor-pointer"
+                  className="relative cursor-pointer flex items-center justify-center w-12 h-12 -ml-6 -mt-6"
                   onClick={() => setActiveNode("Đà Nẵng")}
                 >
                   <motion.div
                     whileHover={{ scale: 1.12 }}
-                    className={`w-6 h-6 flex items-center justify-center rounded-full transition-colors z-20 relative
-                      ${unlocked.includes("Đà Nẵng") 
-                        ? "bg-primary-red" 
-                        : "bg-transparent border-2 border-primary-red/80"}
-                      ${activeNode === "Đà Nẵng" ? "ring-4 ring-primary-red/30 scale-115" : ""}
+                    className={`w-8 h-8 rounded-full transition-all z-20 relative
+                      ${unlocked.includes("Đà Nẵng") ? "bg-primary-red/20 shadow-[0_0_15px_rgba(219,68,55,0.5)]" : "bg-transparent"}
+                      ${activeNode === "Đà Nẵng" ? "ring-4 ring-primary-red/50 scale-110 bg-primary-red/10" : ""}
                     `}
-                  >
-                    {!unlocked.includes("Đà Nẵng") && (
-                      <div className="w-1.5 h-1.5 bg-primary-red/80 rounded-full" />
-                    )}
-                  </motion.div>
+                  />
                   {/* Tooltip on hover */}
                   <div className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white px-3 py-2 shadow-lg rounded-md border border-foreground/10 z-30">
                     <div className="font-display font-bold text-sm text-primary-green">ĐÀ NẴNG</div>
@@ -243,25 +231,19 @@ export default function MapPage() {
 
               {/* HCM Node */}
               <div 
-                className="absolute bottom-[16%] left-[38%] flex items-center justify-center group"
+                className="absolute top-[84%] left-[49%] flex items-center justify-center group"
               >
                 <div 
-                  className="relative cursor-pointer"
+                  className="relative cursor-pointer flex items-center justify-center w-12 h-12 -ml-6 -mt-6"
                   onClick={() => setActiveNode("Thành phố Hồ Chí Minh")}
                 >
                   <motion.div
                     whileHover={{ scale: 1.12 }}
-                    className={`w-6 h-6 flex items-center justify-center rounded-full transition-colors z-20 relative
-                      ${unlocked.includes("Thành phố Hồ Chí Minh") 
-                        ? "bg-primary-red" 
-                        : "bg-transparent border-2 border-primary-red/80"}
-                      ${activeNode === "Thành phố Hồ Chí Minh" ? "ring-4 ring-primary-red/30 scale-115" : ""}
+                    className={`w-8 h-8 rounded-full transition-all z-20 relative
+                      ${unlocked.includes("Thành phố Hồ Chí Minh") ? "bg-primary-red/20 shadow-[0_0_15px_rgba(219,68,55,0.5)]" : "bg-transparent"}
+                      ${activeNode === "Thành phố Hồ Chí Minh" ? "ring-4 ring-primary-red/50 scale-110 bg-primary-red/10" : ""}
                     `}
-                  >
-                    {!unlocked.includes("Thành phố Hồ Chí Minh") && (
-                      <div className="w-1.5 h-1.5 bg-primary-red/80 rounded-full" />
-                    )}
-                  </motion.div>
+                  />
                   {/* Tooltip on hover */}
                   <div className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white px-3 py-2 shadow-lg rounded-md border border-foreground/10 z-30">
                     <div className="font-display font-bold text-sm text-primary-green">TP HỒ CHÍ MINH</div>
