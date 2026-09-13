@@ -6,11 +6,54 @@ import Badge from "@/components/ui/Badge";
 import Link from "next/link";
 import Image from "next/image";
 
+type CityKey = "Hà Nội" | "Đà Nẵng" | "Thành phố Hồ Chí Minh";
+
+const CITY_DATA = {
+  "Hà Nội": {
+    title: "Hà Nội",
+    subtitle: "Một mảnh miền Bắc",
+    description: "Hà Nội lưu giữ những lớp ký ức nằm giữa phố cũ, hàng quán, tiếng rao và những biểu tượng đã trở thành một phần đời sống người Việt.",
+    exploreText: "KHÁM PHÁ HÀ NỘI",
+    stories: [
+      { id: "hn-1", title: "Hồ Gươm", desc: "Một biểu tượng nằm giữa nhịp sống của Hà Nội.", img: "https://illustrations.popsy.co/amber/student-going-to-school.svg" },
+      { id: "hn-2", title: "Phố cổ Hà Nội", desc: "Những con phố nhỏ lưu giữ ký ức đô thị qua nhiều thế hệ.", img: "https://illustrations.popsy.co/amber/bicycle.svg" },
+      { id: "hn-3", title: "Cà phê vỉa hè", desc: "Một thói quen đời thường nhưng rất Hà Nội.", img: "https://illustrations.popsy.co/amber/surreal-hourglass.svg" },
+    ],
+    totalStories: 12
+  },
+  "Đà Nẵng": {
+    title: "Đà Nẵng",
+    subtitle: "Một mảnh miền Trung",
+    description: "Thành phố nơi nhịp sống hiện đại gặp biển, núi và những ký ức miền Trung.",
+    exploreText: "KHÁM PHÁ ĐÀ NẴNG",
+    stories: [
+      { id: "dn-1", title: "Cầu Rồng", desc: "Biểu tượng mới của thành phố biển.", img: "https://illustrations.popsy.co/amber/shaking-hands.svg" },
+      { id: "dn-2", title: "Biển Mỹ Khê", desc: "Nơi đón những tia nắng sớm miền Trung.", img: "https://illustrations.popsy.co/amber/taking-a-photo.svg" },
+      { id: "dn-3", title: "Mì Quảng", desc: "Hương vị đậm đà không thể trộn lẫn.", img: "https://illustrations.popsy.co/amber/street-food.svg" },
+    ],
+    totalStories: 8
+  },
+  "Thành phố Hồ Chí Minh": {
+    title: "Thành phố Hồ Chí Minh",
+    subtitle: "Một mảnh miền Nam",
+    description: "Những mảnh ký ức của một thành phố luôn chuyển động, nơi cũ và mới tồn tại cạnh nhau.",
+    exploreText: "KHÁM PHÁ SÀI GÒN",
+    stories: [
+      { id: "sg-1", title: "Chợ Bến Thành", desc: "Nhịp đập giao thương không ngủ.", img: "https://illustrations.popsy.co/amber/key-to-success.svg" },
+      { id: "sg-2", title: "Cà phê sữa đá", desc: "Vị ngọt đắng quen thuộc mỗi sáng.", img: "https://illustrations.popsy.co/amber/falling.svg" },
+      { id: "sg-3", title: "Xe bánh mì", desc: "Bữa ăn nhanh của nhịp sống hiện đại.", img: "https://illustrations.popsy.co/amber/motorcycle.svg" },
+    ],
+    totalStories: 15
+  }
+};
+
 export default function MapPage() {
   const [code, setCode] = useState("");
-  const [unlocked, setUnlocked] = useState<string[]>([]);
+  // In the real app, we might need a map from 'code' -> 'CityKey'
+  // But for now, user asked to keep the old form functionality working.
+  const [unlocked, setUnlocked] = useState<CityKey[]>([]);
   const [error, setError] = useState(false);
-  const [activeNode, setActiveNode] = useState<string | null>(null);
+  const [activeNode, setActiveNode] = useState<CityKey | null>(null);
   
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,20 +64,23 @@ export default function MapPage() {
       if(!unlocked.includes("Hà Nội")) setUnlocked([...unlocked, "Hà Nội"]);
       setCode("");
     } else if (input === "hcm") {
-      if(!unlocked.includes("Sài Gòn")) setUnlocked([...unlocked, "Sài Gòn"]);
+      if(!unlocked.includes("Thành phố Hồ Chí Minh")) setUnlocked([...unlocked, "Thành phố Hồ Chí Minh"]);
+      setCode("");
+    } else if (input === "danang") {
+      if(!unlocked.includes("Đà Nẵng")) setUnlocked([...unlocked, "Đà Nẵng"]);
       setCode("");
     } else {
       setError(true);
     }
   };
 
+  const activeData = activeNode ? CITY_DATA[activeNode] : null;
+
   return (
-    <div className="min-h-screen pt-32 pb-24 relative overflow-hidden flex flex-col items-center">
-      {/* Grid Pattern Background */}
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h40v40H0V0zm20 20h20v20H20V20zM0 20h20v20H0V20z\' fill=\'%232a2a27\' fill-opacity=\'0.02\' fill-rule=\'evenodd\'/%3E%3C/svg%3E')] -z-10"></div>
-      
-      <div className="container mx-auto px-6 max-w-[1200px] relative z-10 flex flex-col lg:flex-row gap-16 items-start justify-center">
-        {/* Left side: Passport / Form */}
+    <div className="min-h-screen pt-32 pb-24 relative overflow-hidden flex flex-col items-center bg-cream">
+      <div className="container mx-auto px-6 max-w-[1300px] relative z-10 flex flex-col lg:flex-row gap-8 lg:gap-16 items-start justify-center">
+        
+        {/* Left side: Passport / Form (Unchanged per requirements) */}
         <div className="w-full lg:w-[400px] flex flex-col gap-8 shrink-0 lg:sticky lg:top-32">
           <div>
             <div className="inline-flex items-center gap-3 mb-6">
@@ -117,17 +163,12 @@ export default function MapPage() {
           </div>
         </div>
 
-        {/* Right side: Stylized Map */}
-        <div className="w-full lg:w-[500px] lg:shrink-0 h-[600px] lg:h-[700px] bg-cream border-4 border-primary-green relative flex items-center justify-center p-4 overflow-hidden shadow-2xl mx-auto">
-          {/* Stylized Grid Overlay */}
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h100v100H0V0zm20 20h60v60H20V20zM0 20h100v20H0V20z\' fill=\'%232a2a27\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'/%3E%3C/svg%3E')] pointer-events-none"></div>
+        {/* Right side: Redesigned Interactive Map Area */}
+        <div className="w-full lg:flex-1 relative flex flex-col lg:flex-row gap-6 items-start lg:items-stretch">
           
-          <div className="absolute top-4 right-4 bg-primary-green text-cream px-4 py-2 font-mono text-xs font-bold tracking-widest uppercase">
-            LAT: 14.0583° N / LNG: 108.2772° E
-          </div>
-
-          <div className="relative w-full h-full max-w-[600px] mx-auto flex items-center justify-center">
-            {/* Base Map Image */}
+          {/* Map Container */}
+          <div className="w-full lg:w-[480px] lg:shrink-0 h-[600px] lg:h-[750px] relative overflow-hidden bg-cream mx-auto">
+            {/* The base map image without a thick border */}
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
                <Image 
                  src="/images/vietnam-map.jpg"
@@ -135,120 +176,200 @@ export default function MapPage() {
                  fill
                  quality={100}
                  unoptimized
-                 className="object-cover drop-shadow-2xl"
+                 className="object-cover object-center"
                />
             </div>
             
             {/* Interactive Nodes */}
-            <div className="relative w-full h-full max-w-[400px] mx-auto">
+            <div className="absolute inset-0 w-full h-full max-w-[480px] mx-auto z-10">
+              
               {/* Hanoi Node */}
-              <motion.div 
-                onClick={() => setActiveNode("Hà Nội")}
-                animate={{ 
-                  scale: unlocked.includes("Hà Nội") ? 1 : 0.8,
-                  opacity: unlocked.includes("Hà Nội") ? 1 : 0.5
-                }}
-                className="absolute top-[20%] right-[35%] cursor-pointer group flex flex-col items-center"
+              <div 
+                className="absolute top-[28%] left-[45%] flex items-center justify-center group"
               >
-                <div className={`w-12 h-12 flex items-center justify-center rounded-full border-2 ${unlocked.includes("Hà Nội") ? 'bg-primary-red border-primary-red' : 'bg-transparent border-primary-green/30 border-dashed'} transition-colors relative z-10`}>
-                  {unlocked.includes("Hà Nội") ? (
-                    <Sparkles className="w-5 h-5 text-cream" />
-                  ) : (
-                    <div className="w-2 h-2 bg-primary-green/30 rounded-full"></div>
-                  )}
+                <div 
+                  className="relative cursor-pointer"
+                  onClick={() => setActiveNode("Hà Nội")}
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.12 }}
+                    className={`w-6 h-6 flex items-center justify-center rounded-full transition-colors z-20 relative
+                      ${unlocked.includes("Hà Nội") 
+                        ? "bg-primary-red" 
+                        : "bg-transparent border-2 border-primary-red/80"}
+                      ${activeNode === "Hà Nội" ? "ring-4 ring-primary-red/30 scale-115" : ""}
+                    `}
+                  >
+                    {!unlocked.includes("Hà Nội") && (
+                      <div className="w-1.5 h-1.5 bg-primary-red/80 rounded-full" />
+                    )}
+                  </motion.div>
+                  {/* Tooltip on hover */}
+                  <div className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white px-3 py-2 shadow-lg rounded-md border border-foreground/10 z-30">
+                    <div className="font-display font-bold text-sm text-primary-green">HÀ NỘI</div>
+                    <div className="text-[10px] text-foreground-muted">{CITY_DATA["Hà Nội"].totalStories} mảnh ký ức đang chờ khám phá</div>
+                  </div>
                 </div>
-                {/* Hidden text since it's on the image */}
-                {unlocked.includes("Hà Nội") && (
-                  <div className="absolute top-0 w-12 h-12 bg-primary-red rounded-full animate-ping opacity-20"></div>
-                )}
-              </motion.div>
+              </div>
+
+              {/* Da Nang Node */}
+              <div 
+                className="absolute top-[56%] right-[28%] flex items-center justify-center group"
+              >
+                <div 
+                  className="relative cursor-pointer"
+                  onClick={() => setActiveNode("Đà Nẵng")}
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.12 }}
+                    className={`w-6 h-6 flex items-center justify-center rounded-full transition-colors z-20 relative
+                      ${unlocked.includes("Đà Nẵng") 
+                        ? "bg-primary-red" 
+                        : "bg-transparent border-2 border-primary-red/80"}
+                      ${activeNode === "Đà Nẵng" ? "ring-4 ring-primary-red/30 scale-115" : ""}
+                    `}
+                  >
+                    {!unlocked.includes("Đà Nẵng") && (
+                      <div className="w-1.5 h-1.5 bg-primary-red/80 rounded-full" />
+                    )}
+                  </motion.div>
+                  {/* Tooltip on hover */}
+                  <div className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white px-3 py-2 shadow-lg rounded-md border border-foreground/10 z-30">
+                    <div className="font-display font-bold text-sm text-primary-green">ĐÀ NẴNG</div>
+                    <div className="text-[10px] text-foreground-muted">{CITY_DATA["Đà Nẵng"].totalStories} mảnh ký ức đang chờ khám phá</div>
+                  </div>
+                </div>
+              </div>
 
               {/* HCM Node */}
-              <motion.div 
-                onClick={() => setActiveNode("Sài Gòn")}
-                animate={{ 
-                  scale: unlocked.includes("Sài Gòn") ? 1 : 0.8,
-                  opacity: unlocked.includes("Sài Gòn") ? 1 : 0.5
-                }}
-                className="absolute bottom-[20%] right-[45%] cursor-pointer group flex flex-col items-center"
+              <div 
+                className="absolute bottom-[16%] left-[38%] flex items-center justify-center group"
               >
-                <div className={`w-12 h-12 flex items-center justify-center rounded-full border-2 ${unlocked.includes("Sài Gòn") ? 'bg-primary-red border-primary-red' : 'bg-transparent border-primary-green/30 border-dashed'} transition-colors relative z-10`}>
-                  {unlocked.includes("Sài Gòn") ? (
-                    <Sparkles className="w-5 h-5 text-cream" />
-                  ) : (
-                    <div className="w-2 h-2 bg-primary-green/30 rounded-full"></div>
-                  )}
+                <div 
+                  className="relative cursor-pointer"
+                  onClick={() => setActiveNode("Thành phố Hồ Chí Minh")}
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.12 }}
+                    className={`w-6 h-6 flex items-center justify-center rounded-full transition-colors z-20 relative
+                      ${unlocked.includes("Thành phố Hồ Chí Minh") 
+                        ? "bg-primary-red" 
+                        : "bg-transparent border-2 border-primary-red/80"}
+                      ${activeNode === "Thành phố Hồ Chí Minh" ? "ring-4 ring-primary-red/30 scale-115" : ""}
+                    `}
+                  >
+                    {!unlocked.includes("Thành phố Hồ Chí Minh") && (
+                      <div className="w-1.5 h-1.5 bg-primary-red/80 rounded-full" />
+                    )}
+                  </motion.div>
+                  {/* Tooltip on hover */}
+                  <div className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white px-3 py-2 shadow-lg rounded-md border border-foreground/10 z-30">
+                    <div className="font-display font-bold text-sm text-primary-green">TP HỒ CHÍ MINH</div>
+                    <div className="text-[10px] text-foreground-muted">{CITY_DATA["Thành phố Hồ Chí Minh"].totalStories} mảnh ký ức đang chờ khám phá</div>
+                  </div>
                 </div>
-                {/* Hidden text since it's on the image */}
-                {unlocked.includes("Sài Gòn") && (
-                  <div className="absolute top-0 w-12 h-12 bg-primary-red rounded-full animate-ping opacity-20"></div>
-                )}
-              </motion.div>
+              </div>
+
             </div>
+
+            {/* Default state hint */}
+            <AnimatePresence>
+              {!activeNode && (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-cream/90 backdrop-blur border border-primary-green/20 px-6 py-4 rounded-lg shadow-sm w-[90%] text-center"
+                >
+                  <div className="text-xs font-bold uppercase tracking-widest text-primary-green mb-1 flex items-center justify-center gap-2">
+                    <MapPin className="w-3.5 h-3.5" />
+                    CHỌN MỘT ĐIỂM TRÊN BẢN ĐỒ
+                  </div>
+                  <div className="text-sm text-foreground-muted">
+                    Khám phá những mảnh ký ức từ ba miền Việt Nam.
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
+
+          {/* Heritage Discovery Panel (Slide-in) */}
+          <AnimatePresence mode="wait">
+            {activeNode && activeData && (
+              <motion.div
+                key={activeNode}
+                initial={{ opacity: 0, x: 16 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 16 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="w-full lg:flex-1 h-auto lg:h-[750px] bg-white border border-foreground/10 p-6 lg:p-8 flex flex-col rounded-lg lg:rounded-none shadow-sm lg:shadow-none"
+              >
+                {/* Header */}
+                <div className="flex items-start justify-between mb-6">
+                  <div>
+                    <h2 className="text-3xl lg:text-4xl font-display font-black uppercase text-primary-green leading-none mb-2">
+                      {activeData.title}
+                    </h2>
+                    <span className="text-sm font-bold uppercase tracking-widest text-primary-red">
+                      {activeData.subtitle}
+                    </span>
+                  </div>
+                  <button 
+                    onClick={() => setActiveNode(null)}
+                    className="p-2 hover:bg-foreground/5 rounded-full transition-colors text-foreground/40 hover:text-foreground shrink-0"
+                    aria-label="Close panel"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <p className="text-foreground-muted leading-relaxed mb-6 text-sm lg:text-base">
+                  {activeData.description}
+                </p>
+
+                {/* Collection Status */}
+                <div className={`px-4 py-3 rounded border mb-8 text-sm ${unlocked.includes(activeNode) ? 'bg-primary-green/5 border-primary-green/20 text-primary-green' : 'bg-foreground/5 border-foreground/10 text-foreground-muted'}`}>
+                  {unlocked.includes(activeNode) 
+                    ? `✓ Bạn đã sưu tập mảnh ký ức tại ${activeData.title}`
+                    : `Bạn chưa sở hữu mảnh ký ức nào tại ${activeData.title}.`}
+                </div>
+
+                {/* Story Preview Cards */}
+                <div className="flex-1 flex flex-col gap-3 lg:gap-4 overflow-y-auto mb-6">
+                  {activeData.stories.map((story, i) => (
+                    <div 
+                      key={story.id}
+                      className="group flex items-center gap-4 p-3 rounded-lg border border-foreground/10 hover:border-primary-green/30 hover:bg-cream/50 transition-all duration-300 cursor-pointer hover:shadow-sm"
+                      style={{ transitionProperty: 'transform, border-color, background-color, box-shadow' }}
+                    >
+                      <div className="w-16 h-16 shrink-0 bg-cream rounded border border-foreground/5 flex items-center justify-center p-2 group-hover:scale-105 transition-transform duration-300">
+                        <Image src={story.img} alt={story.title} width={40} height={40} className="object-contain opacity-80 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <div className="flex-1 min-w-0 transition-transform duration-300 group-hover:translate-x-1">
+                        <div className="text-[10px] text-foreground/40 font-mono font-bold mb-0.5">0{i + 1}</div>
+                        <h4 className="font-bold text-primary-green text-sm truncate">{story.title}</h4>
+                        <p className="text-xs text-foreground-muted truncate">{story.desc}</p>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-foreground/30 group-hover:text-primary-green transition-colors mr-2 shrink-0" />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Footer Action */}
+                <div className="pt-4 border-t border-foreground/10 flex flex-col items-center">
+                  <div className="text-xs text-foreground/50 mb-3 font-medium">
+                    3 / {activeData.totalStories} mảnh đang được giới thiệu
+                  </div>
+                  <button className="w-full bg-transparent border-2 border-primary-green text-primary-green hover:bg-primary-green hover:text-white transition-colors duration-300 font-bold uppercase tracking-widest text-xs py-4 rounded-md">
+                    {activeData.exploreText} &rarr;
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
         </div>
       </div>
-
-      {/* Side Panel for Node Details */}
-      <AnimatePresence>
-        {activeNode && (
-          <motion.div
-            initial={{ opacity: 0, x: '100%' }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 bottom-0 w-full md:w-[400px] bg-[#FAFAFA] border-l-4 border-foreground z-50 shadow-2xl flex flex-col"
-          >
-            <div className="p-6 flex items-center justify-between border-b border-foreground/10">
-              <span className="text-xs font-bold uppercase tracking-widest text-foreground/40 font-mono">TRẠM DỪNG</span>
-              <button onClick={() => setActiveNode(null)} className="p-2 hover:bg-foreground/5 transition-colors">
-                <X className="w-6 h-6 text-foreground" />
-              </button>
-            </div>
-            
-            <div className="p-8 flex-1 overflow-y-auto">
-              <div className="w-full aspect-square bg-[#F5F2EB] border border-foreground/10 mb-8 flex items-center justify-center p-8">
-                <Image 
-                  src={activeNode === 'Hà Nội' ? "https://illustrations.popsy.co/amber/home-office.svg" : "https://illustrations.popsy.co/amber/street-food.svg"} 
-                  alt={activeNode}
-                  width={200}
-                  height={200}
-                  className="object-contain"
-                />
-              </div>
-              
-              <h2 className="font-display font-black text-4xl uppercase tracking-tighter mb-4">{activeNode}</h2>
-              <p className="text-foreground-muted font-medium mb-8 leading-relaxed">
-                {activeNode === 'Hà Nội' 
-                  ? "Chiếc xe đạp chở đầy hoa cúc họa mi lướt qua những con phố rêu phong. Tiếng rao của cô bán xôi đầu ngõ hòa cùng hơi ấm của tách cà phê trứng... Đó là cách một ngày ở Hà Nội bắt đầu."
-                  : "Đến nhanh và đi cũng vội. Cơn mưa chiều Sài Gòn làm dịu đi cái nóng oi ả, nhường chỗ cho những ngọn đèn đường vàng vọt hắt xuống dòng người hối hả ngược xuôi."
-                }
-              </p>
-
-              <div className="space-y-4">
-                <Link href={`/collection/manh-${activeNode === 'Hà Nội' ? 'ha-noi' : 'sai-gon'}`} className="w-full flex items-center justify-between p-4 bg-foreground text-white hover:bg-terracotta transition-colors group">
-                  <span className="text-xs font-bold uppercase tracking-widest">XEM SẢN PHẨM</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link href={`/story-hub/${activeNode === 'Hà Nội' ? 'hanoi-01' : 'saigon-01'}`} className="w-full flex items-center justify-between p-4 border-2 border-foreground bg-transparent text-foreground hover:bg-foreground/5 transition-colors group">
-                  <span className="text-xs font-bold uppercase tracking-widest">ĐỌC CÂU CHUYỆN</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {activeNode && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={() => setActiveNode(null)}
-          className="fixed inset-0 bg-background/50 backdrop-blur-sm z-40"
-        />
-      )}
     </div>
   );
 }
