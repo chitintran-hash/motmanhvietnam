@@ -2,6 +2,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { register } from "@/app/lib/actions";
+import { trackEvent } from "@/lib/analytics";
 
 export default function RegisterPage() {
   const [errorMessage, formAction, isPending] = useActionState(register, undefined);
@@ -14,7 +15,11 @@ export default function RegisterPage() {
           <p className="text-foreground/60 mt-2 font-light">Tạo tài khoản Một Mảnh Việt Nam</p>
         </div>
 
-        <form action={formAction} className="space-y-4">
+        <form 
+          action={formAction} 
+          className="space-y-4"
+          onSubmit={() => trackEvent('click_register')}
+        >
           <div>
             <label className="block text-sm font-medium text-foreground/80 mb-1">Họ và tên</label>
             <input 

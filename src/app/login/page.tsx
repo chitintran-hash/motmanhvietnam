@@ -3,6 +3,7 @@ import { useState, useActionState } from "react";
 import Link from "next/link";
 import { authenticate } from "@/app/lib/actions";
 import { useSearchParams } from "next/navigation";
+import { trackEvent } from "@/lib/analytics";
 
 export default function LoginPage() {
   const [errorMessage, formAction, isPending] = useActionState(authenticate, undefined);
@@ -35,7 +36,11 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form action={formAction} className="space-y-4">
+        <form 
+          action={formAction} 
+          className="space-y-4"
+          onSubmit={() => trackEvent('click_login')}
+        >
           <div>
             <label className="block text-sm font-medium text-foreground/80 mb-1">Email</label>
             <input 

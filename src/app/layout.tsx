@@ -3,6 +3,7 @@ import { Be_Vietnam_Pro, Montserrat } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 const beVietnam = Be_Vietnam_Pro({
   weight: ['400', '500', '600', '700'],
@@ -34,6 +35,7 @@ export default async function RootLayout({
   return (
     <html lang="vi" className={`${beVietnam.variable} ${montserrat.variable}`}>
       <body className="antialiased min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-terracotta selection:text-white">
+        <GoogleAnalytics />
         <Header session={session} />
         <main className="flex-1 w-full relative">
           {children}

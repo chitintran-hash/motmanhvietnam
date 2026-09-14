@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Badge from "./Badge";
 import { ArrowRight } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 interface ProductCardProps {
   slug: string;
@@ -42,7 +43,11 @@ export default function ProductCard({ slug, name, city, collectionNumber, price,
   }
 
   return (
-    <Link href={`/collection/${slug}`} className="group block">
+    <Link 
+      href={`/collection/${slug}`} 
+      className="group block"
+      onClick={() => trackEvent('click_product_card', { product_slug: slug, product_name: name })}
+    >
       <div className={`bg-cream border-4 ${borderColor} p-4 sm:p-6 shadow-[8px_8px_0px_rgba(42,42,39,1)] hover:shadow-[4px_4px_0px_rgba(42,42,39,1)] transition-all duration-300 relative flex flex-col h-full hover:translate-x-1 hover:translate-y-1`}>
         
         <div className="flex justify-between items-start mb-6">

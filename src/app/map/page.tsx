@@ -5,6 +5,8 @@ import { MapPin, KeyRound, Sparkles, X, ArrowRight } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import Link from "next/link";
 import Image from "next/image";
+import { trackEvent } from "@/lib/analytics";
+import { usePathname } from "next/navigation";
 
 type CityKey = "Hà Nội" | "Đà Nẵng" | "Thành phố Hồ Chí Minh";
 
@@ -54,10 +56,18 @@ export default function MapPage() {
   const [unlocked, setUnlocked] = useState<CityKey[]>([]);
   const [error, setError] = useState(false);
   const [activeNode, setActiveNode] = useState<CityKey | null>(null);
+  const pathname = usePathname();
   
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
     setError(false);
+    
+    // Track unlock code submission
+    trackEvent('submit_unlock_code', {
+      code_status: 'submitted',
+      page_path: pathname
+    });
+
     const input = code.toLowerCase().trim();
     
     if (input === "hanoi") {
@@ -72,6 +82,14 @@ export default function MapPage() {
     } else {
       setError(true);
     }
+  };
+
+  const handleNodeClick = (city: CityKey) => {
+    setActiveNode(city);
+    trackEvent('click_map_location', {
+      location_name: city,
+      page_path: pathname
+    });
   };
 
   const activeData = activeNode ? CITY_DATA[activeNode] : null;
@@ -188,7 +206,7 @@ export default function MapPage() {
               >
                 <div 
                   className="relative cursor-pointer flex items-center justify-center w-10 h-10 rounded-full"
-                  onClick={() => setActiveNode("Hà Nội")}
+                  onClick={() => handleNodeClick("Hà Nội")}
                 >
                   <motion.div
                     whileHover={{ scale: 1.12 }}
@@ -211,7 +229,7 @@ export default function MapPage() {
               >
                 <div 
                   className="relative cursor-pointer flex items-center justify-center w-10 h-10 rounded-full"
-                  onClick={() => setActiveNode("Đà Nẵng")}
+                  onClick={() => handleNodeClick("Đà Nẵng")}
                 >
                   <motion.div
                     whileHover={{ scale: 1.12 }}
@@ -234,7 +252,7 @@ export default function MapPage() {
               >
                 <div 
                   className="relative cursor-pointer flex items-center justify-center w-10 h-10 rounded-full"
-                  onClick={() => setActiveNode("Thành phố Hồ Chí Minh")}
+                  onClick={() => handleNodeClick("Thành phố Hồ Chí Minh")}
                 >
                   <motion.div
                     whileHover={{ scale: 1.12 }}

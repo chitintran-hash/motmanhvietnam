@@ -3,6 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Trash2, ArrowRight, Minus, Plus } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 export default function CartPage() {
   const [items, setItems] = useState([
@@ -150,7 +151,10 @@ export default function CartPage() {
                   </div>
                 </div>
                 
-                <button className="w-full py-4 bg-primary-green text-cream font-bold uppercase tracking-widest hover:bg-primary-red transition-colors border-2 border-primary-green hover:border-primary-red shadow-[4px_4px_0px_rgba(46,91,70,1)] flex items-center justify-center gap-2">
+                <button 
+                  className="w-full py-4 bg-primary-green text-cream font-bold uppercase tracking-widest hover:bg-primary-red transition-colors border-2 border-primary-green hover:border-primary-red shadow-[4px_4px_0px_rgba(46,91,70,1)] flex items-center justify-center gap-2"
+                  onClick={() => trackEvent('checkout_start', { value: total, currency: 'VND', items: items.map(i => ({ item_id: i.id, item_name: i.name, quantity: i.quantity, price: i.price })) })}
+                >
                   TIẾN HÀNH THANH TOÁN
                   <ArrowRight className="w-5 h-5" />
                 </button>

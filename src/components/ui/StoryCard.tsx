@@ -3,6 +3,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { QrCode, Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { trackEvent } from "@/lib/analytics";
 
 interface StoryCardProps {
   id?: string;
@@ -93,7 +94,11 @@ export default function StoryCard({ id = "hanoi-01", city, name, collectionNumbe
           </p>
 
           <div className={`mt-auto w-full flex flex-col items-center pt-6 border-t-2 ${borderColor}`}>
-            <Link href={`/story-hub/${id}`} className={`group w-full flex items-center justify-between p-3 ${primaryColor} text-cream transition-colors mb-4`}>
+            <Link 
+              href={`/story-hub/${id}`} 
+              className={`group w-full flex items-center justify-between p-3 ${primaryColor} text-cream transition-colors mb-4`}
+              onClick={() => trackEvent('click_story_card', { story_id: id })}
+            >
               <span className="text-xs font-bold uppercase tracking-widest">
                 ĐỌC CHI TIẾT
               </span>
