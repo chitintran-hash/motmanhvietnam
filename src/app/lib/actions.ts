@@ -54,7 +54,7 @@ export async function register(prevState: string | undefined, formData: FormData
         }
 
         const supabaseAdmin = getSupabaseServer();
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://motmanhvietnam.store');
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.motmanhvietnam.store';
 
         const { data: authData, error: authError } = await supabaseAdmin.auth.signUp({
             email,
@@ -121,7 +121,7 @@ export async function forgotPassword(prevState: string | undefined, formData: Fo
         }
 
         const supabaseAdmin = getSupabaseServer();
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://motmanhvietnam.store');
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.motmanhvietnam.store';
 
         const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
             redirectTo: `${siteUrl}/reset-password`,
