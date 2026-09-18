@@ -77,3 +77,74 @@ export async function createProductAction(prevState: any, formData: FormData) {
   revalidatePath('/collection');
   redirect('/admin/products');
 }
+export async function editProductAction(prevState: any, formData: FormData) {
+  try {
+    const session = await auth();
+    if (!session || (session.user as any)?.role !== 'admin') {
+      return { success: false, message: 'Unauthorized' };
+    }
+
+    const supabase = getSupabaseServer();
+
+    const id = formData.get('id') as string;
+    const name = formData.get('name') as string;
+    const slug = formData.get('slug') as string;
+    const city = formData.get('city') as string;
+    const short_description = formData.get('short_description') as string;
+    const description = formData.get('description') as string;
+    const price = parseFloat(formData.get('price') as string || '0');
+    const stock = parseInt(formData.get('stock') as string || '0');
+    const status = formData.get('status') as string;
+    const imageFile = formData.get('image') as File;
+
+    if (!id || !name || !slug) {
+      return { success: false, message: 'ID, Tên và Slug là bắt buộc.' };
+    }
+
+    const productPayload: any = {
+      name,
+      slug,
+      city,
+      short_description,
+      description,
+      price,
+      stock,
+      status,
+    };
+
+    if (imageFile && imageFile.size > 0) {
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${slug}-${Date.now()}.${fileExt}`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('product_images')
+        .upload(`public/${fileName}`, imageFile);
+
+      if (uploadError) {
+        console.error('Upload Error:', uploadError);
+        return { success: false, message: 'Lỗi tải ảnh lên: ' + uploadError.message };
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from('product_images')
+        .getPublicUrl(`public/${fileName}`);
+        
+      productPayload.image_url = publicUrlData.publicUrl;
+    }
+
+    const { error: updateError } = await supabase.from('mm_products').update(productPayload).eq('id', id);
+
+    if (updateError) {
+      console.error('Update Error:', updateError);
+      return { success: false, message: 'Lỗi cập nhật sản phẩm: ' + updateError.message };
+    }
+
+  } catch (error: any) {
+    console.error('Edit Product Exception:', error);
+    return { success: false, message: 'Lỗi hệ thống: ' + error.message };
+  }
+
+  revalidatePath('/admin/products');
+  revalidatePath('/collection');
+  revalidatePath('/');
+  redirect('/admin/products');
+}

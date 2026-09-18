@@ -1,105 +1,71 @@
-"use client";
-import { motion } from "framer-motion";
 import { Sparkles, ShoppingBag } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
+import { getSupabaseServer } from "@/lib/supabase-server";
 
-const mockProducts = [
-  {
-    slug: "manh-ha-noi",
-    name: "MẢNH HÀ NỘI",
-    city: "Hà Nội",
-    collectionNumber: "COLL_01",
-    price: "129,000 ₫",
-    imageUrl: "https://illustrations.popsy.co/amber/home-office.svg",
-  },
-  {
-    slug: "manh-sai-gon",
-    name: "MẢNH SÀI GÒN",
-    city: "Sài Gòn",
-    collectionNumber: "COLL_01",
-    price: "129,000 ₫",
-    imageUrl: "https://illustrations.popsy.co/amber/street-food.svg",
-  },
-  {
-    slug: "manh-da-nang",
-    name: "MẢNH ĐÀ NẴNG",
-    city: "Đà Nẵng",
-    collectionNumber: "COLL_01",
-    price: "129,000 ₫",
-    imageUrl: "https://illustrations.popsy.co/amber/surfer.svg",
-  },
-  {
-    slug: "manh-hoi-an",
-    name: "MẢNH HỘI AN",
-    city: "Hội An",
-    collectionNumber: "COLL_01",
-    price: "129,000 ₫",
-    imageUrl: "https://illustrations.popsy.co/amber/plant.svg",
-  },
-  {
-    slug: "manh-hue",
-    name: "MẢNH HUẾ",
-    city: "Huế",
-    collectionNumber: "COLL_01",
-    price: "129,000 ₫",
-    imageUrl: "https://illustrations.popsy.co/amber/painting.svg",
-  },
-  {
-    slug: "manh-tay-nguyen",
-    name: "MẢNH TÂY NGUYÊN",
-    city: "Tây Nguyên",
-    collectionNumber: "COLL_01",
-    price: "129,000 ₫",
-    imageUrl: "https://illustrations.popsy.co/amber/camping.svg",
-  }
-];
+export const revalidate = 0;
 
-export default function CollectionPage() {
+export default async function CollectionPage() {
+  const supabase = getSupabaseServer();
+  const { data: products } = await supabase
+    .from('mm_products')
+    .select('*')
+    .eq('status', 'active')
+    .order('created_at', { ascending: false });
+
+  const displayProducts = (products || []).map(p => ({
+    slug: p.slug,
+    name: p.name,
+    city: p.city || "Việt Nam",
+    collectionNumber: "COLL_01",
+    price: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price),
+    imageUrl: p.image_url || "https://illustrations.popsy.co/amber/home-office.svg",
+    isNew: true
+  }));
+
   return (
-    <div className="min-h-screen pt-32 pb-24 relative">
+    <div className="min-h-screen bg-background pt-24 pb-32">
+      {/* Header */}
+      <div className="container mx-auto px-6 max-w-[1400px] mb-20">
+        <div className="max-w-3xl">
+          <div className="inline-flex items-center gap-3 mb-6">
+            <Sparkles className="w-5 h-5 text-terracotta" />
+            <span className="text-sm font-bold uppercase tracking-[0.2em] text-terracotta">KHÁM PHÁ SẢN PHẨM</span>
+          </div>
+          
+          <h1 className="text-5xl md:text-7xl font-display font-black text-foreground mb-8 uppercase tracking-tight leading-[1.1]">
+            Mỗi Mảnh Ghép <br/>
+            <span className="text-terracotta">Một Câu Chuyện</span>
+          </h1>
+
+          <p className="text-xl text-foreground-muted font-medium max-w-2xl leading-relaxed">
+            Khám phá bộ sưu tập những mảnh ghép mang đậm bản sắc văn hóa Việt. 
+            Từ đường phố nhộn nhịp đến phong cảnh hữu tình, tất cả được thu nhỏ 
+            trong lòng bàn tay bạn.
+          </p>
+        </div>
+      </div>
+
+      {/* Grid */}
       <div className="container mx-auto px-6 max-w-[1400px]">
-        <div className="text-center mb-24 max-w-3xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-3 mb-6"
-          >
-            <div className="w-12 h-px bg-terracotta/50"></div>
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta">
-              MÙA 01
-            </span>
-            <div className="w-12 h-px bg-terracotta/50"></div>
-          </motion.div>
-          
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-5xl md:text-6xl font-display font-black text-foreground mb-8 uppercase tracking-tighter"
-          >
-            NHỮNG MẢNH ĐẦU TIÊN
-          </motion.h1>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-foreground-muted text-lg font-medium leading-relaxed"
-          >
-            6 mẫu thường và 1 mẫu đặc biệt ẩn giấu. Mỗi Blind Box mang đến sự bất ngờ, một câu chuyện chưa được kể và một mảnh ghép để bắt đầu bộ sưu tập Việt Nam của riêng bạn.
-          </motion.p>
+        {/* Filters and sorting could go here */}
+        <div className="flex justify-between items-center mb-12 py-4 border-y border-foreground/10">
+          <div className="text-foreground-muted font-medium">
+            Hiển thị <span className="text-foreground font-bold">{displayProducts.length}</span> sản phẩm
+          </div>
+          <div className="flex gap-4">
+            <select className="bg-transparent text-foreground font-medium focus:outline-none cursor-pointer">
+              <option>Mới nhất</option>
+              <option>Giá tăng dần</option>
+              <option>Giá giảm dần</option>
+            </select>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
-          {mockProducts.map((product, index) => (
-            <motion.div
-              key={product.slug}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <ProductCard {...product} />
-            </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+          {displayProducts.map((product, index) => (
+            <div key={product.slug}>
+              <ProductCard {...product} isNew={index < 3} />
+            </div>
           ))}
 
           {/* Secret Piece Card */}

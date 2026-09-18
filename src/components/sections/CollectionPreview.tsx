@@ -4,37 +4,8 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import ProductCard from "../ui/ProductCard";
 
-const mockProducts = [
-  {
-    slug: "manh-ha-noi",
-    name: "MẢNH HÀ NỘI",
-    city: "Hà Nội",
-    collectionNumber: "COLL_01",
-    price: "350,000 ₫",
-    imageUrl: "https://illustrations.popsy.co/amber/home-office.svg", // Placeholder
-    isNew: true
-  },
-  {
-    slug: "manh-sai-gon",
-    name: "MẢNH SÀI GÒN",
-    city: "Sài Gòn",
-    collectionNumber: "COLL_01",
-    price: "350,000 ₫",
-    imageUrl: "https://illustrations.popsy.co/amber/street-food.svg", // Placeholder
-    isNew: true
-  },
-  {
-    slug: "manh-da-nang",
-    name: "MẢNH ĐÀ NẴNG",
-    city: "Đà Nẵng",
-    collectionNumber: "COLL_01",
-    price: "350,000 ₫",
-    imageUrl: "https://illustrations.popsy.co/amber/surfer.svg", // Placeholder
-    isNew: true
-  }
-];
-
-export default function CollectionPreview() {
+export default function CollectionPreview({ products }: { products: any[] }) {
+  const displayProducts = products.length > 0 ? products : [];
   return (
     <section className="py-32">
       <div className="container mx-auto px-6 max-w-[1400px]">
@@ -57,11 +28,11 @@ export default function CollectionPreview() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {mockProducts.map((product, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {displayProducts.map((product, index) => (
             <motion.div
               key={product.slug}
-              initial={{ opacity: 0, y: 50 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
