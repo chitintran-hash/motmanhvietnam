@@ -5,27 +5,25 @@ import Link from "next/link";
 import { Trash2, ArrowRight, Minus, Plus } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 
+import { useEffect } from "react";
+
 export default function CartPage() {
-  const [items, setItems] = useState([
-    {
-      id: "sg-01",
-      name: "Blind Box Sài Gòn",
-      price: 250000,
-      quantity: 1,
-      image: "/images/ben-thanh.jpg",
-      color: "text-primary-red",
-      bgColor: "bg-primary-red"
-    },
-    {
-      id: "hn-01",
-      name: "Blind Box Hà Nội",
-      price: 250000,
-      quantity: 1,
-      image: "https://illustrations.popsy.co/amber/home-office.svg",
-      color: "text-primary-green",
-      bgColor: "bg-primary-green"
+  const [items, setItems] = useState<any[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('mm_cart');
+    if (saved) {
+      try { setItems(JSON.parse(saved)); } catch (e) {}
     }
-  ]);
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem('mm_cart', JSON.stringify(items));
+    }
+  }, [items, mounted]);
 
   const updateQuantity = (id: string, delta: number) => {
     setItems(items.map(item => {
@@ -44,6 +42,8 @@ export default function CartPage() {
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = items.length > 0 ? 30000 : 0;
   const total = subtotal + shipping;
+
+  if (!mounted) return null;
 
   return (
     <div className="min-h-screen pt-32 pb-24 bg-cream">

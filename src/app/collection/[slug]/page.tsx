@@ -70,7 +70,7 @@ export default async function ProductDetail(props: { params: Promise<{ slug: str
               {priceFormatted}
             </div>
             
-            <AddToCartButton priceFormatted={priceFormatted} />
+            <AddToCartButton product={product} priceFormatted={priceFormatted} displayPrice={displayPrice} />
 
             <div className="grid grid-cols-2 gap-4 border-t border-b border-foreground/10 py-8 mb-8">
               <div className="flex flex-col gap-2">

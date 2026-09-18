@@ -3,11 +3,41 @@
 import { ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export default function AddToCartButton({ priceFormatted }: { priceFormatted: string }) {
+export default function AddToCartButton({ 
+  product, 
+  priceFormatted,
+  displayPrice
+}: { 
+  product: any, 
+  priceFormatted: string,
+  displayPrice: number
+}) {
   const router = useRouter();
 
   const handleAddToCart = () => {
-    alert("Đã thêm vào giỏ hàng thành công!");
+    const saved = localStorage.getItem('mm_cart');
+    let cart = [];
+    if (saved) {
+      try { cart = JSON.parse(saved); } catch (e) {}
+    }
+    
+    const existingIndex = cart.findIndex((item: any) => item.id === product.id);
+    if (existingIndex >= 0) {
+      cart[existingIndex].quantity += 1;
+    } else {
+      cart.push({
+        id: product.id,
+        name: product.name,
+        price: displayPrice,
+        quantity: 1,
+        image: product.image_url || "https://illustrations.popsy.co/amber/home-office.svg",
+        color: "text-foreground",
+        bgColor: "bg-foreground"
+      });
+    }
+    
+    localStorage.setItem('mm_cart', JSON.stringify(cart));
+    
     router.push("/cart");
   };
 
