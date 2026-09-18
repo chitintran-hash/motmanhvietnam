@@ -51,7 +51,7 @@ export default async function AdminProductsPage() {
                     </div>
                   </td>
                   <td className="py-4 px-6 font-medium">
-                    {product.price.toLocaleString('vi-VN')} đ
+                    {(product.price < 10000 ? product.price * 1000 : product.price).toLocaleString('vi-VN')} đ
                   </td>
                   <td className="py-4 px-6">
                     <span className={product.stock > 0 ? 'text-foreground' : 'text-red-500 font-bold'}>

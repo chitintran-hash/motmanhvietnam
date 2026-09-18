@@ -13,15 +13,18 @@ export default async function CollectionPage() {
     .eq('status', 'active')
     .order('created_at', { ascending: false });
 
-  const displayProducts = (products || []).map(p => ({
-    slug: p.slug,
-    name: p.name,
-    city: p.city || "Việt Nam",
-    collectionNumber: "COLL_01",
-    price: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price),
-    imageUrl: p.image_url || "https://illustrations.popsy.co/amber/home-office.svg",
-    isNew: true
-  }));
+  const displayProducts = (products || []).map(p => {
+    const displayPrice = p.price < 10000 ? p.price * 1000 : p.price;
+    return {
+      slug: p.slug,
+      name: p.name,
+      city: p.city || "Việt Nam",
+      collectionNumber: "COLL_01",
+      price: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(displayPrice),
+      imageUrl: p.image_url || "https://illustrations.popsy.co/amber/home-office.svg",
+      isNew: true
+    };
+  });
 
   return (
     <div className="min-h-screen bg-background pt-24 pb-32">
