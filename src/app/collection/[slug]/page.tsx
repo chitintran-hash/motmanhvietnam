@@ -1,10 +1,26 @@
-"use client";
-import { motion } from "framer-motion";
 import { ShoppingBag, ArrowLeft, Package, Map, FileText, Sparkles } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { getSupabaseServer } from "@/lib/supabase-server";
+import { notFound } from "next/navigation";
 
-export default function ProductDetail({ params }: { params: { slug: string } }) {
+export const revalidate = 0;
+
+export default async function ProductDetail({ params }: { params: { slug: string } }) {
+  const supabase = getSupabaseServer();
+  const { data: product } = await supabase
+    .from('mm_products')
+    .select('*')
+    .eq('slug', params.slug)
+    .single();
+
+  if (!product) {
+    notFound();
+  }
+
+  const priceFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price);
+  const imageUrl = product.image_url || "https://illustrations.popsy.co/amber/home-office.svg";
+
   return (
     <div className="min-h-screen pt-32 pb-24 bg-background">
       <div className="container mx-auto px-6 max-w-[1200px]">
@@ -22,8 +38,8 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
             </div>
             <div className="relative w-[80%] h-[80%]">
               <Image 
-                src="https://illustrations.popsy.co/amber/home-office.svg"
-                alt="Product Image"
+                src={imageUrl}
+                alt={product.name}
                 fill
                 className="object-contain drop-shadow-2xl"
               />
@@ -34,28 +50,43 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
           <div className="flex flex-col justify-center">
             <div className="inline-flex items-center gap-3 mb-4">
               <span className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta">
-                HÀ NỘI
+                {product.city || "Việt Nam"}
               </span>
             </div>
             <h1 className="text-5xl lg:text-6xl font-display font-black text-foreground mb-4 uppercase tracking-tighter">
-              MẢNH HÀ NỘI
+              {product.name}
             </h1>
             <p className="text-xl text-foreground-muted font-medium mb-8">
-              Hồ Gươm • Một góc ký ức
+              {product.short_description || "Mảnh ghép độc quyền"}
             </p>
             
             <div className="text-3xl font-display font-bold text-foreground mb-10">
-              129,000 ₫
+              {priceFormatted}
             </div>
             
-            <button onClick={() => alert("Đã thêm vào giỏ hàng!")} className="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-terracotta text-white font-bold tracking-widest text-sm uppercase hover:bg-terracotta-hover transition-all shadow-[6px_6px_0px_rgba(42,42,39,1)] hover:shadow-[2px_2px_0px_rgba(42,42,39,1)] hover:translate-x-[4px] hover:translate-y-[4px] w-full sm:w-auto mb-12">
+            <button className="w-full bg-foreground text-white font-bold uppercase tracking-wider py-5 rounded-xl hover:bg-terracotta transition-colors flex items-center justify-center gap-3 shadow-[4px_4px_0px_rgba(0,0,0,0.1)] hover:shadow-[2px_2px_0px_rgba(0,0,0,0.1)] hover:translate-y-[2px] hover:translate-x-[2px] duration-200 mb-8">
               <ShoppingBag className="w-5 h-5" />
-              THÊM VÀO GIỎ HÀNG
+              THÊM VÀO GIỎ ({priceFormatted})
             </button>
+
+            <div className="grid grid-cols-2 gap-4 border-t border-b border-foreground/10 py-8 mb-8">
+              <div className="flex flex-col gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-foreground-muted flex items-center gap-2">
+                  <Package className="w-4 h-4" /> Trạng thái
+                </span>
+                <span className="font-medium text-foreground">{product.stock > 0 ? "Còn hàng" : "Hết hàng"}</span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-foreground-muted flex items-center gap-2">
+                  <Map className="w-4 h-4" /> Thành phố
+                </span>
+                <span className="font-medium text-foreground">{product.city || "Việt Nam"}</span>
+              </div>
+            </div>
 
             <div className="border-t border-foreground/10 pt-8">
               <p className="text-foreground-muted leading-relaxed font-medium">
-                Chiếc Pin cài áo này là một lời nhắc nhở về những buổi sáng mùa thu se lạnh ở thủ đô, với ly cà phê trứng nồng nàn và tiếng lá sấu rơi xào xạc.
+                {product.description || "Chiếc Pin cài áo này là một lời nhắc nhở về những buổi sáng mùa thu se lạnh ở thủ đô, với ly cà phê trứng nồng nàn và tiếng lá sấu rơi xào xạc."}
               </p>
             </div>
           </div>
