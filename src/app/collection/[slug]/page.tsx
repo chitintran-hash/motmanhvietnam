@@ -6,12 +6,14 @@ import { notFound } from "next/navigation";
 
 export const revalidate = 0;
 
-export default async function ProductDetail({ params }: { params: { slug: string } }) {
+export default async function ProductDetail(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
+  const slug = params.slug;
   const supabase = getSupabaseServer();
   const { data: product } = await supabase
     .from('mm_products')
     .select('*')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .single();
 
   if (!product) {
