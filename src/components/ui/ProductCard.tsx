@@ -80,7 +80,13 @@ export default function ProductCard({ slug, name, city, collectionNumber, price,
         <div className="flex flex-col flex-1">
           <h3 className={`font-display font-black text-2xl mb-2 ${textColor}`}>{name}</h3>
           <div className={`w-12 h-1 ${primaryColor} mb-4 transition-colors`}></div>
-          <p className="text-foreground font-bold mb-6 flex-1 text-lg">{price}</p>
+          <p className="text-foreground font-bold mb-6 flex-1 text-lg">
+            {typeof price === 'number' && price < 10000 
+              ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price * 1000) 
+              : typeof price === 'number'
+                ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)
+                : price}
+          </p>
           
           <div className={`flex items-center justify-between w-full border-t-2 border-foreground/10 pt-4`}>
             <span className={`text-xs font-bold uppercase tracking-widest ${textColor}`}>

@@ -1,8 +1,10 @@
-import { ShoppingBag, ArrowLeft, Package, Map, FileText, Sparkles } from "lucide-react";
+import { Sparkles, ShoppingBag, ArrowLeft, Package, Map, FileText } from "lucide-react";
+import ProductCard from "@/components/ui/ProductCard";
+import { getSupabaseServer } from "@/lib/supabase-server";
 import Link from "next/link";
 import Image from "next/image";
-import { getSupabaseServer } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
+import AddToCartButton from "@/components/ui/AddToCartButton";
 
 export const revalidate = 0;
 
@@ -20,7 +22,9 @@ export default async function ProductDetail(props: { params: Promise<{ slug: str
     notFound();
   }
 
-  const priceFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price);
+  // Fix price format if admin typed '139' instead of '139000'
+  const displayPrice = product.price < 10000 ? product.price * 1000 : product.price;
+  const priceFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(displayPrice);
   const imageUrl = product.image_url || "https://illustrations.popsy.co/amber/home-office.svg";
 
   return (
@@ -66,10 +70,7 @@ export default async function ProductDetail(props: { params: Promise<{ slug: str
               {priceFormatted}
             </div>
             
-            <button className="w-full bg-foreground text-white font-bold uppercase tracking-wider py-5 rounded-xl hover:bg-terracotta transition-colors flex items-center justify-center gap-3 shadow-[4px_4px_0px_rgba(0,0,0,0.1)] hover:shadow-[2px_2px_0px_rgba(0,0,0,0.1)] hover:translate-y-[2px] hover:translate-x-[2px] duration-200 mb-8">
-              <ShoppingBag className="w-5 h-5" />
-              THÊM VÀO GIỎ ({priceFormatted})
-            </button>
+            <AddToCartButton priceFormatted={priceFormatted} />
 
             <div className="grid grid-cols-2 gap-4 border-t border-b border-foreground/10 py-8 mb-8">
               <div className="flex flex-col gap-2">
@@ -88,7 +89,7 @@ export default async function ProductDetail(props: { params: Promise<{ slug: str
 
             <div className="border-t border-foreground/10 pt-8">
               <p className="text-foreground-muted leading-relaxed font-medium">
-                {product.description || "Chiếc Pin cài áo này là một lời nhắc nhở về những buổi sáng mùa thu se lạnh ở thủ đô, với ly cà phê trứng nồng nàn và tiếng lá sấu rơi xào xạc."}
+                {product.description || "Mỗi mảnh ghép mang trong mình một câu chuyện độc đáo về văn hóa, con người và những kỷ niệm khó quên. Hãy cùng khám phá vẻ đẹp của Việt Nam qua lăng kính sáng tạo."}
               </p>
             </div>
           </div>
