@@ -1,6 +1,7 @@
 import { Sparkles, ShoppingBag } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
 import { getSupabaseServer } from "@/lib/supabase-server";
+import Link from "next/link";
 
 export const revalidate = 0;
 
@@ -69,12 +70,7 @@ export default async function CollectionPage() {
           ))}
 
           {/* Secret Piece Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="lg:col-span-3 xl:col-span-3 mt-8"
-          >
+          <div className="lg:col-span-3 xl:col-span-3 mt-8">
             <div className="bg-foreground border border-foreground/10 p-8 sm:p-12 shadow-2xl relative flex flex-col md:flex-row items-center justify-between overflow-hidden gap-8">
               {/* Subtle gold noise overlay */}
               <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E')] mix-blend-color-burn"></div>
@@ -96,16 +92,11 @@ export default async function CollectionPage() {
                 <span className="font-display font-black text-8xl text-gold/20">?</span>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* Purchase CTA */}
-        <motion.div 
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mt-32 max-w-4xl mx-auto bg-[#F5F2EB] border-4 border-foreground p-12 text-center relative"
-        >
+        <div className="mt-32 max-w-4xl mx-auto bg-[#F5F2EB] border-4 border-foreground p-12 text-center relative">
           <div className="absolute top-2 left-2 w-full h-full border-4 border-terracotta -z-10 pointer-events-none translate-x-2 translate-y-2"></div>
           
           <h2 className="text-3xl md:text-5xl font-display font-black mb-6 uppercase tracking-tight">
@@ -114,11 +105,11 @@ export default async function CollectionPage() {
           <p className="text-foreground-muted mb-10 max-w-xl mx-auto font-medium">
             Giá 129.000đ cho mỗi Blind Box. Mỗi hộp sẽ chứa ngẫu nhiên một Pin và Thẻ Câu Chuyện. Bạn đã sẵn sàng thử vận may?
           </p>
-          <button onClick={() => alert("Đã thêm Blind Box vào giỏ hàng thành công!")} className="group inline-flex items-center justify-center gap-3 px-10 py-5 bg-terracotta text-white font-bold tracking-widest text-sm uppercase hover:bg-terracotta-hover transition-all shadow-[6px_6px_0px_rgba(42,42,39,1)] hover:shadow-[2px_2px_0px_rgba(42,42,39,1)] hover:translate-x-[4px] hover:translate-y-[4px]">
+          <Link href="/cart" className="group inline-flex items-center justify-center gap-3 px-10 py-5 bg-terracotta text-white font-bold tracking-widest text-sm uppercase hover:bg-terracotta-hover transition-all shadow-[6px_6px_0px_rgba(42,42,39,1)] hover:shadow-[2px_2px_0px_rgba(42,42,39,1)] hover:translate-x-[4px] hover:translate-y-[4px]">
             <ShoppingBag className="w-5 h-5" />
             ĐẶT MUA NGAY — 129.000₫
-          </button>
-        </motion.div>
+          </Link>
+        </div>
       </div>
     </div>
   );
