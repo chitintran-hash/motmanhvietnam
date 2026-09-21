@@ -38,11 +38,6 @@ export default function Hero() {
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-24 pb-12">
-      {/* Faint Dot Grid */}
-      <div 
-        className="absolute inset-0 pointer-events-none -z-0 opacity-[0.15]" 
-        style={{ backgroundImage: 'radial-gradient(#2A2A27 1.5px, transparent 1.5px)', backgroundSize: '48px 48px' }}
-      ></div>
 
       {/* Center Postmark Graphic */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.04] pointer-events-none -z-0 flex items-center justify-center">
