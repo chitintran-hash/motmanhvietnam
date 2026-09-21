@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ShoppingBag, Menu, X, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import SearchOverlay from "@/components/ui/SearchOverlay";
@@ -40,9 +41,14 @@ export default function Header({ session }: { session?: any }) {
       <div className="container mx-auto px-6 max-w-[1400px] flex items-center justify-between">
         {/* Left: Logo */}
         <Link href="/" className="flex items-center gap-3 group">
-          <span className="font-display font-black text-xl tracking-tighter text-foreground group-hover:text-terracotta transition-colors">
-            MỘT MẢNH <span className="text-terracotta group-hover:text-terracotta transition-colors">VIỆT NAM</span>
-          </span>
+          <Image 
+            src="/images/logo.png" 
+            alt="Một Mảnh Việt Nam" 
+            width={180} 
+            height={60} 
+            className="h-10 md:h-12 w-auto object-contain transition-transform group-hover:scale-105"
+            priority
+          />
         </Link>
 
         {/* Desktop Nav */}
