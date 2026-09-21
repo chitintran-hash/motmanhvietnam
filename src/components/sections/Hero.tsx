@@ -38,6 +38,14 @@ export default function Hero() {
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-24 pb-12">
+      {/* Decorative Backgrounds */}
+      <div className="absolute top-1/4 -left-10 md:-left-20 opacity-40 pointer-events-none mix-blend-multiply w-[300px] md:w-[500px]">
+        <Image src="/images/decor-temple.png" alt="Decor" width={600} height={600} className="w-full h-auto" />
+      </div>
+      <div className="absolute bottom-10 left-1/4 md:left-1/3 opacity-50 pointer-events-none mix-blend-multiply w-[200px] md:w-[350px]">
+        <Image src="/images/decor-plane.png" alt="Decor" width={400} height={400} className="w-full h-auto" />
+      </div>
+
       <div className="container mx-auto px-6 max-w-[1400px] relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center min-h-[calc(100vh-8rem)]">
           {/* Left Column: Typography */}
@@ -50,10 +58,7 @@ export default function Hero() {
               transition={{ duration: 1, delay: 0.2 }}
               className="text-5xl md:text-[4.5rem] lg:text-[5.5rem] font-display font-black text-foreground mb-8 leading-[1.2] md:leading-[1.15] tracking-tighter uppercase"
             >
-              Mang một mảnh <br />
-              <span className="text-terracotta relative inline-block">
-                Việt Nam
-              </span> <br />
+              Mang một mảnh <span className="text-terracotta relative inline-block">Việt Nam</span> <br />
               theo bên mình
             </motion.h1>
 
