@@ -19,6 +19,7 @@ interface ProductCardProps {
 export default function ProductCard({ slug, name, city, collectionNumber, price, imageUrl, isNew }: ProductCardProps) {
   let primaryColor = "bg-primary-red";
   let secondaryColor = "bg-yellow";
+  let secondaryTextColor = "text-foreground";
   let textColor = "text-primary-red";
   let borderColor = "border-primary-red";
   let hoverColor = "group-hover:bg-primary-red";
@@ -26,18 +27,21 @@ export default function ProductCard({ slug, name, city, collectionNumber, price,
   if (city === "Hà Nội") {
     primaryColor = "bg-primary-green";
     secondaryColor = "bg-yellow";
+    secondaryTextColor = "text-foreground";
     textColor = "text-primary-green";
     borderColor = "border-primary-green";
     hoverColor = "group-hover:bg-primary-green";
   } else if (city === "Sài Gòn") {
     primaryColor = "bg-primary-red";
     secondaryColor = "bg-teal";
+    secondaryTextColor = "text-foreground";
     textColor = "text-primary-red";
     borderColor = "border-primary-red";
     hoverColor = "group-hover:bg-primary-red";
   } else if (city === "Đà Nẵng") {
     primaryColor = "bg-orange";
     secondaryColor = "bg-navy";
+    secondaryTextColor = "text-cream";
     textColor = "text-orange";
     borderColor = "border-orange";
     hoverColor = "group-hover:bg-orange";
@@ -59,7 +63,7 @@ export default function ProductCard({ slug, name, city, collectionNumber, price,
             <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest font-mono">{collectionNumber}</span>
             <span className={`text-xs font-black uppercase tracking-wider ${textColor}`}>{city}</span>
           </div>
-          {isNew && <div className={`${secondaryColor} px-2 py-1 text-[10px] font-black uppercase tracking-widest border-2 border-foreground`}>NEW</div>}
+          {isNew && <div className={`${secondaryColor} ${secondaryTextColor} px-2 py-1 text-[10px] font-black uppercase tracking-widest border-2 border-foreground`}>NEW</div>}
         </div>
 
         {/* Image Area */}

@@ -1,17 +1,27 @@
 import { Sparkles, ShoppingBag } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
+import SortDropdown from "@/components/ui/SortDropdown";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import Link from "next/link";
 
 export const revalidate = 0;
 
-export default async function CollectionPage() {
+export default async function CollectionPage(props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
+  const searchParams = await props.searchParams;
+  const sort = searchParams?.sort as string | undefined;
+
   const supabase = getSupabaseServer();
-  const { data: products } = await supabase
-    .from('mm_products')
-    .select('*')
-    .eq('status', 'active')
-    .order('created_at', { ascending: false });
+  let query = supabase.from('mm_products').select('*').eq('status', 'active');
+
+  if (sort === 'price_asc') {
+    query = query.order('price', { ascending: true });
+  } else if (sort === 'price_desc') {
+    query = query.order('price', { ascending: false });
+  } else {
+    query = query.order('created_at', { ascending: false });
+  }
+
+  const { data: products } = await query;
 
   const displayProducts = (products || []).map(p => {
     const displayPrice = p.price < 10000 ? p.price * 1000 : p.price;
@@ -27,7 +37,7 @@ export default async function CollectionPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background pt-24 pb-32">
+    <div className="min-h-screen bg-background pt-32 md:pt-40 pb-32">
       {/* Header */}
       <div className="container mx-auto px-6 max-w-[1400px] mb-20">
         <div className="max-w-3xl">
@@ -57,11 +67,7 @@ export default async function CollectionPage() {
             Hiển thị <span className="text-foreground font-bold">{displayProducts.length}</span> sản phẩm
           </div>
           <div className="flex gap-4">
-            <select className="bg-transparent text-foreground font-medium focus:outline-none cursor-pointer">
-              <option>Mới nhất</option>
-              <option>Giá tăng dần</option>
-              <option>Giá giảm dần</option>
-            </select>
+            <SortDropdown />
           </div>
         </div>
 
