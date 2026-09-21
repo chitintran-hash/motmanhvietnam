@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Map, ChevronLeft, ChevronRight, Landmark, Plane } from "lucide-react";
+import { ArrowRight, Map, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -38,31 +38,19 @@ export default function Hero() {
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-24 pb-12">
-      {/* Decorative Backgrounds */}
-      <div className="absolute top-[10%] left-[-5%] opacity-[0.03] pointer-events-none -z-0 rotate-12">
-        <Landmark className="w-64 h-64 md:w-96 md:h-96 text-foreground" strokeWidth={0.5} />
-      </div>
-      <div className="absolute bottom-[20%] left-[30%] opacity-[0.03] pointer-events-none -z-0 -rotate-12">
-        <Plane className="w-48 h-48 md:w-72 md:h-72 text-foreground" strokeWidth={0.5} />
-        {/* Dotted path */}
-        <svg className="absolute top-1/2 right-full w-48 h-12 -translate-y-1/2" viewBox="0 0 100 20">
-          <path d="M0,10 Q50,20 100,10" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" />
-        </svg>
-      </div>
-
       <div className="container mx-auto px-6 max-w-[1400px] relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center min-h-[calc(100vh-8rem)]">
           {/* Left Column: Typography */}
           <div className="flex flex-col justify-center order-2 lg:order-1">
 
-
             <motion.h1 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.2 }}
-              className="text-4xl sm:text-[2.5rem] md:text-5xl lg:text-[4rem] xl:text-[4.5rem] font-display font-black text-foreground mb-8 leading-[1.2] md:leading-[1.15] tracking-tighter uppercase sm:whitespace-nowrap"
+              className="text-5xl md:text-[4.5rem] lg:text-[5.5rem] font-display font-black text-foreground mb-8 leading-[1.2] md:leading-[1.15] tracking-tighter uppercase"
             >
-              Mang một mảnh <span className="text-terracotta relative inline-block">Việt Nam</span> <br className="hidden sm:block" />
+              Mang một mảnh <br />
+              <span className="text-terracotta relative inline-block">Việt Nam</span> <br />
               theo bên mình
             </motion.h1>
 
