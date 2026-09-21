@@ -44,9 +44,9 @@ export default function Header({ session }: { session?: any }) {
           <Image 
             src="/images/logo.png" 
             alt="Một Mảnh Việt Nam" 
-            width={180} 
-            height={60} 
-            className="h-10 md:h-12 w-auto object-contain transition-transform group-hover:scale-105"
+            width={240} 
+            height={80} 
+            className="h-16 md:h-20 w-auto object-contain transition-transform group-hover:scale-105 mix-blend-multiply"
             priority
           />
         </Link>
