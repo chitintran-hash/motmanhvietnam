@@ -38,6 +38,34 @@ export default function Hero() {
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-24 pb-12">
+      {/* Faint Dot Grid */}
+      <div 
+        className="absolute inset-0 pointer-events-none -z-0 opacity-[0.15]" 
+        style={{ backgroundImage: 'radial-gradient(#2A2A27 1.5px, transparent 1.5px)', backgroundSize: '48px 48px' }}
+      ></div>
+
+      {/* Center Postmark Graphic */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.04] pointer-events-none -z-0 flex items-center justify-center">
+        <svg width="600" height="600" viewBox="0 0 200 200" className="text-foreground rotate-[-15deg]">
+          {/* Outer circles */}
+          <circle cx="100" cy="100" r="95" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" />
+          <circle cx="100" cy="100" r="85" fill="none" stroke="currentColor" strokeWidth="0.5" />
+          
+          <path id="curve" d="M 25,100 A 75,75 0 1,1 175,100 A 75,75 0 1,1 25,100" fill="none" />
+          <text fill="currentColor" fontSize="16" letterSpacing="8" fontWeight="bold">
+            <textPath href="#curve" startOffset="25%" textAnchor="middle">VIET NAM</textPath>
+            <textPath href="#curve" startOffset="75%" textAnchor="middle">POSTAGE</textPath>
+          </text>
+          
+          <circle cx="100" cy="100" r="50" fill="none" stroke="currentColor" strokeWidth="0.5" />
+          
+          {/* Postage waves */}
+          <path d="M -20,80 Q 20,60 60,80 T 140,80 T 220,80" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M -20,100 Q 20,80 60,100 T 140,100 T 220,100" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M -20,120 Q 20,100 60,120 T 140,120 T 220,120" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        </svg>
+      </div>
+
       <div className="container mx-auto px-6 max-w-[1400px] relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center min-h-[calc(100vh-8rem)]">
           {/* Left Column: Typography */}
