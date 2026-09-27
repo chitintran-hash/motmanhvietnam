@@ -48,9 +48,12 @@ export async function createTeamMemberAction(prevState: any, formData: FormData)
     let avatar_url = null;
     let cover_image_url = null;
 
+    const sanitizeStr = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9_-]/g, "");
+    const safeSlug = sanitizeStr(slug);
+
     if (avatarFile && avatarFile.size > 0) {
       const fileExt = avatarFile.name.split('.').pop();
-      const fileName = `avatar-${slug}-${Date.now()}.${fileExt}`;
+      const fileName = `avatar-${safeSlug}-${Date.now()}.${fileExt}`;
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('team_images')
         .upload(`public/${fileName}`, avatarFile);
@@ -63,7 +66,7 @@ export async function createTeamMemberAction(prevState: any, formData: FormData)
 
     if (coverFile && coverFile.size > 0) {
       const fileExt = coverFile.name.split('.').pop();
-      const fileName = `cover-${slug}-${Date.now()}.${fileExt}`;
+      const fileName = `cover-${safeSlug}-${Date.now()}.${fileExt}`;
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('team_images')
         .upload(`public/${fileName}`, coverFile);
@@ -174,9 +177,12 @@ export async function updateTeamMemberAction(prevState: any, formData: FormData)
       updated_at: new Date().toISOString()
     };
 
+    const sanitizeStr = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9_-]/g, "");
+    const safeSlug = sanitizeStr(slug);
+
     if (avatarFile && avatarFile.size > 0) {
       const fileExt = avatarFile.name.split('.').pop();
-      const fileName = `avatar-${slug}-${Date.now()}.${fileExt}`;
+      const fileName = `avatar-${safeSlug}-${Date.now()}.${fileExt}`;
       const { error: uploadError } = await supabase.storage.from('team_images').upload(`public/${fileName}`, avatarFile);
       if (!uploadError) {
         payload.avatar_url = supabase.storage.from('team_images').getPublicUrl(`public/${fileName}`).data.publicUrl;
@@ -185,7 +191,7 @@ export async function updateTeamMemberAction(prevState: any, formData: FormData)
 
     if (coverFile && coverFile.size > 0) {
       const fileExt = coverFile.name.split('.').pop();
-      const fileName = `cover-${slug}-${Date.now()}.${fileExt}`;
+      const fileName = `cover-${safeSlug}-${Date.now()}.${fileExt}`;
       const { error: uploadError } = await supabase.storage.from('team_images').upload(`public/${fileName}`, coverFile);
       if (!uploadError) {
         payload.cover_image_url = supabase.storage.from('team_images').getPublicUrl(`public/${fileName}`).data.publicUrl;
