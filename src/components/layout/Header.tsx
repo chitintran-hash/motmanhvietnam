@@ -23,9 +23,29 @@ export default function Header({ session }: { session?: any }) {
   const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
-    // Demo local storage cart
-    const count = localStorage.getItem("cartCount") || "2"; // Default to 2 for demo
-    setCartCount(parseInt(count));
+    const updateCartCount = () => {
+      const saved = localStorage.getItem("mm_cart");
+      if (saved) {
+        try {
+          const cartItems = JSON.parse(saved);
+          const count = cartItems.reduce((acc: number, item: any) => acc + item.quantity, 0);
+          setCartCount(count);
+        } catch (e) {
+          setCartCount(0);
+        }
+      } else {
+        setCartCount(0);
+      }
+    };
+
+    updateCartCount();
+    window.addEventListener("cartUpdated", updateCartCount);
+    window.addEventListener("storage", updateCartCount);
+    
+    return () => {
+      window.removeEventListener("cartUpdated", updateCartCount);
+      window.removeEventListener("storage", updateCartCount);
+    };
   }, []);
 
   useEffect(() => {

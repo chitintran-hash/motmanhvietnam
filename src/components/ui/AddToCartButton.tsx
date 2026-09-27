@@ -37,6 +37,7 @@ export default function AddToCartButton({
     }
     
     localStorage.setItem('mm_cart', JSON.stringify(cart));
+    window.dispatchEvent(new Event("cartUpdated"));
     
     router.push("/cart");
   };

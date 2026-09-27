@@ -22,6 +22,7 @@ export default function CartPage() {
   useEffect(() => {
     if (mounted) {
       localStorage.setItem('mm_cart', JSON.stringify(items));
+      window.dispatchEvent(new Event('cartUpdated'));
     }
   }, [items, mounted]);
 
