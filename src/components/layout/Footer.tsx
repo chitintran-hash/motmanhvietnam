@@ -81,9 +81,12 @@ export default function Footer() {
         
         <div className="pt-8 border-t border-cream/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-bold tracking-widest uppercase text-cream/50">
           <p>© 2027 MỘT MẢNH VIỆT NAM.</p>
-          <div className="flex gap-8">
+          <div className="flex flex-wrap gap-4 md:gap-8 justify-center">
             <Link href="/privacy" className="hover:text-white transition-colors">Bảo mật</Link>
             <Link href="/terms" className="hover:text-white transition-colors">Điều khoản</Link>
+            <Link href="/cookies" className="hover:text-white transition-colors">Cookies</Link>
+            <Link href="/shipping" className="hover:text-white transition-colors">Giao hàng</Link>
+            <Link href="/returns" className="hover:text-white transition-colors">Đổi trả</Link>
           </div>
         </div>
       </div>
