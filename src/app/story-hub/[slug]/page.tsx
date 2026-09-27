@@ -44,11 +44,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
           )}
         </div>
 
-        {story.image_url && (
-          <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-12 shadow-lg border-2 border-foreground/10">
-            <Image src={story.image_url} alt={story.title} fill className="object-cover" />
-          </div>
-        )}
+
 
         <div className="prose prose-lg prose-stone max-w-none mb-16 whitespace-pre-wrap font-medium text-foreground-muted">
           {story.content}

@@ -54,9 +54,10 @@ export async function createStoryAction(prevState: any, formData: FormData) {
         const fileExt = file.name.split('.').pop();
         const fileName = `story-add-${safeSlug}-${Date.now()}-${i}.${fileExt}`;
         const { error: uploadError } = await supabase.storage.from('team_images').upload(`public/${fileName}`, file);
-        if (!uploadError) {
-          additional_images.push(supabase.storage.from('team_images').getPublicUrl(`public/${fileName}`).data.publicUrl);
+        if (uploadError) {
+          return { success: false, message: 'Lỗi tải ảnh phụ: ' + uploadError.message };
         }
+        additional_images.push(supabase.storage.from('team_images').getPublicUrl(`public/${fileName}`).data.publicUrl);
       }
     }
 
