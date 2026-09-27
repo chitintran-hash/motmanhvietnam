@@ -48,32 +48,21 @@ export default function StoryCard({ id = "hanoi-01", city, name, collectionNumbe
       >
         {/* Front of Card */}
         <div className="absolute inset-0 backface-hidden">
-          <div className={`w-full h-full bg-cream border-4 ${borderColor} p-4 flex flex-col items-center justify-between shadow-xl relative overflow-hidden`}>
-            {/* Stamp decoration */}
-            <div className={`absolute top-4 right-4 w-12 h-14 border-2 ${borderColor} flex flex-col items-center justify-center bg-beige/30`}>
-              <span className={`text-[8px] font-bold uppercase tracking-widest ${textColor} font-mono`}>STAMP</span>
-            </div>
-
-            <div className="w-full text-left">
-              <span className={`text-[10px] font-bold ${textColor} uppercase tracking-widest font-mono`}>{collectionNumber}</span>
-            </div>
+          <div className={`w-full h-full bg-cream border-4 ${borderColor} p-3 flex flex-col items-center shadow-xl relative overflow-hidden`}>
             
-            <div className="relative w-48 h-48 my-8">
+            <div className="relative w-full flex-1 mb-4">
               <Image 
                 src={imageUrl} 
                 alt={name} 
                 fill 
-                className="object-contain drop-shadow-xl"
+                className="object-cover"
               />
             </div>
 
-            <div className={`w-full text-center pb-4 border-b-2 ${borderColor} mb-2`}>
-              <h3 className={`font-display font-black text-2xl ${textColor} uppercase tracking-wider`}>{name}</h3>
+            <div className={`w-full text-center pb-3 border-b-2 ${borderColor} mb-2`}>
+              <h3 className={`font-display font-black text-lg leading-tight ${textColor} uppercase tracking-wider`}>{name}</h3>
             </div>
-            <div className="w-full text-center flex justify-between items-center">
-              <div className={`px-2 py-1 ${primaryColor} text-cream text-[10px] font-bold uppercase tracking-widest`}>
-                 STORY CARD
-              </div>
+            <div className="w-full flex justify-end items-center">
               <span className={`text-sm font-black ${textColor} uppercase tracking-widest`}>{city}</span>
             </div>
           </div>
