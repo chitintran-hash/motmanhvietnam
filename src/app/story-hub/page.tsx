@@ -1,35 +1,18 @@
-"use client";
+import { getSupabaseServer } from '@/lib/supabase-server';
 import { motion } from "framer-motion";
 import StoryCard from "@/components/ui/StoryCard";
+import Link from 'next/link';
 
-const stories = [
-  {
-    id: "hanoi-01",
-    name: "MỘT SÁNG HÀ NỘI",
-    city: "Hà Nội",
-    collectionNumber: "COLL_01",
-    excerpt: "Chiếc xe đạp chở đầy hoa cúc họa mi lướt qua những con phố rêu phong. Tiếng rao của cô bán xôi đầu ngõ hòa cùng hơi ấm của tách cà phê trứng... Đó là cách một ngày ở Hà Nội bắt đầu.",
-    imageUrl: "https://illustrations.popsy.co/amber/home-office.svg"
-  },
-  {
-    id: "saigon-01",
-    name: "CƠN MƯA SÀI GÒN",
-    city: "Sài Gòn",
-    collectionNumber: "COLL_01",
-    excerpt: "Đến nhanh và đi cũng vội. Cơn mưa chiều Sài Gòn làm dịu đi cái nóng oi ả, nhường chỗ cho những ngọn đèn đường vàng vọt hắt xuống dòng người hối hả ngược xuôi.",
-    imageUrl: "https://illustrations.popsy.co/amber/street-food.svg"
-  },
-  {
-    id: "hoian-01",
-    name: "ĐÊM RẰM PHỐ HỘI",
-    city: "Hội An",
-    collectionNumber: "COLL_01",
-    excerpt: "Khi cả khu phố cổ chìm trong ánh sáng lung linh của hàng ngàn chiếc đèn lồng giấy. Tiếng mái chèo khua nước trên sông Hoài như đưa ta về một miền ký ức xa xăm.",
-    imageUrl: "https://illustrations.popsy.co/amber/plant.svg"
-  }
-];
+export const revalidate = 60; // revalidate every 60 seconds
 
-export default function StoryHubPage() {
+export default async function StoryHubPage() {
+  const supabase = getSupabaseServer();
+  const { data: stories } = await supabase
+    .from('mm_stories')
+    .select('*')
+    .eq('status', 'published')
+    .order('created_at', { ascending: false });
+
   return (
     <div className="min-h-screen pt-32 pb-24 relative overflow-hidden">
       <div className="absolute inset-0 bg-cream -z-20"></div>
@@ -51,19 +34,32 @@ export default function StoryHubPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16">
-          {stories.map((story, index) => (
-            <motion.div
-              key={story.id}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-            >
-              <StoryCard {...story} />
-            </motion.div>
-          ))}
-        </div>
+        {stories && stories.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16">
+            {stories.map((story: any, index: number) => (
+              <div
+                key={story.id}
+                className="animation-delay"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <Link href={`/story-hub/${story.slug}`} className="block group">
+                  <StoryCard 
+                    id={story.slug}
+                    name={story.title}
+                    city={story.city || 'Việt Nam'}
+                    collectionNumber={story.collection_number || 'STORY'}
+                    excerpt={story.excerpt || ''}
+                    imageUrl={story.image_url || "https://illustrations.popsy.co/amber/home-office.svg"}
+                  />
+                </Link>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20">
+            <p className="text-foreground/50 text-xl font-medium">Chưa có bài viết nào.</p>
+          </div>
+        )}
       </div>
     </div>
   );
