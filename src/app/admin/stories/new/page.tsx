@@ -9,10 +9,19 @@ import Image from 'next/image';
 export default function NewStoryPage() {
   const [errorMessage, formAction, isPending] = useActionState(createStoryAction, undefined);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [additionalPreviews, setAdditionalPreviews] = useState<string[]>([]);
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) setCoverPreview(URL.createObjectURL(file));
+  };
+
+  const handleAdditionalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const urls = Array.from(files).map(file => URL.createObjectURL(file));
+      setAdditionalPreviews(urls);
+    }
   };
 
   return (
@@ -90,9 +99,21 @@ export default function NewStoryPage() {
                 <div>
                   <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Ảnh kèm theo bài viết (Nhiều ảnh)</label>
                   <div className="border-2 border-dashed border-foreground/20 rounded-xl p-4 text-center relative hover:bg-foreground/5 transition-colors h-full flex flex-col items-center justify-center min-h-[150px]">
-                    <input type="file" name="additional_images" accept="image/*" multiple className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                    <Upload className="w-8 h-8 text-foreground/40 mb-2" />
-                    <span className="text-sm font-medium text-foreground/60">Tải nhiều ảnh lên</span>
+                    <input type="file" name="additional_images" accept="image/*" multiple onChange={handleAdditionalChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                    {additionalPreviews.length > 0 ? (
+                      <div className="grid grid-cols-2 gap-2 w-full mt-2">
+                        {additionalPreviews.map((preview, i) => (
+                          <div key={i} className="relative w-full aspect-video rounded-lg overflow-hidden border border-foreground/10">
+                            <Image src={preview} alt={`Preview ${i}`} fill className="object-cover" />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <>
+                        <Upload className="w-8 h-8 text-foreground/40 mb-2" />
+                        <span className="text-sm font-medium text-foreground/60">Tải nhiều ảnh lên</span>
+                      </>
+                    )}
                   </div>
                 </div>
              </div>
