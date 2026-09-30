@@ -53,7 +53,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             if (images.length === 0) return content;
 
             const parts = content.split(/\[anh(\d+)\]/i);
-            return parts.map((part, idx) => {
+            return parts.map((part: string, idx: number) => {
               if (idx % 2 !== 0) {
                 const imgIndex = parseInt(part, 10) - 1;
                 if (images[imgIndex]) {
