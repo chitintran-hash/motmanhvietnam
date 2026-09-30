@@ -62,7 +62,8 @@ export default function StoryCard({ id = "hanoi-01", city, name, collectionNumbe
             <div className={`w-full text-center pb-3 border-b-2 ${borderColor} mb-2`}>
               <h3 className={`font-display font-black text-lg leading-tight ${textColor} uppercase tracking-wider text-balance`}>{name}</h3>
             </div>
-            <div className="w-full flex justify-end items-center">
+            <div className="w-full flex justify-between items-center">
+              <span className={`text-xs font-bold ${textColor} uppercase tracking-widest`}>{id.replace(/[-_]/g, ' ')}</span>
               <span className={`text-sm font-black ${textColor} uppercase tracking-widest`}>{city}</span>
             </div>
           </div>
