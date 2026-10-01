@@ -1,4 +1,5 @@
 "use client";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { PackageOpen, QrCode, Map as MapIcon, Compass } from "lucide-react";
 import Link from "next/link";
@@ -25,6 +26,15 @@ const steps = [
 ];
 
 export default function AboutTeaser() {
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((p) => (p + 1) % 3);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <section className="py-24 bg-background-alt/30 border-y border-foreground/10 relative overflow-hidden">
       {/* Decorative texture overlay */}
@@ -49,10 +59,10 @@ export default function AboutTeaser() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-display font-black mb-8 uppercase tracking-tighter leading-[1.2] text-foreground text-balance"
+              className="text-4xl md:text-5xl lg:text-6xl font-display font-black mb-8 uppercase tracking-tighter leading-[1.2] text-foreground"
             >
-              <span className="block mb-4 md:mb-6">MỘT MẢNH NHỎ.</span> 
-              <span className="text-terracotta block">MỘT CÂU CHUYỆN LỚN.</span>
+              <span className="block mb-4 md:mb-6">MỘT MẢNH NHỎ</span> 
+              <span className="text-terracotta block">MỘT CÂU CHUYỆN LỚN</span>
             </motion.h2>
             
             <motion.p 
@@ -71,16 +81,30 @@ export default function AboutTeaser() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
-            className="w-full relative"
+            className="w-full relative rounded-2xl overflow-hidden shadow-2xl border-4 border-foreground/10 aspect-[4/5] bg-beige"
           >
-            <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div 
+              className="flex w-full h-full transition-transform duration-700 ease-in-out"
+              style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+            >
               {[1, 2, 3].map((num) => (
-                <div key={num} className="min-w-[85%] sm:min-w-[70%] lg:min-w-[90%] snap-center rounded-2xl overflow-hidden shadow-2xl border-4 border-foreground/10 aspect-[4/5] relative bg-beige">
+                <div key={num} className="min-w-full h-full relative flex-shrink-0">
                   <img src={`/images/product-slide-${num}.jpg`} alt={`Sản phẩm ${num}`} className="absolute inset-0 w-full h-full object-cover" />
                 </div>
               ))}
             </div>
-            <div className="text-center mt-2 text-[10px] font-bold text-foreground/40 uppercase tracking-widest hidden lg:block">Trượt ngang để xem thêm →</div>
+            
+            {/* Dots navigation indicator */}
+            <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3 z-10">
+              {[0, 1, 2].map((idx) => (
+                <button 
+                  key={idx}
+                  onClick={() => setActiveSlide(idx)}
+                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${activeSlide === idx ? 'bg-terracotta w-8' : 'bg-white/70 hover:bg-white'}`}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
+            </div>
           </motion.div>
         </div>
 
