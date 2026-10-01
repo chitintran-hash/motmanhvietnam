@@ -31,38 +31,57 @@ export default function AboutTeaser() {
       <div className="absolute inset-0 opacity-30 bg-[url('data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E')]"></div>
       
       <div className="container mx-auto px-6 max-w-[1400px] relative z-10">
-        <div className="text-center mb-20 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20 max-w-6xl mx-auto">
+          <div className="text-left">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mb-8"
+            >
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta border border-terracotta px-4 py-2 inline-block shadow-[2px_2px_0px_rgba(140,46,36,1)] bg-[#F5F2EB]">
+                TRẢI NGHIỆM SƯU TẦM
+              </span>
+            </motion.div>
+            
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-4xl md:text-5xl lg:text-6xl font-display font-black mb-8 uppercase tracking-tighter leading-[1.2] text-foreground text-balance"
+            >
+              <span className="block mb-4 md:mb-6">MỘT MẢNH NHỎ.</span> 
+              <span className="text-terracotta block">MỘT CÂU CHUYỆN LỚN.</span>
+            </motion.h2>
+            
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="text-foreground-muted text-lg font-medium leading-relaxed"
+            >
+              Mỗi sản phẩm chỉ là một mảnh nhỏ của Việt Nam. Nhưng khi những mảnh ấy được đặt cạnh nhau, chúng tạo thành một bức tranh rộng hơn về con người, thành phố, ký ức và những trải nghiệm không thể nào quên.
+            </motion.p>
+          </div>
+
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="mb-8"
+            transition={{ delay: 0.3 }}
+            className="w-full relative"
           >
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta border border-terracotta px-4 py-2 inline-block shadow-[2px_2px_0px_rgba(140,46,36,1)] bg-[#F5F2EB]">
-              TRẢI NGHIỆM SƯU TẦM
-            </span>
+            <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              {[1, 2, 3].map((num) => (
+                <div key={num} className="min-w-[85%] sm:min-w-[70%] lg:min-w-[90%] snap-center rounded-2xl overflow-hidden shadow-2xl border-4 border-foreground/10 aspect-[4/5] relative bg-beige">
+                  <img src={`/images/product-slide-${num}.jpg`} alt={`Sản phẩm ${num}`} className="absolute inset-0 w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+            <div className="text-center mt-2 text-[10px] font-bold text-foreground/40 uppercase tracking-widest hidden lg:block">Trượt ngang để xem thêm →</div>
           </motion.div>
-          
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-black mb-8 uppercase tracking-tighter leading-[1.3] md:leading-[1.4] text-foreground"
-          >
-            <span className="block mb-4 md:mb-6">MỘT MẢNH NHỎ.</span> 
-            <span className="text-terracotta block">MỘT CÂU CHUYỆN LỚN.</span>
-          </motion.h2>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="text-foreground-muted text-lg md:text-xl font-medium leading-relaxed"
-          >
-            Mỗi sản phẩm chỉ là một mảnh nhỏ của Việt Nam. Nhưng khi những mảnh ấy được đặt cạnh nhau, chúng tạo thành một bức tranh rộng hơn về con người, thành phố, ký ức và những trải nghiệm không thể nào quên.
-          </motion.p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
