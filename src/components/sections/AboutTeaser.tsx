@@ -59,9 +59,9 @@ export default function AboutTeaser() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-4xl md:text-5xl lg:text-6xl xl:text-[72px] font-display font-black mb-8 uppercase tracking-tighter leading-[1.1] text-foreground"
+              className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-black mb-8 uppercase tracking-tighter leading-[1.1] text-foreground"
             >
-              <span className="block mb-4 md:mb-6 whitespace-nowrap">MỘT MẢNH NHỎ</span> 
+              <span className="block mb-2 md:mb-4 whitespace-nowrap">MỘT MẢNH NHỎ</span> 
               <span className="text-terracotta block whitespace-nowrap">MỘT CÂU CHUYỆN LỚN</span>
             </motion.h2>
             
