@@ -61,8 +61,8 @@ export default function AboutTeaser() {
               transition={{ delay: 0.1 }}
               className="text-4xl md:text-5xl lg:text-6xl xl:text-[72px] font-display font-black mb-8 uppercase tracking-tighter leading-[1.1] text-foreground"
             >
-              <span className="block mb-4 md:mb-6">MỘT MẢNH NHỎ</span> 
-              <span className="text-terracotta block">MỘT CÂU CHUYỆN LỚN</span>
+              <span className="block mb-4 md:mb-6 whitespace-nowrap">MỘT MẢNH NHỎ</span> 
+              <span className="text-terracotta block whitespace-nowrap">MỘT CÂU CHUYỆN LỚN</span>
             </motion.h2>
             
             <motion.p 
