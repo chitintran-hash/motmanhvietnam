@@ -41,8 +41,8 @@ export default function AboutTeaser() {
       <div className="absolute inset-0 opacity-30 bg-[url('data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E')]"></div>
       
       <div className="container mx-auto px-6 max-w-[1400px] relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20 max-w-6xl mx-auto">
-          <div className="text-left">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-center mb-24 max-w-[1300px] mx-auto">
+          <div className="lg:col-span-7 text-left">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -59,7 +59,7 @@ export default function AboutTeaser() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-display font-black mb-8 uppercase tracking-tighter leading-[1.2] text-foreground"
+              className="text-4xl md:text-5xl lg:text-6xl xl:text-[72px] font-display font-black mb-8 uppercase tracking-tighter leading-[1.1] text-foreground"
             >
               <span className="block mb-4 md:mb-6">MỘT MẢNH NHỎ</span> 
               <span className="text-terracotta block">MỘT CÂU CHUYỆN LỚN</span>
@@ -70,7 +70,7 @@ export default function AboutTeaser() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="text-foreground-muted text-lg font-medium leading-relaxed"
+              className="text-foreground-muted text-lg md:text-xl font-medium leading-relaxed max-w-2xl"
             >
               Mỗi sản phẩm chỉ là một mảnh nhỏ của Việt Nam. Nhưng khi những mảnh ấy được đặt cạnh nhau, chúng tạo thành một bức tranh rộng hơn về con người, thành phố, ký ức và những trải nghiệm không thể nào quên.
             </motion.p>
@@ -81,7 +81,7 @@ export default function AboutTeaser() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
-            className="w-full relative rounded-2xl overflow-hidden shadow-2xl border-4 border-foreground/10 aspect-[4/5] bg-beige"
+            className="lg:col-span-5 w-full relative rounded-2xl overflow-hidden shadow-2xl border-4 border-foreground/10 aspect-[4/5] bg-beige"
           >
             <div 
               className="flex w-full h-full transition-transform duration-700 ease-in-out"
