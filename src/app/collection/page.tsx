@@ -59,66 +59,33 @@ export default async function CollectionPage(props: { searchParams: Promise<{ [k
         </div>
       </div>
 
-      {/* Grid */}
+      {/* Single Featured Product */}
       <div className="container mx-auto px-6 max-w-[1400px]">
-        {/* Filters and sorting could go here */}
-        <div className="flex justify-between items-center mb-12 py-4 border-y border-foreground/10">
-          <div className="text-foreground-muted font-medium">
-            Hiển thị <span className="text-foreground font-bold">{displayProducts.length}</span> sản phẩm
-          </div>
-          <div className="flex gap-4">
-            <SortDropdown />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
-          {displayProducts.map((product, index) => (
-            <div key={product.slug}>
-              <ProductCard {...product} isNew={index < 3} />
-            </div>
-          ))}
-
-          {/* Secret Piece Card */}
-          <div className="lg:col-span-3 xl:col-span-3 mt-8">
-            <div className="bg-foreground border border-foreground/10 p-8 sm:p-12 shadow-2xl relative flex flex-col md:flex-row items-center justify-between overflow-hidden gap-8">
-              {/* Subtle gold noise overlay */}
-              <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E')] mix-blend-color-burn"></div>
-              
-              <div className="relative z-10 flex-1">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-gold/20 text-gold text-[10px] font-bold uppercase tracking-widest mb-6">
-                  <Sparkles className="w-3 h-3" />
-                  MẢNH BÍ ẨN
-                </div>
-                <h3 className="font-display font-black text-4xl text-[#F5F2EB] mb-4 uppercase tracking-wider">
-                  SECRET PIECE
-                </h3>
-                <p className="text-[#F5F2EB]/60 font-medium max-w-md leading-relaxed">
-                  Mảnh ghép đặc biệt với tỉ lệ xuất hiện cực thấp. Mang một ý nghĩa lịch sử sâu sắc và thiết kế hoàn toàn khác biệt.
-                </p>
-              </div>
-
-              <div className="relative z-10 w-48 h-48 md:w-64 md:h-64 rounded-sm border-2 border-gold/30 bg-gold/5 flex items-center justify-center backdrop-blur-sm shadow-[0_0_50px_rgba(204,165,44,0.1)]">
-                <span className="font-display font-black text-8xl text-gold/20">?</span>
-              </div>
+        {displayProducts.length > 0 ? (
+          <div className="max-w-2xl mx-auto">
+            {displayProducts.slice(0, 1).map((product) => (
+              <ProductCard
+                key={product.slug}
+                slug={product.slug}
+                name={product.name}
+                city={product.city}
+                collectionNumber={product.collectionNumber}
+                price={product.price}
+                imageUrl={product.imageUrl}
+                isNew={product.isNew}
+              />
+            ))}
+            <div className="mt-8 text-center">
+              <p className="text-foreground-muted italic">Bấm vào hộp để xem các mảnh ghép bí ẩn bên trong!</p>
             </div>
           </div>
-        </div>
-
-        {/* Purchase CTA */}
-        <div className="mt-32 max-w-4xl mx-auto bg-[#F5F2EB] border-4 border-foreground p-12 text-center relative">
-          <div className="absolute top-2 left-2 w-full h-full border-4 border-terracotta -z-10 pointer-events-none translate-x-2 translate-y-2"></div>
-          
-          <h2 className="text-3xl md:text-5xl font-display font-black mb-6 uppercase tracking-tight">
-            MUA BLIND BOX ONLINE
-          </h2>
-          <p className="text-foreground-muted mb-10 max-w-xl mx-auto font-medium">
-            Giá 129.000đ cho mỗi Blind Box. Mỗi hộp sẽ chứa ngẫu nhiên một Pin và Thẻ Câu Chuyện. Bạn đã sẵn sàng thử vận may?
-          </p>
-          <Link href="/cart" className="group inline-flex items-center justify-center gap-3 px-10 py-5 bg-terracotta text-white font-bold tracking-widest text-sm uppercase hover:bg-terracotta-hover transition-all shadow-[6px_6px_0px_rgba(42,42,39,1)] hover:shadow-[2px_2px_0px_rgba(42,42,39,1)] hover:translate-x-[4px] hover:translate-y-[4px]">
-            <ShoppingBag className="w-5 h-5" />
-            ĐẶT MUA NGAY — 129.000₫
-          </Link>
-        </div>
+        ) : (
+          <div className="text-center py-20 bg-foreground/5 rounded-2xl border-2 border-foreground/10 border-dashed">
+            <ShoppingBag className="w-12 h-12 text-foreground/20 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-foreground mb-2">Chưa có sản phẩm</h3>
+            <p className="text-foreground-muted">Sản phẩm đang được cập nhật. Vui lòng quay lại sau.</p>
+          </div>
+        )}
       </div>
     </div>
   );

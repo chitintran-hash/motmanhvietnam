@@ -128,16 +128,16 @@ export default function NewProductPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Hình ảnh sản phẩm</label>
+            <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Hình ảnh chính (Hộp Blindbox) *</label>
             <div className="flex items-start gap-6 mt-2">
               <div className="flex-1">
                 <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-foreground/10 border-dashed rounded-xl cursor-pointer hover:bg-background-alt transition-colors">
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <Upload className="w-8 h-8 mb-3 text-foreground/40" />
                     <p className="mb-2 text-sm text-foreground/60"><span className="font-bold">Nhấn để tải ảnh lên</span> hoặc kéo thả</p>
-                    <p className="text-xs text-foreground/40">PNG, JPG or WEBP (Max 2MB)</p>
+                    <p className="text-xs text-foreground/40">PNG, JPG, WEBP (Max 2MB)</p>
                   </div>
-                  <input type="file" name="image" className="hidden" accept="image/*" onChange={handleImageChange} />
+                  <input type="file" name="image" className="hidden" accept="image/*" required onChange={handleImageChange} />
                 </label>
               </div>
               {previewImage && (
@@ -145,6 +145,21 @@ export default function NewProductPage() {
                   <Image src={previewImage} alt="Preview" fill className="object-cover" />
                 </div>
               )}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Các mảnh ghép (Nhiều ảnh)</label>
+            <div className="flex items-start gap-6 mt-2">
+              <div className="flex-1">
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-foreground/10 border-dashed rounded-xl cursor-pointer hover:bg-background-alt transition-colors">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <Upload className="w-6 h-6 mb-2 text-foreground/40" />
+                    <p className="text-sm text-foreground/60">Tải lên các mảnh ghép bên trong (chọn nhiều file)</p>
+                  </div>
+                  <input type="file" name="additional_images" className="hidden" accept="image/*" multiple />
+                </label>
+              </div>
             </div>
           </div>
 

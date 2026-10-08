@@ -23,6 +23,7 @@ export async function createProductAction(prevState: any, formData: FormData) {
     const stock = parseInt(formData.get('stock') as string || '0');
     const status = formData.get('status') as string;
     const imageFile = formData.get('image') as File;
+    const additionalImagesFiles = formData.getAll('additional_images') as File[];
 
     if (!name || !slug) {
       return { success: false, message: 'Tên và Slug là bắt buộc.' };
@@ -49,6 +50,27 @@ export async function createProductAction(prevState: any, formData: FormData) {
       image_url = publicUrlData.publicUrl;
     }
 
+    let additional_images: string[] = [];
+    if (additionalImagesFiles && additionalImagesFiles.length > 0) {
+      for (let i = 0; i < additionalImagesFiles.length; i++) {
+        const file = additionalImagesFiles[i];
+        if (file.size > 0) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${slug}-additional-${Date.now()}-${i}.${fileExt}`;
+          const { error: uploadError } = await supabase.storage
+            .from('product_images')
+            .upload(`public/${fileName}`, file);
+          if (!uploadError) {
+            const { data: publicUrlData } = supabase.storage
+              .from('product_images')
+              .getPublicUrl(`public/${fileName}`);
+            additional_images.push(publicUrlData.publicUrl);
+          }
+        }
+      }
+    }
+
+
     const productPayload = {
       name,
       slug,
@@ -58,7 +80,8 @@ export async function createProductAction(prevState: any, formData: FormData) {
       price,
       stock,
       status,
-      image_url
+      image_url,
+      additional_images
     };
 
     const { error: insertError } = await supabase.from('mm_products').insert([productPayload]);
@@ -96,6 +119,7 @@ export async function editProductAction(prevState: any, formData: FormData) {
     const stock = parseInt(formData.get('stock') as string || '0');
     const status = formData.get('status') as string;
     const imageFile = formData.get('image') as File;
+    const additionalImagesFiles = formData.getAll('additional_images') as File[];
 
     if (!id || !name || !slug) {
       return { success: false, message: 'ID, Tên và Slug là bắt buộc.' };
@@ -110,6 +134,7 @@ export async function editProductAction(prevState: any, formData: FormData) {
       price,
       stock,
       status,
+      ...(additional_images.length > 0 ? { additional_images } : {})
     };
 
     if (imageFile && imageFile.size > 0) {
@@ -130,6 +155,27 @@ export async function editProductAction(prevState: any, formData: FormData) {
         
       productPayload.image_url = publicUrlData.publicUrl;
     }
+
+    let additional_images: string[] = [];
+    if (additionalImagesFiles && additionalImagesFiles.length > 0) {
+      for (let i = 0; i < additionalImagesFiles.length; i++) {
+        const file = additionalImagesFiles[i];
+        if (file.size > 0) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${slug}-additional-${Date.now()}-${i}.${fileExt}`;
+          const { error: uploadError } = await supabase.storage
+            .from('product_images')
+            .upload(`public/${fileName}`, file);
+          if (!uploadError) {
+            const { data: publicUrlData } = supabase.storage
+              .from('product_images')
+              .getPublicUrl(`public/${fileName}`);
+            additional_images.push(publicUrlData.publicUrl);
+          }
+        }
+      }
+    }
+
 
     const { error: updateError } = await supabase.from('mm_products').update(productPayload).eq('id', id);
 
