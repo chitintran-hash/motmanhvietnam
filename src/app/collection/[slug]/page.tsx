@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import AddToCartButton from "@/components/ui/AddToCartButton";
+import ProductGallery from "@/components/ui/ProductGallery";
 
 export const revalidate = 0;
 
@@ -37,19 +38,8 @@ export default async function ProductDetail(props: { params: Promise<{ slug: str
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24">
           {/* Product Image Gallery */}
-          <div className="relative w-full aspect-square bg-[#FAFAFA] border-2 border-foreground/10 p-8 shadow-xl flex items-center justify-center">
-            <div className="absolute inset-0 opacity-5 bg-[url('data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E')]"></div>
-            <div className="absolute top-4 left-4">
-              <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest font-mono">COLL_01</span>
-            </div>
-            <div className="relative w-[80%] h-[80%]">
-              <Image 
-                src={imageUrl}
-                alt={product.name}
-                fill
-                className="object-contain drop-shadow-2xl"
-              />
-            </div>
+          <div className="w-full">
+            <ProductGallery mainImage={imageUrl} />
           </div>
 
           {/* Product Info */}
