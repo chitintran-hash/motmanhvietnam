@@ -138,7 +138,7 @@ export default function Header({ session }: { session?: any }) {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-0 bg-background z-50 flex flex-col px-6 py-8 md:hidden"
+            className="fixed inset-0 bg-[#FAF7F2] z-[100] flex flex-col px-6 py-8 md:hidden"
           >
             <div className="flex justify-between items-center mb-12">
               <span className="font-serif font-semibold text-xl">Một Mảnh Việt Nam</span>
