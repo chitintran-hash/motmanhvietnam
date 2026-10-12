@@ -2,6 +2,7 @@ import { getSupabaseServer } from '@/lib/supabase-server';
 import { Plus, Edit, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import DeleteProductButton from './DeleteProductButton';
 
 export default async function AdminProductsPage() {
   const supabase = getSupabaseServer();
@@ -68,10 +69,11 @@ export default async function AdminProductsPage() {
                     </span>
                   </td>
                   <td className="py-4 px-6 text-right">
-                    <div className="flex justify-end gap-2">
-                      <Link href={`/admin/products/${product.id}/edit`} className="p-2 text-foreground/60 hover:bg-foreground/5 rounded-lg transition-colors">
+                    <div className="flex justify-end gap-2 items-center">
+                      <Link href={`/admin/products/${product.id}/edit`} className="p-2 text-foreground/60 hover:bg-foreground/5 rounded-lg transition-colors" title="Chỉnh sửa">
                         <Edit className="w-5 h-5" />
                       </Link>
+                      <DeleteProductButton id={product.id} name={product.name} />
                     </div>
                   </td>
                 </tr>

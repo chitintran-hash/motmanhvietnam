@@ -196,3 +196,26 @@ export async function editProductAction(prevState: any, formData: FormData) {
   revalidatePath('/');
   redirect('/admin/products');
 }
+
+export async function deleteProductAction(id: string) {
+  try {
+    const session = await auth();
+    if (!session || (session.user as any)?.role !== 'admin') {
+      return { success: false, message: 'Unauthorized' };
+    }
+
+    const supabase = getSupabaseServer();
+    const { error } = await supabase.from('mm_products').delete().eq('id', id);
+    
+    if (error) {
+      return { success: false, message: error.message };
+    }
+    
+    revalidatePath('/admin/products', 'layout');
+    revalidatePath('/collection', 'layout');
+    revalidatePath('/', 'layout');
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, message: error.message };
+  }
+}
