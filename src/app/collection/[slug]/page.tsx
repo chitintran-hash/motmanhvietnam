@@ -39,7 +39,7 @@ export default async function ProductDetail(props: { params: Promise<{ slug: str
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24">
           {/* Product Image Gallery */}
           <div className="w-full">
-            <ProductGallery mainImage={imageUrl} />
+            <ProductGallery mainImage={imageUrl} additionalImages={product.additional_images || []} />
           </div>
 
           {/* Product Info */}

@@ -12,6 +12,7 @@ const navLinks = [
   { name: "KHÁM PHÁ SẢN PHẨM", href: "/collection" },
   { name: "BẢN ĐỒ DI SẢN", href: "/map" },
   { name: "STORY HUB", href: "/story-hub" },
+  { name: "VỀ CHÚNG TÔI", href: "/#ve-chung-toi" },
   { name: "ĐỘI NGŨ", href: "/team" },
 ];
 

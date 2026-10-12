@@ -60,6 +60,7 @@ export default function Footer() {
               <li><Link href="/collection" className="text-cream/80 hover:text-white hover:underline underline-offset-4 decoration-yellow transition-all">KHÁM PHÁ SẢN PHẨM</Link></li>
               <li><Link href="/map" className="text-cream/80 hover:text-white hover:underline underline-offset-4 decoration-yellow transition-all">BẢN ĐỒ DI SẢN</Link></li>
               <li><Link href="/story-hub" className="text-cream/80 hover:text-white hover:underline underline-offset-4 decoration-yellow transition-all">STORY HUB</Link></li>
+              <li><Link href="/#ve-chung-toi" className="text-cream/80 hover:text-white hover:underline underline-offset-4 decoration-yellow transition-all">VỀ CHÚNG TÔI</Link></li>
               <li><Link href="/team" className="text-cream/80 hover:text-white hover:underline underline-offset-4 decoration-yellow transition-all">ĐỘI NGŨ</Link></li>
             </ul>
           </div>

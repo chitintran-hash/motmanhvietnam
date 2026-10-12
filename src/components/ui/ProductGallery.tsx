@@ -4,16 +4,21 @@ import Image from "next/image";
 
 interface ProductGalleryProps {
   mainImage: string;
+  additionalImages?: string[];
 }
 
-export default function ProductGallery({ mainImage }: ProductGalleryProps) {
-  const defaultImages = [
-    { src: mainImage, label: "BLIND BOX", desc: "Hộp kín chứa 1 mảnh ghép ngẫu nhiên" },
-    { src: "/images/product-slide-2.jpg", label: "MẢNH HÀ NỘI", desc: "Mảnh ghép độc quyền Hà Nội" },
-    { src: "/images/product-slide-3.jpg", label: "MẢNH SÀI GÒN", desc: "Mảnh ghép độc quyền Sài Gòn" }
+export default function ProductGallery({ mainImage, additionalImages = [] }: ProductGalleryProps) {
+  // Build images array. First is always the Blind Box (main image).
+  // Following are the pieces inside (from DB).
+  const galleryImages = [
+    { src: mainImage, label: "HỘP BLIND BOX" },
+    ...additionalImages.map((img, idx) => ({
+      src: img,
+      label: `MẢNH SƯU TẦM ${idx + 1}`
+    }))
   ];
   
-  const [images] = useState(defaultImages);
+  const [images] = useState(galleryImages);
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (

@@ -1,6 +1,7 @@
 import Hero from "@/components/sections/Hero";
 import AboutTeaser from "@/components/sections/AboutTeaser";
 import CollectionPreview from "@/components/sections/CollectionPreview";
+import AboutUsSection from "@/components/sections/AboutUsSection";
 import TeamSection from "@/components/sections/TeamSection";
 import { getSupabaseServer } from "@/lib/supabase-server";
 
@@ -33,6 +34,7 @@ export default async function Home() {
       <Hero />
       <AboutTeaser />
       <CollectionPreview products={formattedProducts} />
+      <AboutUsSection />
       <TeamSection />
     </>
   );

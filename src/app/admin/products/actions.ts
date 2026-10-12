@@ -134,7 +134,6 @@ export async function editProductAction(prevState: any, formData: FormData) {
       price,
       stock,
       status,
-      ...(additional_images.length > 0 ? { additional_images } : {})
     };
 
     if (imageFile && imageFile.size > 0) {
@@ -176,6 +175,9 @@ export async function editProductAction(prevState: any, formData: FormData) {
       }
     }
 
+    if (additional_images.length > 0) {
+      productPayload.additional_images = additional_images;
+    }
 
     const { error: updateError } = await supabase.from('mm_products').update(productPayload).eq('id', id);
 
