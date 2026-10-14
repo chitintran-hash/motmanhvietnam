@@ -4,6 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import StoryReactions from '@/components/ui/StoryReactions';
+import StoryComments from '@/components/ui/StoryComments';
+import { auth } from '@/auth';
 
 export const revalidate = 0;
 
@@ -11,7 +13,11 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
   
-  const supabase = getSupabaseServer();
+  const [supabase, session] = await Promise.all([
+    getSupabaseServer(),
+    auth()
+  ]);
+
   const { data: story } = await supabase
     .from('mm_stories')
     .select('*')
@@ -20,6 +26,19 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
 
   if (!story || story.status !== 'published') {
     notFound();
+  }
+
+  // Fetch comments safely
+  let comments: any[] = [];
+  try {
+    const { data: commentsData } = await supabase
+      .from('mm_story_comments')
+      .select('*')
+      .or(`story_id.eq.${story.id},story_slug.eq.${story.slug}`)
+      .order('created_at', { ascending: false });
+    if (commentsData) comments = commentsData;
+  } catch (e) {
+    // If table doesn't exist yet, gracefully fallback to empty
   }
 
   const hearts = Number(story.hearts_count) || 0;
@@ -117,6 +136,20 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
           initialHearts={hearts}
           initialLikes={likes}
           initialDislikes={dislikes}
+        />
+
+        {/* Comments Section */}
+        <StoryComments
+          storyId={story.id}
+          storySlug={story.slug}
+          initialComments={comments}
+          currentUser={session?.user ? {
+            id: (session.user as any).id,
+            name: session.user.name || undefined,
+            email: session.user.email || undefined,
+            image: session.user.image || undefined,
+            role: (session.user as any).role || undefined
+          } : null}
         />
       </div>
     </div>
