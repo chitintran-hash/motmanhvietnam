@@ -57,8 +57,22 @@ export default function NewStoryPage() {
                 <textarea name="excerpt" rows={3} className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors"></textarea>
               </div>
               <div>
-                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Nội dung chi tiết</label>
-                <textarea name="content" rows={12} className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors"></textarea>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-sm font-bold text-foreground/80 uppercase tracking-wider">Nội dung chi tiết *</label>
+                  <span className="text-xs font-bold text-terracotta bg-terracotta/10 px-2.5 py-1 rounded-full">
+                    💡 Mẹo chèn ảnh: Gõ [anh1], [anh2] vào vị trí muốn hiện ảnh
+                  </span>
+                </div>
+                <textarea 
+                  name="content" 
+                  rows={14} 
+                  required
+                  placeholder="Nhập nội dung bài viết...&#10;&#10;Đoạn văn mở đầu...&#10;&#10;[anh1]&#10;&#10;Đoạn văn tiếp theo giải thích về bức ảnh...&#10;&#10;[anh2]"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors font-medium text-sm leading-relaxed"
+                ></textarea>
+                <p className="text-xs text-foreground/60 mt-2">
+                  * <span className="font-bold text-foreground">[anh1]</span> tương ứng với ảnh thứ nhất trong ô "Ảnh kèm theo bài viết", <span className="font-bold text-foreground">[anh2]</span> là ảnh thứ hai,... Ảnh sẽ hiện to giữa bài viết như báo chí.
+                </p>
               </div>
             </div>
           </div>
