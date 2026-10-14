@@ -13,10 +13,25 @@ interface StoryCardProps {
   collectionNumber: string;
   imageUrl: string;
   excerpt: string;
+  heartsCount?: number;
+  likesCount?: number;
+  dislikesCount?: number;
 }
 
-export default function StoryCard({ id = "hanoi-01", city, name, collectionNumber, imageUrl, excerpt }: StoryCardProps) {
+export default function StoryCard({ 
+  id = "hanoi-01", 
+  city, 
+  name, 
+  collectionNumber, 
+  imageUrl, 
+  excerpt,
+  heartsCount = 0,
+  likesCount = 0,
+  dislikesCount = 0
+}: StoryCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+
+  const totalReactions = (heartsCount || 0) + (likesCount || 0) + (dislikesCount || 0);
 
   let primaryColor = "bg-primary-red";
   let textColor = "text-primary-red";
@@ -50,7 +65,7 @@ export default function StoryCard({ id = "hanoi-01", city, name, collectionNumbe
         <div className="absolute inset-0 backface-hidden">
           <div className={`w-full h-full bg-cream border-4 ${borderColor} p-3 flex flex-col items-center shadow-xl relative overflow-hidden`}>
             
-            <div className="relative w-full flex-1 mb-4">
+            <div className="relative w-full flex-1 mb-3">
               <Image 
                 src={imageUrl} 
                 alt={name} 
@@ -59,12 +74,33 @@ export default function StoryCard({ id = "hanoi-01", city, name, collectionNumbe
               />
             </div>
 
-            <div className={`w-full text-center pb-3 border-b-2 ${borderColor} mb-2`}>
+            <div className={`w-full text-center pb-2 border-b-2 ${borderColor} mb-2`}>
               <h3 className={`font-display font-black text-lg leading-tight ${textColor} uppercase tracking-wider text-balance`}>{name}</h3>
             </div>
-            <div className="w-full flex justify-between items-center">
-              <span className={`text-xs font-bold ${textColor} uppercase tracking-widest`}>{id.replace(/[-_]/g, ' ')}</span>
+
+            <div className="w-full flex justify-between items-center mb-1.5">
+              <span className={`text-xs font-bold ${textColor} uppercase tracking-widest truncate max-w-[130px]`}>{id.replace(/[-_]/g, ' ')}</span>
               <span className={`text-sm font-black ${textColor} uppercase tracking-widest`}>{city}</span>
+            </div>
+
+            {/* Reactions row */}
+            <div className="w-full flex items-center justify-between pt-1.5 border-t border-foreground/10 text-[11px] font-bold">
+              <div className="flex items-center gap-2">
+                <span className="flex items-center gap-1 text-red-500">
+                  ❤️ {heartsCount.toLocaleString('vi-VN')}
+                </span>
+                <span className="flex items-center gap-1 text-emerald-600">
+                  👍 {likesCount.toLocaleString('vi-VN')}
+                </span>
+                {dislikesCount > 0 && (
+                  <span className="flex items-center gap-1 text-foreground/50">
+                    👎 {dislikesCount.toLocaleString('vi-VN')}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] text-foreground/50 font-medium">
+                {totalReactions.toLocaleString('vi-VN')} tương tác
+              </span>
             </div>
           </div>
         </div>
@@ -74,7 +110,7 @@ export default function StoryCard({ id = "hanoi-01", city, name, collectionNumbe
           className={`absolute inset-0 backface-hidden bg-beige border-4 ${borderColor} p-6 flex flex-col items-center shadow-xl`}
           style={{ transform: "rotateY(180deg)" }}
         >
-          <div className="w-full text-center mb-6">
+          <div className="w-full text-center mb-4">
             <Sparkles className={`w-5 h-5 ${textColor} mx-auto mb-2`} />
             <h4 className={`font-display font-black text-lg ${textColor}`}>CÂU CHUYỆN</h4>
             <div className={`w-8 h-1 ${primaryColor} mx-auto mt-2`}></div>
@@ -83,6 +119,12 @@ export default function StoryCard({ id = "hanoi-01", city, name, collectionNumbe
           <p className={`text-sm ${textColor} font-bold text-center leading-relaxed flex-1`}>
             {excerpt}
           </p>
+
+          <div className="w-full flex items-center justify-center gap-3 py-2 my-2 bg-foreground/5 rounded-lg text-xs font-bold">
+            <span className="text-red-500">❤️ {heartsCount}</span>
+            <span className="text-emerald-600">👍 {likesCount}</span>
+            <span className="text-foreground/50">👎 {dislikesCount}</span>
+          </div>
 
           <div className={`mt-auto w-full flex flex-col items-center pt-6 border-t-2 ${borderColor}`}>
             <Link 

@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import StoryCard from "@/components/ui/StoryCard";
 import Link from 'next/link';
 
-export const revalidate = 60; // revalidate every 60 seconds
+export const revalidate = 0; // live updates for reactions
 
 export default async function StoryHubPage() {
   const supabase = getSupabaseServer();
@@ -50,6 +50,9 @@ export default async function StoryHubPage() {
                     collectionNumber={story.collection_number || 'STORY'}
                     excerpt={story.excerpt || ''}
                     imageUrl={story.image_url || "https://illustrations.popsy.co/amber/home-office.svg"}
+                    heartsCount={Number(story.hearts_count) || 0}
+                    likesCount={Number(story.likes_count) || 0}
+                    dislikesCount={Number(story.dislikes_count) || 0}
                   />
                 </Link>
               </div>

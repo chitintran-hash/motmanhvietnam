@@ -3,8 +3,9 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import StoryReactions from '@/components/ui/StoryReactions';
 
-export const revalidate = 60;
+export const revalidate = 0;
 
 export default async function StoryDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
@@ -21,6 +22,10 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
     notFound();
   }
 
+  const hearts = Number(story.hearts_count) || 0;
+  const likes = Number(story.likes_count) || 0;
+  const dislikes = Number(story.dislikes_count) || 0;
+
   return (
     <div className="min-h-screen pt-32 pb-24 bg-cream">
       <div className="container mx-auto px-6 max-w-4xl">
@@ -29,11 +34,31 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
         </Link>
         
         <div className="mb-12">
-          {story.city && (
-             <div className="inline-block px-4 py-1.5 rounded-full bg-terracotta/10 text-terracotta text-sm font-bold tracking-widest uppercase mb-6">
-                {story.city}
-             </div>
-          )}
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+            {story.city && (
+               <div className="inline-block px-4 py-1.5 rounded-full bg-terracotta/10 text-terracotta text-sm font-bold tracking-widest uppercase">
+                  {story.city}
+               </div>
+            )}
+            <div className="flex items-center gap-3 bg-foreground/5 px-3.5 py-1.5 rounded-full text-xs font-bold text-foreground/70 border border-foreground/10">
+              <span className="flex items-center gap-1 text-red-500 font-bold">
+                ❤️ {hearts.toLocaleString('vi-VN')}
+              </span>
+              <span className="text-foreground/20">•</span>
+              <span className="flex items-center gap-1 text-emerald-600 font-bold">
+                👍 {likes.toLocaleString('vi-VN')}
+              </span>
+              {dislikes > 0 && (
+                <>
+                  <span className="text-foreground/20">•</span>
+                  <span className="flex items-center gap-1 text-foreground/60">
+                    👎 {dislikes.toLocaleString('vi-VN')}
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+
           <h1 className="text-4xl md:text-5xl font-display font-black text-foreground mb-6 leading-tight">
             {story.title}
           </h1>
@@ -84,6 +109,15 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             })}
           </div>
         )}
+
+        {/* Interactive Reaction Box */}
+        <StoryReactions
+          storyId={story.id}
+          storySlug={story.slug}
+          initialHearts={hearts}
+          initialLikes={likes}
+          initialDislikes={dislikes}
+        />
       </div>
     </div>
   );
