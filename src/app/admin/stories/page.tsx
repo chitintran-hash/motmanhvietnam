@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Plus, Heart, ThumbsUp, ThumbsDown, ExternalLink, Sparkles, BookOpen, MessageSquare } from 'lucide-react';
+import { Plus, Heart, ThumbsUp, ThumbsDown, ExternalLink, Sparkles, BookOpen, MessageSquare, Edit } from 'lucide-react';
 import { getSupabaseServer } from '@/lib/supabase-server';
 import Image from 'next/image';
 import DeleteStoryButton from './DeleteStoryButton';
@@ -142,7 +142,13 @@ export default async function StoriesAdminPage() {
                       </div>
                     </td>
                     <td className="py-4 px-6 max-w-xs">
-                      <div className="font-bold text-foreground line-clamp-2">{story.title}</div>
+                      <Link 
+                        href={`/admin/stories/${story.id}/edit`} 
+                        className="font-bold text-foreground hover:text-terracotta transition-colors line-clamp-2 block"
+                        title="Nhấn để chỉnh sửa bài viết"
+                      >
+                        {story.title}
+                      </Link>
                       <div className="text-xs text-foreground-muted font-mono mt-1 flex items-center gap-1.5">
                         <span>slug: {story.slug}</span>
                         <Link 
@@ -197,7 +203,14 @@ export default async function StoriesAdminPage() {
                       </span>
                     </td>
                     <td className="py-4 px-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <Link
+                          href={`/admin/stories/${story.id}/edit`}
+                          className="p-2 text-foreground/60 hover:text-terracotta hover:bg-foreground/5 rounded-lg transition-colors"
+                          title="Chỉnh sửa bài viết"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Link>
                         <DeleteStoryButton id={story.id} />
                       </div>
                     </td>
