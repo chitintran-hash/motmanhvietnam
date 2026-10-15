@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { QrCode, Sparkles, ArrowRight } from "lucide-react";
+import { Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
 
@@ -143,7 +143,7 @@ export default function StoryCard({
           <div className={`w-full flex flex-col items-center pt-4 border-t-2 ${borderColor} shrink-0`}>
             <Link 
               href={`/story-hub/${id}`} 
-              className={`group w-full flex items-center justify-between p-3 ${primaryColor} text-cream transition-colors mb-3 rounded-sm`}
+              className={`group w-full flex items-center justify-between p-3 ${primaryColor} text-cream transition-colors rounded-sm`}
               onClick={() => trackEvent('click_story_card', { story_id: id })}
             >
               <span className="text-xs font-bold uppercase tracking-widest">
@@ -151,9 +151,6 @@ export default function StoryCard({
               </span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <span className={`text-[10px] font-bold uppercase tracking-widest ${textColor}`}>
-              Hoặc quét để mở khóa
-            </span>
           </div>
         </div>
       </motion.div>
