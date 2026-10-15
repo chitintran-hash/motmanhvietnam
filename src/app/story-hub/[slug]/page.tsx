@@ -7,38 +7,84 @@ import StoryReactions from '@/components/ui/StoryReactions';
 import StoryComments from '@/components/ui/StoryComments';
 import { auth } from '@/auth';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function StoryDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
-  const slug = resolvedParams.slug;
+  const rawSlug = resolvedParams.slug || '';
+  const decodedSlug = decodeURIComponent(rawSlug).trim();
   
   const [supabase, session] = await Promise.all([
     getSupabaseServer(),
     auth()
   ]);
 
-  const { data: story } = await supabase
-    .from('mm_stories')
-    .select('*')
-    .eq('slug', slug)
-    .single();
+  // Robust multi-fallback story lookup
+  let story: any = null;
+
+  // 1. Try exact match with decodedSlug
+  if (decodedSlug) {
+    const { data } = await supabase.from('mm_stories').select('*').eq('slug', decodedSlug).maybeSingle();
+    story = data;
+  }
+
+  // 2. Try exact match with rawSlug if different
+  if (!story && rawSlug && rawSlug !== decodedSlug) {
+    const { data } = await supabase.from('mm_stories').select('*').eq('slug', rawSlug).maybeSingle();
+    story = data;
+  }
+
+  // 3. Try case-insensitive ilike with decodedSlug
+  if (!story && decodedSlug) {
+    const { data } = await supabase.from('mm_stories').select('*').ilike('slug', decodedSlug).maybeSingle();
+    story = data;
+  }
+
+  // 4. Try replacing hyphens with spaces (e.g. "trung-kien" -> "Trung Kien")
+  if (!story && decodedSlug.includes('-')) {
+    const spaceSlug = decodedSlug.replace(/[-_]+/g, ' ');
+    const { data } = await supabase.from('mm_stories').select('*').ilike('slug', spaceSlug).maybeSingle();
+    story = data;
+  }
+
+  // 5. Try replacing spaces with hyphens (e.g. "Trung Kien" -> "trung-kien")
+  if (!story && decodedSlug.includes(' ')) {
+    const dashSlug = decodedSlug.replace(/\s+/g, '-');
+    const { data } = await supabase.from('mm_stories').select('*').ilike('slug', dashSlug).maybeSingle();
+    story = data;
+  }
+
+  // 6. UUID match if slug looks like uuid
+  if (!story && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(decodedSlug)) {
+    const { data } = await supabase.from('mm_stories').select('*').eq('id', decodedSlug).maybeSingle();
+    story = data;
+  }
 
   if (!story || story.status !== 'published') {
     notFound();
   }
 
-  // Fetch comments safely
+  // Fetch comments safely by story ID and matching slug variants
   let comments: any[] = [];
   try {
+    const filterConditions = [
+      `story_id.eq.${story.id}`,
+      `story_slug.eq.${story.slug}`
+    ];
+    if (decodedSlug && decodedSlug !== story.slug) {
+      filterConditions.push(`story_slug.eq.${decodedSlug}`);
+    }
+
     const { data: commentsData } = await supabase
       .from('mm_story_comments')
       .select('*')
-      .or(`story_id.eq.${story.id},story_slug.eq.${story.slug}`)
+      .or(filterConditions.join(','))
       .order('created_at', { ascending: false });
+      
     if (commentsData) comments = commentsData;
   } catch (e) {
-    // If table doesn't exist yet, gracefully fallback to empty
+    console.error('Fetch comments error:', e);
   }
 
   const hearts = Number(story.hearts_count) || 0;

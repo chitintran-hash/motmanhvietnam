@@ -29,11 +29,22 @@ export async function createStoryAction(prevState: any, formData: FormData) {
       return { success: false, message: 'Tiêu đề và Slug là bắt buộc.' };
     }
 
-    const sanitizeStr = (str: string) => str.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-zA-Z0-9_-]/g, "");
-    const safeSlug = sanitizeStr(slug);
+    const cleanSlug = slug
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[đĐ]/g, "d")
+      .replace(/[^a-z0-9\s_-]/g, "")
+      .trim()
+      .replace(/[\s_]+/g, "-")
+      .replace(/-+/g, "-");
+
+    if (!cleanSlug) {
+      return { success: false, message: 'Slug không hợp lệ.' };
+    }
 
     // Kiểm tra slug trùng
-    const { data: existingSlug } = await supabase.from('mm_stories').select('id').eq('slug', slug).single();
+    const { data: existingSlug } = await supabase.from('mm_stories').select('id').eq('slug', cleanSlug).maybeSingle();
     if (existingSlug) {
       return { success: false, message: 'Slug này đã tồn tại, vui lòng chọn slug khác.' };
     }
@@ -41,7 +52,7 @@ export async function createStoryAction(prevState: any, formData: FormData) {
     let image_url = null;
     if (coverFile && coverFile.size > 0) {
       const fileExt = coverFile.name.split('.').pop();
-      const fileName = `story-${safeSlug}-${Date.now()}.${fileExt}`;
+      const fileName = `story-${cleanSlug}-${Date.now()}.${fileExt}`;
       const { error: uploadError } = await supabase.storage.from('team_images').upload(`public/${fileName}`, coverFile);
       if (uploadError) return { success: false, message: 'Lỗi tải ảnh bìa: ' + uploadError.message };
       image_url = supabase.storage.from('team_images').getPublicUrl(`public/${fileName}`).data.publicUrl;
@@ -52,7 +63,7 @@ export async function createStoryAction(prevState: any, formData: FormData) {
       const file = additionalFiles[i];
       if (file && file.size > 0) {
         const fileExt = file.name.split('.').pop();
-        const fileName = `story-add-${safeSlug}-${Date.now()}-${i}.${fileExt}`;
+        const fileName = `story-add-${cleanSlug}-${Date.now()}-${i}.${fileExt}`;
         const { error: uploadError } = await supabase.storage.from('team_images').upload(`public/${fileName}`, file);
         if (uploadError) {
           return { success: false, message: 'Lỗi tải ảnh phụ: ' + uploadError.message };
@@ -62,7 +73,15 @@ export async function createStoryAction(prevState: any, formData: FormData) {
     }
 
     const payload = {
-      title, slug, excerpt, content, city, collection_number, status, image_url, additional_images
+      title, 
+      slug: cleanSlug, 
+      excerpt, 
+      content, 
+      city, 
+      collection_number, 
+      status, 
+      image_url, 
+      additional_images
     };
 
     const { error: insertError } = await supabase.from('mm_stories').insert([payload]);

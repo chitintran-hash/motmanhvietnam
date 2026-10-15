@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { MessageSquare, Send, Trash2, Lock, Loader2, Sparkles, User, AlertCircle, CheckCircle2 } from 'lucide-react';
@@ -37,11 +38,17 @@ export default function StoryComments({
   initialComments = [],
   currentUser
 }: StoryCommentsProps) {
+  const router = useRouter();
   const [comments, setComments] = useState<CommentItem[]>(initialComments);
   const [content, setContent] = useState('');
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isSubmitting, startSubmitTransition] = useTransition();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Keep comments in sync when initialComments updates from server
+  useEffect(() => {
+    setComments(initialComments);
+  }, [initialComments]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,6 +91,7 @@ export default function StoryComments({
           };
           setComments(prev => [optimisticComment, ...prev]);
         }
+        router.refresh();
       } else {
         setStatusMessage({ type: 'error', text: result.message || 'Không thể đăng bình luận. Vui lòng thử lại.' });
       }
@@ -99,6 +107,7 @@ export default function StoryComments({
       setDeletingId(null);
       if (result.success) {
         setComments(prev => prev.filter(c => c.id !== commentId));
+        router.refresh();
       } else {
         alert(result.message || 'Lỗi khi xoá bình luận.');
       }

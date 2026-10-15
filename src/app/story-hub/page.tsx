@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import StoryCard from "@/components/ui/StoryCard";
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 0; // live updates for reactions
 
 export default async function StoryHubPage() {
