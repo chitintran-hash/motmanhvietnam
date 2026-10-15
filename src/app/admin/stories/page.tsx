@@ -135,7 +135,7 @@ export default async function StoriesAdminPage() {
                     <td className="py-4 px-6">
                       <div className="w-16 h-16 relative rounded-xl overflow-hidden bg-foreground/5 border border-foreground/10">
                         {story.image_url ? (
-                          <Image src={story.image_url} alt={story.title} fill className="object-cover" />
+                          <Image src={story.image_url} alt={story.title} fill sizes="64px" className="object-cover" style={{ objectFit: 'cover', objectPosition: 'center' }} />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-xs text-foreground/40 font-bold">No img</div>
                         )}

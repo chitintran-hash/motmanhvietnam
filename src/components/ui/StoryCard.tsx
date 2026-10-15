@@ -63,73 +63,92 @@ export default function StoryCard({
       >
         {/* Front of Card */}
         <div className="absolute inset-0 backface-hidden">
-          <div className={`w-full h-full bg-cream border-4 ${borderColor} p-3 flex flex-col items-center shadow-xl relative overflow-hidden`}>
+          <div className={`w-full h-full bg-cream border-4 ${borderColor} p-3 flex flex-col justify-between shadow-xl relative overflow-hidden`}>
             
-            <div className="relative w-full flex-1 mb-3">
-              <Image 
-                src={imageUrl} 
-                alt={name} 
-                fill 
-                className="object-cover"
-              />
-            </div>
-
-            <div className={`w-full text-center pb-2 border-b-2 ${borderColor} mb-2`}>
-              <h3 className={`font-display font-black text-lg leading-tight ${textColor} uppercase tracking-wider text-balance`}>{name}</h3>
-            </div>
-
-            <div className="w-full flex justify-between items-center mb-1.5">
-              <span className={`text-xs font-bold ${textColor} uppercase tracking-widest truncate max-w-[130px]`}>{id.replace(/[-_]/g, ' ')}</span>
-              <span className={`text-sm font-black ${textColor} uppercase tracking-widest`}>{city}</span>
-            </div>
-
-            {/* Reactions row */}
-            <div className="w-full flex items-center justify-between pt-1.5 border-t border-foreground/10 text-[11px] font-bold">
-              <div className="flex items-center gap-2">
-                <span className="flex items-center gap-1 text-red-500">
-                  ❤️ {heartsCount.toLocaleString('vi-VN')}
-                </span>
-                <span className="flex items-center gap-1 text-emerald-600">
-                  👍 {likesCount.toLocaleString('vi-VN')}
-                </span>
-                {dislikesCount > 0 && (
-                  <span className="flex items-center gap-1 text-foreground/50">
-                    👎 {dislikesCount.toLocaleString('vi-VN')}
-                  </span>
-                )}
+            <div className="w-full flex flex-col">
+              <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-3 bg-foreground/5 border border-foreground/10 shrink-0">
+                <Image 
+                  src={imageUrl} 
+                  alt={name} 
+                  fill 
+                  sizes="(max-width: 768px) 100vw, 320px"
+                  className="object-cover"
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
+                  priority
+                />
               </div>
-              <span className="text-[10px] text-foreground/50 font-medium">
-                {totalReactions.toLocaleString('vi-VN')} tương tác
-              </span>
+
+              <div className={`w-full text-center pb-2 border-b-2 ${borderColor} mb-2`}>
+                <h3 className={`font-display font-black text-base md:text-lg leading-tight ${textColor} uppercase tracking-wider text-balance line-clamp-2`}>
+                  {name}
+                </h3>
+              </div>
+
+              {excerpt && (
+                <p className="text-xs text-foreground-muted font-medium line-clamp-3 leading-relaxed text-center px-1">
+                  {excerpt}
+                </p>
+              )}
+            </div>
+
+            <div className="w-full mt-auto pt-2">
+              <div className="w-full flex justify-between items-center mb-1.5">
+                <span className={`text-xs font-bold ${textColor} uppercase tracking-widest truncate max-w-[130px]`}>
+                  {id.replace(/[-_]/g, ' ')}
+                </span>
+                <span className={`text-sm font-black ${textColor} uppercase tracking-widest`}>
+                  {city}
+                </span>
+              </div>
+
+              {/* Reactions row */}
+              <div className="w-full flex items-center justify-between pt-1.5 border-t border-foreground/10 text-[11px] font-bold">
+                <div className="flex items-center gap-2">
+                  <span className="flex items-center gap-1 text-red-500">
+                    ❤️ {heartsCount.toLocaleString('vi-VN')}
+                  </span>
+                  <span className="flex items-center gap-1 text-emerald-600">
+                    👍 {likesCount.toLocaleString('vi-VN')}
+                  </span>
+                  {dislikesCount > 0 && (
+                    <span className="flex items-center gap-1 text-foreground/50">
+                      👎 {dislikesCount.toLocaleString('vi-VN')}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[10px] text-foreground/50 font-medium">
+                  {totalReactions.toLocaleString('vi-VN')} tương tác
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Back of Card */}
         <div 
-          className={`absolute inset-0 backface-hidden bg-beige border-4 ${borderColor} p-6 flex flex-col items-center shadow-xl`}
+          className={`absolute inset-0 backface-hidden bg-beige border-4 ${borderColor} p-6 flex flex-col items-center justify-between shadow-xl`}
           style={{ transform: "rotateY(180deg)" }}
         >
-          <div className="w-full text-center mb-4">
+          <div className="w-full text-center mb-2">
             <Sparkles className={`w-5 h-5 ${textColor} mx-auto mb-2`} />
             <h4 className={`font-display font-black text-lg ${textColor}`}>CÂU CHUYỆN</h4>
             <div className={`w-8 h-1 ${primaryColor} mx-auto mt-2`}></div>
           </div>
 
-          <p className={`text-sm ${textColor} font-bold text-center leading-relaxed flex-1`}>
+          <p className={`text-sm ${textColor} font-bold text-center leading-relaxed flex-1 overflow-y-auto my-2 pr-1`}>
             {excerpt}
           </p>
 
-          <div className="w-full flex items-center justify-center gap-3 py-2 my-2 bg-foreground/5 rounded-lg text-xs font-bold">
+          <div className="w-full flex items-center justify-center gap-3 py-2 my-2 bg-foreground/5 rounded-lg text-xs font-bold shrink-0">
             <span className="text-red-500">❤️ {heartsCount}</span>
             <span className="text-emerald-600">👍 {likesCount}</span>
             <span className="text-foreground/50">👎 {dislikesCount}</span>
           </div>
 
-          <div className={`mt-auto w-full flex flex-col items-center pt-6 border-t-2 ${borderColor}`}>
+          <div className={`w-full flex flex-col items-center pt-4 border-t-2 ${borderColor} shrink-0`}>
             <Link 
               href={`/story-hub/${id}`} 
-              className={`group w-full flex items-center justify-between p-3 ${primaryColor} text-cream transition-colors mb-4`}
+              className={`group w-full flex items-center justify-between p-3 ${primaryColor} text-cream transition-colors mb-3 rounded-sm`}
               onClick={() => trackEvent('click_story_card', { story_id: id })}
             >
               <span className="text-xs font-bold uppercase tracking-widest">

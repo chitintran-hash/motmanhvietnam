@@ -134,7 +134,19 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
           )}
         </div>
 
-
+        {story.image_url && (
+          <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg border-2 border-foreground/10 mb-12">
+            <Image 
+              src={story.image_url} 
+              alt={story.title} 
+              fill 
+              sizes="(max-width: 1200px) 100vw, 896px"
+              className="object-cover" 
+              style={{ objectFit: 'cover', objectPosition: 'center' }}
+              priority 
+            />
+          </div>
+        )}
 
         <div className="prose prose-lg prose-stone max-w-none mb-16 whitespace-pre-wrap font-medium text-foreground-muted">
           {(() => {
@@ -149,7 +161,14 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
                 if (images[imgIndex]) {
                   return (
                     <span key={idx} className="block relative w-full aspect-video md:aspect-[16/9] rounded-2xl overflow-hidden shadow-lg border-2 border-foreground/10 my-8">
-                      <Image src={images[imgIndex]} alt={`${story.title} ${imgIndex + 1}`} fill className="object-cover" />
+                      <Image 
+                        src={images[imgIndex]} 
+                        alt={`${story.title} ${imgIndex + 1}`} 
+                        fill 
+                        sizes="(max-width: 1200px) 100vw, 896px"
+                        className="object-cover" 
+                        style={{ objectFit: 'cover', objectPosition: 'center' }}
+                      />
                     </span>
                   );
                 }
@@ -168,7 +187,14 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
               
               return (
                 <div key={idx} className="relative w-full aspect-[4/3] rounded-xl overflow-hidden shadow-md border-2 border-foreground/10">
-                  <Image src={img} alt={`${story.title} ${idx + 1}`} fill className="object-cover" />
+                  <Image 
+                    src={img} 
+                    alt={`${story.title} ${idx + 1}`} 
+                    fill 
+                    sizes="(max-width: 768px) 100vw, 440px"
+                    className="object-cover" 
+                    style={{ objectFit: 'cover', objectPosition: 'center' }}
+                  />
                 </div>
               );
             })}
