@@ -65,34 +65,29 @@ export default function StoryCard({
         <div className="absolute inset-0 backface-hidden">
           <div className={`w-full h-full bg-cream border-4 ${borderColor} p-3 flex flex-col justify-between shadow-xl relative overflow-hidden`}>
             
-            <div className="w-full flex flex-col">
-              <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-3 bg-foreground/5 border border-foreground/10 shrink-0">
-                <Image 
-                  src={imageUrl} 
-                  alt={name} 
-                  fill 
-                  sizes="(max-width: 768px) 100vw, 320px"
-                  className="object-cover"
-                  style={{ objectFit: 'cover', objectPosition: 'center' }}
-                  priority
-                />
-              </div>
-
-              <div className={`w-full text-center pb-2 border-b-2 ${borderColor} mb-2`}>
-                <h3 className={`font-display font-black text-base md:text-lg leading-tight ${textColor} uppercase tracking-wider text-balance line-clamp-2`}>
-                  {name}
-                </h3>
-              </div>
-
-              {excerpt && (
-                <p className="text-xs text-foreground-muted font-medium line-clamp-3 leading-relaxed text-center px-1">
-                  {excerpt}
-                </p>
-              )}
+            {/* Top: 16:9 Artwork frame */}
+            <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-foreground/5 border border-foreground/10 shrink-0">
+              <Image 
+                src={imageUrl} 
+                alt={name} 
+                fill 
+                sizes="(max-width: 768px) 100vw, 320px"
+                className="object-cover"
+                style={{ objectFit: 'cover', objectPosition: 'center' }}
+                priority
+              />
             </div>
 
-            <div className="w-full mt-auto pt-2">
-              <div className="w-full flex justify-between items-center mb-1.5">
+            {/* Middle: Full Title wrapping down naturally without ellipsis */}
+            <div className="flex-1 flex flex-col justify-center items-center py-2 px-1 text-center">
+              <h3 className={`font-display font-black text-base md:text-lg leading-snug ${textColor} uppercase tracking-wider text-balance`}>
+                {name}
+              </h3>
+            </div>
+
+            {/* Bottom: Divider line, Author/ID & City, Reactions */}
+            <div className="w-full shrink-0">
+              <div className={`w-full border-t-2 ${borderColor} pt-2 mb-1.5 flex justify-between items-center`}>
                 <span className={`text-xs font-bold ${textColor} uppercase tracking-widest truncate max-w-[130px]`}>
                   {id.replace(/[-_]/g, ' ')}
                 </span>
@@ -129,14 +124,14 @@ export default function StoryCard({
           className={`absolute inset-0 backface-hidden bg-beige border-4 ${borderColor} p-6 flex flex-col items-center justify-between shadow-xl`}
           style={{ transform: "rotateY(180deg)" }}
         >
-          <div className="w-full text-center mb-2">
+          <div className="w-full text-center mb-2 shrink-0">
             <Sparkles className={`w-5 h-5 ${textColor} mx-auto mb-2`} />
             <h4 className={`font-display font-black text-lg ${textColor}`}>CÂU CHUYỆN</h4>
             <div className={`w-8 h-1 ${primaryColor} mx-auto mt-2`}></div>
           </div>
 
-          <p className={`text-sm ${textColor} font-bold text-center leading-relaxed flex-1 overflow-y-auto my-2 pr-1`}>
-            {excerpt}
+          <p className={`text-sm ${textColor} font-bold text-center leading-relaxed flex-1 overflow-y-auto my-3 pr-1`}>
+            {excerpt || "Bấm đọc chi tiết để khám phá câu chuyện đầy đủ..."}
           </p>
 
           <div className="w-full flex items-center justify-center gap-3 py-2 my-2 bg-foreground/5 rounded-lg text-xs font-bold shrink-0">

@@ -49,7 +49,11 @@ export default async function StoryHubPage() {
                     name={story.title}
                     city={story.city || 'Việt Nam'}
                     collectionNumber={story.collection_number || 'STORY'}
-                    excerpt={story.excerpt || ''}
+                    excerpt={
+                      (story.excerpt && story.excerpt.trim()) 
+                        ? story.excerpt.trim() 
+                        : (story.content ? story.content.replace(/\[anh\d+\]/gi, '').replace(/[#*`_~]/g, '').replace(/\s+/g, ' ').trim().slice(0, 180) + '...' : '')
+                    }
                     imageUrl={story.image_url || "https://illustrations.popsy.co/amber/home-office.svg"}
                     heartsCount={Number(story.hearts_count) || 0}
                     likesCount={Number(story.likes_count) || 0}
