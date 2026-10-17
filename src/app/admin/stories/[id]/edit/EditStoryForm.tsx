@@ -1,31 +1,35 @@
 'use client';
 
-import { useActionState, useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { updateStoryAction } from '../../actions';
+import { getStorySignedUploadUrlsAction, updateStoryDirectAction } from '../../actions';
 import Link from 'next/link';
 import { ArrowLeft, Upload, ExternalLink, X, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function EditStoryForm({ story }: { story: any }) {
   const router = useRouter();
-  const [state, formAction, isPending] = useActionState(updateStoryAction, undefined);
+
+  const [title, setTitle] = useState(story.title || '');
+  const [slug, setSlug] = useState(story.slug || '');
+  const [excerpt, setExcerpt] = useState(story.excerpt || '');
+  const [content, setContent] = useState(story.content || '');
+  const [city, setCity] = useState(story.city || '');
+  const [status, setStatus] = useState(story.status || 'published');
+
+  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(story.image_url || null);
   const [existingAdditional, setExistingAdditional] = useState<string[]>(story.additional_images || []);
+  const [newAdditionalFiles, setNewAdditionalFiles] = useState<File[]>([]);
   const [newAdditionalPreviews, setNewAdditionalPreviews] = useState<string[]>([]);
 
-  useEffect(() => {
-    if (state?.success) {
-      const timer = setTimeout(() => {
-        router.push('/admin/stories');
-        router.refresh();
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [state, router]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitProgress, setSubmitProgress] = useState<string>('');
+  const [statusMessage, setStatusMessage] = useState<{ success: boolean; message: string } | null>(null);
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setCoverFile(file);
       const reader = new FileReader();
       reader.onload = (event) => {
         setCoverPreview(event.target?.result as string);
@@ -35,11 +39,13 @@ export default function EditStoryForm({ story }: { story: any }) {
       };
       reader.readAsDataURL(file);
     } else {
-      setCoverPreview(null);
+      setCoverFile(null);
+      setCoverPreview(story.image_url || null);
     }
   };
 
   const handleRemoveCover = () => {
+    setCoverFile(null);
     setCoverPreview(null);
   };
 
@@ -51,28 +57,128 @@ export default function EditStoryForm({ story }: { story: any }) {
     const files = e.target.files;
     if (files && files.length > 0) {
       const fileList = Array.from(files);
-      const newUrls: string[] = [];
-      let loaded = 0;
-      fileList.forEach((file, index) => {
+      setNewAdditionalFiles(prev => [...prev, ...fileList]);
+
+      fileList.forEach((file) => {
         const reader = new FileReader();
         reader.onload = (event) => {
-          newUrls[index] = event.target?.result as string;
-          loaded++;
-          if (loaded === fileList.length) {
-            setNewAdditionalPreviews([...newUrls]);
-          }
+          setNewAdditionalPreviews(prev => [...prev, event.target?.result as string]);
         };
         reader.onerror = () => {
-          newUrls[index] = URL.createObjectURL(file);
-          loaded++;
-          if (loaded === fileList.length) {
-            setNewAdditionalPreviews([...newUrls]);
-          }
+          setNewAdditionalPreviews(prev => [...prev, URL.createObjectURL(file)]);
         };
         reader.readAsDataURL(file);
       });
-    } else {
-      setNewAdditionalPreviews([]);
+    }
+  };
+
+  const handleRemoveNewAdditional = (indexToRemove: number) => {
+    setNewAdditionalFiles(prev => prev.filter((_, idx) => idx !== indexToRemove));
+    setNewAdditionalPreviews(prev => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (isSubmitting || statusMessage?.success) return;
+
+    if (!title.trim()) {
+      setStatusMessage({ success: false, message: 'Tiêu đề bài viết là bắt buộc.' });
+      return;
+    }
+
+    if (!slug.trim()) {
+      setStatusMessage({ success: false, message: 'Slug bài viết là bắt buộc.' });
+      return;
+    }
+
+    if (!content.trim()) {
+      setStatusMessage({ success: false, message: 'Nội dung bài viết là bắt buộc.' });
+      return;
+    }
+
+    setIsSubmitting(true);
+    setStatusMessage(null);
+
+    try {
+      let uploadedCoverUrl: string | null = null;
+      const uploadedNewAdditionalUrls: string[] = [];
+
+      const uploadRequests: Array<{ name: string; type: string; isCover: boolean; index: number }> = [];
+      if (coverFile) {
+        uploadRequests.push({ name: coverFile.name, type: coverFile.type, isCover: true, index: 0 });
+      }
+      newAdditionalFiles.forEach((file, idx) => {
+        uploadRequests.push({ name: file.name, type: file.type, isCover: false, index: idx });
+      });
+
+      if (uploadRequests.length > 0) {
+        setSubmitProgress(`Đang chuẩn bị tải lên ${uploadRequests.length} ảnh mới...`);
+        const signedRes = await getStorySignedUploadUrlsAction(uploadRequests);
+
+        if (!signedRes.success || !signedRes.urls) {
+          throw new Error(signedRes.message || 'Không thể tạo link tải ảnh trực tiếp');
+        }
+
+        const total = uploadRequests.length;
+        let count = 0;
+
+        for (const item of signedRes.urls) {
+          count++;
+          setSubmitProgress(`Đang tải ảnh ${count}/${total}...`);
+
+          const targetFile = item.isCover ? coverFile : newAdditionalFiles[item.index];
+          if (!targetFile) continue;
+
+          const uploadRes = await fetch(item.signedUrl, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': targetFile.type || 'image/jpeg',
+            },
+            body: targetFile,
+          });
+
+          if (!uploadRes.ok) {
+            throw new Error(`Lỗi tải ảnh lên lưu trữ: ${uploadRes.statusText}`);
+          }
+
+          if (item.isCover) {
+            uploadedCoverUrl = item.publicUrl;
+          } else {
+            uploadedNewAdditionalUrls[item.index] = item.publicUrl;
+          }
+        }
+      }
+
+      setSubmitProgress('Đang lưu bài viết vào hệ thống...');
+      const finalCover = coverFile ? uploadedCoverUrl : coverPreview;
+      const finalAdditional = [...existingAdditional, ...uploadedNewAdditionalUrls.filter(Boolean)];
+
+      const updateRes = await updateStoryDirectAction({
+        id: story.id,
+        title,
+        slug,
+        excerpt,
+        content,
+        city,
+        collection_number: story.collection_number || 'STORY',
+        status,
+        image_url: finalCover,
+        additional_images: finalAdditional,
+      });
+
+      if (!updateRes.success) {
+        throw new Error(updateRes.message || 'Lỗi cập nhật bài viết');
+      }
+
+      setStatusMessage({ success: true, message: updateRes.message || 'Cập nhật bài viết thành công!' });
+      setTimeout(() => {
+        router.push('/admin/stories');
+        router.refresh();
+      }, 1000);
+    } catch (err: any) {
+      setStatusMessage({ success: false, message: err.message || 'Có lỗi xảy ra khi lưu bài viết' });
+      setIsSubmitting(false);
+      setSubmitProgress('');
     }
   };
 
@@ -108,22 +214,18 @@ export default function EditStoryForm({ story }: { story: any }) {
       </div>
 
       <div className="bg-white rounded-2xl border-2 border-foreground/10 shadow-[4px_4px_0px_rgba(0,0,0,0.05)] p-6 md:p-8">
-        <form action={formAction} className="space-y-8">
-          <input type="hidden" name="id" value={story.id} />
-          <input type="hidden" name="existing_cover_url" value={coverPreview || ''} />
-          <input type="hidden" name="existing_additional_images" value={JSON.stringify(existingAdditional)} />
-
+        <form onSubmit={handleSubmit} className="space-y-8">
           {/* Thông báo trạng thái ở đầu form */}
-          {state?.message && (
-            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2.5 ${state.success ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-600 border border-red-200'}`}>
-              {state.success ? (
+          {statusMessage?.message && (
+            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2.5 ${statusMessage.success ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+              {statusMessage.success ? (
                 <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
               ) : (
                 <AlertCircle className="w-5 h-5 shrink-0 text-red-500" />
               )}
               <span>
-                {state.message}
-                {state.success && ' Đang tự động chuyển hướng về danh sách bài viết...'}
+                {statusMessage.message}
+                {statusMessage.success && ' Đang tự động chuyển hướng về danh sách bài viết...'}
               </span>
             </div>
           )}
@@ -141,7 +243,8 @@ export default function EditStoryForm({ story }: { story: any }) {
                   type="text" 
                   name="title" 
                   required 
-                  defaultValue={story.title}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                   placeholder="Nhập tiêu đề bài viết..."
                   className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors font-medium text-base" 
                 />
@@ -155,12 +258,13 @@ export default function EditStoryForm({ story }: { story: any }) {
                   type="text" 
                   name="slug" 
                   required 
-                  defaultValue={story.slug}
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
                   placeholder="vi-du-duong-dan-bai-viet"
                   className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors font-mono text-sm" 
                 />
                 <p className="text-xs text-foreground/50 mt-1.5">
-                  Đường dẫn hiển thị trên thanh địa chỉ duyệt web (vd: /story-hub/{story.slug})
+                  Đường dẫn hiển thị trên thanh địa chỉ duyệt web (vd: /story-hub/{slug})
                 </p>
               </div>
 
@@ -171,7 +275,8 @@ export default function EditStoryForm({ story }: { story: any }) {
                 <textarea 
                   name="excerpt" 
                   rows={3} 
-                  defaultValue={story.excerpt || ''}
+                  value={excerpt}
+                  onChange={(e) => setExcerpt(e.target.value)}
                   placeholder="Đoạn văn tóm tắt ngắn hiển thị ở mặt sau thẻ bài hoặc đầu bài viết..."
                   className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors text-sm"
                 ></textarea>
@@ -190,7 +295,8 @@ export default function EditStoryForm({ story }: { story: any }) {
                   name="content" 
                   rows={14} 
                   required
-                  defaultValue={story.content || ''}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
                   placeholder="Nhập nội dung bài viết...&#10;&#10;Đoạn văn mở đầu...&#10;&#10;[anh1]&#10;&#10;Đoạn văn tiếp theo giải thích về bức ảnh...&#10;&#10;[anh2]"
                   className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors font-medium text-sm leading-relaxed"
                 ></textarea>
@@ -209,7 +315,8 @@ export default function EditStoryForm({ story }: { story: any }) {
               <input 
                 type="text" 
                 name="city" 
-                defaultValue={story.city || ''} 
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
                 placeholder="VD: Hà Nội, Sài Gòn..."
                 className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors" 
               />
@@ -221,7 +328,8 @@ export default function EditStoryForm({ story }: { story: any }) {
               </label>
               <select 
                 name="status" 
-                defaultValue={story.status || 'published'} 
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors"
               >
                 <option value="published">Xuất bản (Hiển thị công khai)</option>
@@ -254,7 +362,6 @@ export default function EditStoryForm({ story }: { story: any }) {
                 <div className="border-2 border-dashed border-foreground/20 rounded-xl p-4 text-center relative hover:bg-foreground/5 transition-colors">
                   <input 
                     type="file" 
-                    name="image_url" 
                     accept="image/*" 
                     onChange={handleCoverChange} 
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
@@ -321,7 +428,6 @@ export default function EditStoryForm({ story }: { story: any }) {
                 <div className="border-2 border-dashed border-foreground/20 rounded-xl p-4 text-center relative hover:bg-foreground/5 transition-colors min-h-[140px] flex flex-col items-center justify-center">
                   <input 
                     type="file" 
-                    name="additional_images" 
                     accept="image/*" 
                     multiple 
                     onChange={handleNewAdditionalChange} 
@@ -334,7 +440,7 @@ export default function EditStoryForm({ story }: { story: any }) {
                       </p>
                       <div className="grid grid-cols-3 gap-2">
                         {newAdditionalPreviews.map((preview, i) => (
-                          <div key={i} className="relative aspect-video rounded-lg overflow-hidden border border-foreground/10 bg-black/5">
+                          <div key={i} className="relative aspect-video rounded-lg overflow-hidden border border-foreground/10 bg-black/5 group">
                             <img 
                               src={preview} 
                               alt={`Ảnh mới ${i + 1}`} 
@@ -343,6 +449,17 @@ export default function EditStoryForm({ story }: { story: any }) {
                             <span className="absolute top-1 left-1 bg-emerald-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
                               Mới
                             </span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveNewAdditional(i);
+                              }}
+                              className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full opacity-80 hover:opacity-100 transition-opacity cursor-pointer z-20"
+                              title="Xóa ảnh này"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
                           </div>
                         ))}
                       </div>
@@ -353,7 +470,7 @@ export default function EditStoryForm({ story }: { story: any }) {
                       <span className="text-sm font-medium text-foreground/60">
                         {existingAdditional.length > 0 ? 'Tải thêm ảnh mới' : 'Tải nhiều ảnh lên'}
                       </span>
-                      <span className="text-xs text-foreground/40 mt-1">Giữ phím Ctrl / Cmd để chọn nhiều ảnh</span>
+                      <span className="text-xs text-foreground/40 mt-1">Giữ phím Shift hoặc Ctrl / Cmd để chọn nhiều ảnh</span>
                     </>
                   )}
                 </div>
@@ -361,17 +478,17 @@ export default function EditStoryForm({ story }: { story: any }) {
             </div>
           </div>
 
-          {/* Dual status warning above submit button */}
-          {state?.message && (
-            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2.5 ${state.success ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-600 border border-red-200'}`}>
-              {state.success ? (
+          {/* Thông báo trạng thái ở cạnh nút Lưu */}
+          {statusMessage?.message && (
+            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2.5 ${statusMessage.success ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+              {statusMessage.success ? (
                 <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
               ) : (
                 <AlertCircle className="w-5 h-5 shrink-0 text-red-500" />
               )}
               <span>
-                {state.message}
-                {state.success && ' Đang tự động chuyển hướng về danh sách bài viết...'}
+                {statusMessage.message}
+                {statusMessage.success && ' Đang tự động chuyển hướng về danh sách bài viết...'}
               </span>
             </div>
           )}
@@ -385,10 +502,10 @@ export default function EditStoryForm({ story }: { story: any }) {
             </Link>
             <button 
               type="submit" 
-              disabled={isPending || state?.success} 
+              disabled={isSubmitting || statusMessage?.success} 
               className="bg-primary-red text-white px-8 py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-primary-red/90 transition-colors disabled:opacity-50 text-sm shadow-md flex items-center gap-2 cursor-pointer"
             >
-              {state?.success ? 'Đã lưu thành công!' : isPending ? 'Đang lưu bài viết và tải ảnh...' : 'Lưu bài viết'}
+              {statusMessage?.success ? 'Đã lưu thành công!' : isSubmitting ? (submitProgress || 'Đang lưu bài viết...') : 'Lưu bài viết'}
             </button>
           </div>
         </form>
