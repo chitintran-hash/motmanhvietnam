@@ -1,56 +1,92 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useState, startTransition } from 'react';
 import { updateStoryAction } from '../../actions';
+import { optimizeImageFile, optimizeImageFiles } from '@/lib/image-optimizer';
 import Link from 'next/link';
 import { ArrowLeft, Upload, ExternalLink, X, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 
 export default function EditStoryForm({ story }: { story: any }) {
   const [errorMessage, formAction, isPending] = useActionState(updateStoryAction, undefined);
-  const [fileWarning, setFileWarning] = useState<string | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(story.image_url || null);
   const [existingAdditional, setExistingAdditional] = useState<string[]>(story.additional_images || []);
   const [newAdditionalPreviews, setNewAdditionalPreviews] = useState<string[]>([]);
+  const [newCoverFile, setNewCoverFile] = useState<File | null>(null);
+  const [newAdditionalFiles, setNewAdditionalFiles] = useState<File[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 4.5 * 1024 * 1024) {
-        setFileWarning(`⚠️ Ảnh bìa "${file.name}" dung lượng ${(file.size / (1024 * 1024)).toFixed(1)}MB (vượt quá 4.5MB). Vui lòng chọn ảnh nhẹ hơn.`);
-      } else {
-        setFileWarning(null);
-      }
       setCoverPreview(URL.createObjectURL(file));
+      // Tự động tối ưu ảnh dung lượng lớn ở chế độ nền
+      const optimized = await optimizeImageFile(file);
+      setNewCoverFile(optimized);
+    } else {
+      setNewCoverFile(null);
     }
   };
 
   const handleRemoveCover = () => {
     setCoverPreview(null);
+    setNewCoverFile(null);
   };
 
   const handleRemoveExistingAdditional = (indexToRemove: number) => {
     setExistingAdditional(prev => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
-  const handleNewAdditionalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNewAdditionalChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files) {
-      let oversized = false;
-      let totalSize = 0;
-      Array.from(files).forEach(f => {
-        totalSize += f.size;
-        if (f.size > 4.5 * 1024 * 1024) oversized = true;
-      });
-      if (oversized || totalSize > 6 * 1024 * 1024) {
-        setFileWarning(`⚠️ Tổng dung lượng ảnh kèm mới (${(totalSize / (1024 * 1024)).toFixed(1)}MB) quá lớn. Bạn nên chọn ảnh dưới 4MB.`);
-      } else {
-        setFileWarning(null);
-      }
-      const urls = Array.from(files).map(file => URL.createObjectURL(file));
+    if (files && files.length > 0) {
+      const fileList = Array.from(files);
+      const urls = fileList.map(file => URL.createObjectURL(file));
       setNewAdditionalPreviews(urls);
+      // Tự động tối ưu các ảnh phụ mới ở chế độ nền
+      const optimizedList = await optimizeImageFiles(fileList);
+      setNewAdditionalFiles(optimizedList);
+    } else {
+      setNewAdditionalFiles([]);
+      setNewAdditionalPreviews([]);
     }
   };
+
+  const handleFormSubmit = async (formData: FormData) => {
+    setIsSubmitting(true);
+    try {
+      // Thay thế ảnh bìa bằng bản đã được tối ưu nếu có
+      let finalCover = newCoverFile;
+      const inputCover = formData.get('image_url') as File | null;
+      if (!finalCover && inputCover && inputCover.size > 0) {
+        finalCover = await optimizeImageFile(inputCover);
+      }
+      if (finalCover && finalCover.size > 0) {
+        formData.set('image_url', finalCover);
+      }
+
+      // Thay thế ảnh phụ bằng bản đã được tối ưu nếu có
+      let finalAdditional = newAdditionalFiles;
+      const inputAdditionals = formData.getAll('additional_images') as File[];
+      if (finalAdditional.length === 0 && inputAdditionals.length > 0 && inputAdditionals[0].size > 0) {
+        finalAdditional = await optimizeImageFiles(inputAdditionals);
+      }
+      if (finalAdditional.length > 0) {
+        formData.delete('additional_images');
+        for (const f of finalAdditional) {
+          formData.append('additional_images', f);
+        }
+      }
+
+      startTransition(() => {
+        formAction(formData);
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const isBusy = isPending || isSubmitting;
 
   return (
     <div className="p-6 md:p-8 w-full max-w-4xl mx-auto">
@@ -84,7 +120,7 @@ export default function EditStoryForm({ story }: { story: any }) {
       </div>
 
       <div className="bg-white rounded-2xl border-2 border-foreground/10 shadow-[4px_4px_0px_rgba(0,0,0,0.05)] p-6 md:p-8">
-        <form action={formAction} className="space-y-8">
+        <form action={handleFormSubmit} className="space-y-8">
           <input type="hidden" name="id" value={story.id} />
           <input type="hidden" name="existing_cover_url" value={coverPreview || ''} />
           <input type="hidden" name="existing_additional_images" value={JSON.stringify(existingAdditional)} />
@@ -93,13 +129,6 @@ export default function EditStoryForm({ story }: { story: any }) {
             <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2 ${errorMessage.success ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
               <AlertCircle className="w-5 h-5 shrink-0" />
               <span>{errorMessage.message}</span>
-            </div>
-          )}
-
-          {fileWarning && (
-            <div className="p-4 rounded-xl text-sm font-semibold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 shrink-0 text-amber-600" />
-              <span>{fileWarning}</span>
             </div>
           )}
 
@@ -361,10 +390,10 @@ export default function EditStoryForm({ story }: { story: any }) {
             </Link>
             <button 
               type="submit" 
-              disabled={isPending} 
+              disabled={isBusy} 
               className="bg-primary-red text-white px-8 py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-primary-red/90 transition-colors disabled:opacity-50 text-sm shadow-md"
             >
-              {isPending ? 'Đang lưu bài viết và tải ảnh...' : 'Lưu bài viết'}
+              {isBusy ? 'Đang lưu bài viết và tải ảnh...' : 'Lưu bài viết'}
             </button>
           </div>
         </form>

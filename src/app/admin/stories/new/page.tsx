@@ -1,7 +1,8 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useState, startTransition } from 'react';
 import { createStoryAction } from '../actions';
+import { optimizeImageFile, optimizeImageFiles } from '@/lib/image-optimizer';
 import Link from 'next/link';
 import { ArrowLeft, Image as ImageIcon, Upload, AlertCircle, Sparkles } from 'lucide-react';
 import Image from 'next/image';
@@ -11,9 +12,11 @@ export default function NewStoryPage() {
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [isSlugCustomized, setIsSlugCustomized] = useState(false);
-  const [fileWarning, setFileWarning] = useState<string | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [additionalPreviews, setAdditionalPreviews] = useState<string[]>([]);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const generateSlug = (text: string) => {
     return text
@@ -40,36 +43,69 @@ export default function NewStoryPage() {
     setIsSlugCustomized(true);
   };
 
-  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 4.5 * 1024 * 1024) {
-        setFileWarning(`⚠️ Ảnh bìa "${file.name}" có dung lượng ${(file.size / (1024 * 1024)).toFixed(1)}MB (vượt quá 4.5MB). Vui lòng chọn ảnh nhẹ hơn để tránh lỗi đăng bài.`);
-      } else {
-        setFileWarning(null);
-      }
       setCoverPreview(URL.createObjectURL(file));
+      // Tự động tối ưu ảnh dung lượng lớn ở chế độ nền
+      const optimized = await optimizeImageFile(file);
+      setCoverFile(optimized);
+    } else {
+      setCoverFile(null);
+      setCoverPreview(null);
     }
   };
 
-  const handleAdditionalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAdditionalChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files) {
-      let oversized = false;
-      let totalSize = 0;
-      Array.from(files).forEach(f => {
-        totalSize += f.size;
-        if (f.size > 4.5 * 1024 * 1024) oversized = true;
-      });
-      if (oversized || totalSize > 6 * 1024 * 1024) {
-        setFileWarning(`⚠️ Tổng dung lượng ảnh kèm theo (${(totalSize / (1024 * 1024)).toFixed(1)}MB) quá lớn. Bạn nên chọn ảnh dưới 4MB để tránh lỗi đường truyền mạng.`);
-      } else {
-        setFileWarning(null);
-      }
-      const urls = Array.from(files).map(file => URL.createObjectURL(file));
+    if (files && files.length > 0) {
+      const fileList = Array.from(files);
+      const urls = fileList.map(f => URL.createObjectURL(f));
       setAdditionalPreviews(urls);
+      // Tự động tối ưu các ảnh phụ ở chế độ nền
+      const optimizedList = await optimizeImageFiles(fileList);
+      setAdditionalFiles(optimizedList);
+    } else {
+      setAdditionalFiles([]);
+      setAdditionalPreviews([]);
     }
   };
+
+  const handleFormSubmit = async (formData: FormData) => {
+    setIsSubmitting(true);
+    try {
+      // Thay thế ảnh bìa bằng bản đã được tối ưu nếu có
+      let finalCover = coverFile;
+      const inputCover = formData.get('image_url') as File | null;
+      if (!finalCover && inputCover && inputCover.size > 0) {
+        finalCover = await optimizeImageFile(inputCover);
+      }
+      if (finalCover && finalCover.size > 0) {
+        formData.set('image_url', finalCover);
+      }
+
+      // Thay thế ảnh phụ bằng bản đã được tối ưu nếu có
+      let finalAdditional = additionalFiles;
+      const inputAdditionals = formData.getAll('additional_images') as File[];
+      if (finalAdditional.length === 0 && inputAdditionals.length > 0 && inputAdditionals[0].size > 0) {
+        finalAdditional = await optimizeImageFiles(inputAdditionals);
+      }
+      if (finalAdditional.length > 0) {
+        formData.delete('additional_images');
+        for (const f of finalAdditional) {
+          formData.append('additional_images', f);
+        }
+      }
+
+      startTransition(() => {
+        formAction(formData);
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const isBusy = isPending || isSubmitting;
 
   return (
     <div className="p-6 md:p-8 w-full max-w-4xl mx-auto">
@@ -81,18 +117,11 @@ export default function NewStoryPage() {
       </div>
 
       <div className="bg-white rounded-2xl border-2 border-foreground/10 shadow-[4px_4px_0px_rgba(0,0,0,0.05)] p-6 md:p-8">
-        <form action={formAction} className="space-y-8">
+        <form action={handleFormSubmit} className="space-y-8">
           {errorMessage?.message && (
             <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2 ${errorMessage.success ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
               <AlertCircle className="w-5 h-5 shrink-0" />
               <span>{errorMessage.message}</span>
-            </div>
-          )}
-
-          {fileWarning && (
-            <div className="p-4 rounded-xl text-sm font-semibold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 shrink-0 text-amber-600" />
-              <span>{fileWarning}</span>
             </div>
           )}
 
@@ -227,8 +256,8 @@ export default function NewStoryPage() {
           )}
 
           <div className="flex justify-end pt-6 border-t border-foreground/10">
-            <button type="submit" disabled={isPending} className="bg-foreground text-white px-8 py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-terracotta transition-colors disabled:opacity-50">
-              {isPending ? 'Đang lưu bài viết và tải ảnh...' : 'Lưu bài viết'}
+            <button type="submit" disabled={isBusy} className="bg-foreground text-white px-8 py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-terracotta transition-colors disabled:opacity-50">
+              {isBusy ? 'Đang lưu bài viết và tải ảnh...' : 'Lưu bài viết'}
             </button>
           </div>
         </form>
