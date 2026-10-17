@@ -3,22 +3,69 @@
 import { useActionState, useState } from 'react';
 import { createStoryAction } from '../actions';
 import Link from 'next/link';
-import { ArrowLeft, Image as ImageIcon, Upload } from 'lucide-react';
+import { ArrowLeft, Image as ImageIcon, Upload, AlertCircle, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 
 export default function NewStoryPage() {
   const [errorMessage, formAction, isPending] = useActionState(createStoryAction, undefined);
+  const [title, setTitle] = useState('');
+  const [slug, setSlug] = useState('');
+  const [isSlugCustomized, setIsSlugCustomized] = useState(false);
+  const [fileWarning, setFileWarning] = useState<string | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [additionalPreviews, setAdditionalPreviews] = useState<string[]>([]);
 
+  const generateSlug = (text: string) => {
+    return text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setTitle(val);
+    if (!isSlugCustomized) {
+      setSlug(generateSlug(val));
+    }
+  };
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSlug(e.target.value);
+    setIsSlugCustomized(true);
+  };
+
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setCoverPreview(URL.createObjectURL(file));
+    if (file) {
+      if (file.size > 4.5 * 1024 * 1024) {
+        setFileWarning(`⚠️ Ảnh bìa "${file.name}" có dung lượng ${(file.size / (1024 * 1024)).toFixed(1)}MB (vượt quá 4.5MB). Vui lòng chọn ảnh nhẹ hơn để tránh lỗi đăng bài.`);
+      } else {
+        setFileWarning(null);
+      }
+      setCoverPreview(URL.createObjectURL(file));
+    }
   };
 
   const handleAdditionalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
+      let oversized = false;
+      let totalSize = 0;
+      Array.from(files).forEach(f => {
+        totalSize += f.size;
+        if (f.size > 4.5 * 1024 * 1024) oversized = true;
+      });
+      if (oversized || totalSize > 6 * 1024 * 1024) {
+        setFileWarning(`⚠️ Tổng dung lượng ảnh kèm theo (${(totalSize / (1024 * 1024)).toFixed(1)}MB) quá lớn. Bạn nên chọn ảnh dưới 4MB để tránh lỗi đường truyền mạng.`);
+      } else {
+        setFileWarning(null);
+      }
       const urls = Array.from(files).map(file => URL.createObjectURL(file));
       setAdditionalPreviews(urls);
     }
@@ -36,8 +83,16 @@ export default function NewStoryPage() {
       <div className="bg-white rounded-2xl border-2 border-foreground/10 shadow-[4px_4px_0px_rgba(0,0,0,0.05)] p-6 md:p-8">
         <form action={formAction} className="space-y-8">
           {errorMessage?.message && (
-            <div className={`p-4 rounded-lg text-sm font-medium ${errorMessage.success ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
-              {errorMessage.message}
+            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2 ${errorMessage.success ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+              <AlertCircle className="w-5 h-5 shrink-0" />
+              <span>{errorMessage.message}</span>
+            </div>
+          )}
+
+          {fileWarning && (
+            <div className="p-4 rounded-xl text-sm font-semibold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 shrink-0 text-amber-600" />
+              <span>{fileWarning}</span>
             </div>
           )}
 
@@ -46,16 +101,46 @@ export default function NewStoryPage() {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Tiêu đề *</label>
-                <input type="text" name="title" required className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors" />
+                <input 
+                  type="text" 
+                  name="title" 
+                  required 
+                  value={title}
+                  onChange={handleTitleChange}
+                  placeholder="Nhập tiêu đề bài viết..."
+                  className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors" 
+                />
               </div>
+
               <div>
-                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Slug *</label>
-                <input type="text" name="slug" required className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors" />
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-bold text-foreground/80 uppercase tracking-wider">Slug (Đường dẫn bài viết)</label>
+                  <button 
+                    type="button" 
+                    onClick={() => { setSlug(generateSlug(title)); setIsSlugCustomized(false); }}
+                    className="text-xs text-terracotta font-bold hover:underline flex items-center gap-1"
+                  >
+                    <Sparkles className="w-3 h-3" /> Tự động tạo lại từ tiêu đề
+                  </button>
+                </div>
+                <input 
+                  type="text" 
+                  name="slug" 
+                  value={slug}
+                  onChange={handleSlugChange}
+                  placeholder="vi-du-duong-dan-bai-viet"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors font-mono text-sm" 
+                />
+                <p className="text-xs text-foreground/50 mt-1.5">
+                  Đường dẫn hiển thị trên trình duyệt (vd: /story-hub/{slug || 'tieu-de-bai-viet'}). Có thể để trống để hệ thống tự tạo.
+                </p>
               </div>
+
               <div>
                 <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Đoạn trích (Excerpt)</label>
-                <textarea name="excerpt" rows={3} className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors"></textarea>
+                <textarea name="excerpt" rows={3} placeholder="Tóm tắt ngắn gọn bài viết..." className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors"></textarea>
               </div>
+
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="block text-sm font-bold text-foreground/80 uppercase tracking-wider">Nội dung chi tiết *</label>
@@ -84,9 +169,9 @@ export default function NewStoryPage() {
              </div>
              <div>
                 <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Trạng thái</label>
-                <select name="status" className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors">
-                  <option value="published">Xuất bản</option>
-                  <option value="draft">Bản nháp</option>
+                <select name="status" defaultValue="published" className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors">
+                  <option value="published">Xuất bản (Hiển thị ngay trên web)</option>
+                  <option value="draft">Bản nháp (Chỉ Admin xem trước được)</option>
                 </select>
              </div>
           </div>
@@ -133,9 +218,17 @@ export default function NewStoryPage() {
              </div>
           </div>
 
+          {/* Dual error warning above submit button */}
+          {errorMessage?.message && (
+            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2 ${errorMessage.success ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+              <AlertCircle className="w-5 h-5 shrink-0" />
+              <span>{errorMessage.message}</span>
+            </div>
+          )}
+
           <div className="flex justify-end pt-6 border-t border-foreground/10">
             <button type="submit" disabled={isPending} className="bg-foreground text-white px-8 py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-terracotta transition-colors disabled:opacity-50">
-              {isPending ? 'Đang lưu...' : 'Lưu bài viết'}
+              {isPending ? 'Đang lưu bài viết và tải ảnh...' : 'Lưu bài viết'}
             </button>
           </div>
         </form>

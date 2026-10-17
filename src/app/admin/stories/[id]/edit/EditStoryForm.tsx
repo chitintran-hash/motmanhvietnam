@@ -3,11 +3,12 @@
 import { useActionState, useState } from 'react';
 import { updateStoryAction } from '../../actions';
 import Link from 'next/link';
-import { ArrowLeft, Upload, ExternalLink, X, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Upload, ExternalLink, X, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 
 export default function EditStoryForm({ story }: { story: any }) {
   const [errorMessage, formAction, isPending] = useActionState(updateStoryAction, undefined);
+  const [fileWarning, setFileWarning] = useState<string | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(story.image_url || null);
   const [existingAdditional, setExistingAdditional] = useState<string[]>(story.additional_images || []);
   const [newAdditionalPreviews, setNewAdditionalPreviews] = useState<string[]>([]);
@@ -15,6 +16,11 @@ export default function EditStoryForm({ story }: { story: any }) {
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 4.5 * 1024 * 1024) {
+        setFileWarning(`⚠️ Ảnh bìa "${file.name}" dung lượng ${(file.size / (1024 * 1024)).toFixed(1)}MB (vượt quá 4.5MB). Vui lòng chọn ảnh nhẹ hơn.`);
+      } else {
+        setFileWarning(null);
+      }
       setCoverPreview(URL.createObjectURL(file));
     }
   };
@@ -30,6 +36,17 @@ export default function EditStoryForm({ story }: { story: any }) {
   const handleNewAdditionalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
+      let oversized = false;
+      let totalSize = 0;
+      Array.from(files).forEach(f => {
+        totalSize += f.size;
+        if (f.size > 4.5 * 1024 * 1024) oversized = true;
+      });
+      if (oversized || totalSize > 6 * 1024 * 1024) {
+        setFileWarning(`⚠️ Tổng dung lượng ảnh kèm mới (${(totalSize / (1024 * 1024)).toFixed(1)}MB) quá lớn. Bạn nên chọn ảnh dưới 4MB.`);
+      } else {
+        setFileWarning(null);
+      }
       const urls = Array.from(files).map(file => URL.createObjectURL(file));
       setNewAdditionalPreviews(urls);
     }
@@ -73,8 +90,16 @@ export default function EditStoryForm({ story }: { story: any }) {
           <input type="hidden" name="existing_additional_images" value={JSON.stringify(existingAdditional)} />
 
           {errorMessage?.message && (
-            <div className={`p-4 rounded-lg text-sm font-medium ${errorMessage.success ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
-              {errorMessage.message}
+            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2 ${errorMessage.success ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+              <AlertCircle className="w-5 h-5 shrink-0" />
+              <span>{errorMessage.message}</span>
+            </div>
+          )}
+
+          {fileWarning && (
+            <div className="p-4 rounded-xl text-sm font-semibold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 shrink-0 text-amber-600" />
+              <span>{fileWarning}</span>
             </div>
           )}
 
@@ -319,6 +344,14 @@ export default function EditStoryForm({ story }: { story: any }) {
             </div>
           </div>
 
+          {/* Dual error warning above submit button */}
+          {errorMessage?.message && (
+            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2 ${errorMessage.success ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+              <AlertCircle className="w-5 h-5 shrink-0" />
+              <span>{errorMessage.message}</span>
+            </div>
+          )}
+
           <div className="flex items-center justify-between pt-6 border-t border-foreground/10">
             <Link 
               href="/admin/stories" 
@@ -331,7 +364,7 @@ export default function EditStoryForm({ story }: { story: any }) {
               disabled={isPending} 
               className="bg-primary-red text-white px-8 py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-primary-red/90 transition-colors disabled:opacity-50 text-sm shadow-md"
             >
-              {isPending ? 'Đang lưu...' : 'Lưu bài viết'}
+              {isPending ? 'Đang lưu bài viết và tải ảnh...' : 'Lưu bài viết'}
             </button>
           </div>
         </form>

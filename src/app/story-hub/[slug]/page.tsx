@@ -61,7 +61,13 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
     story = data;
   }
 
-  if (!story || story.status !== 'published') {
+  const isAdmin = (session?.user as any)?.role === 'admin';
+
+  if (!story) {
+    notFound();
+  }
+
+  if (story.status !== 'published' && !isAdmin) {
     notFound();
   }
 
@@ -98,6 +104,24 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
           <ArrowLeft className="w-4 h-4" /> Về trang Story Hub
         </Link>
         
+        {story.status !== 'published' && (
+          <div className="mb-8 p-4 md:p-5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex flex-wrap items-center justify-between gap-3 shadow-sm">
+            <div className="flex items-center gap-3">
+              <span className="w-3 h-3 rounded-full bg-amber-500 animate-pulse shrink-0" />
+              <div>
+                <p className="font-bold text-sm">Chế độ xem trước dành cho Quản trị viên</p>
+                <p className="text-xs text-amber-700">Bài viết đang ở trạng thái <strong>Bản nháp (Draft)</strong> nên chỉ có admin mới xem được.</p>
+              </div>
+            </div>
+            <Link 
+              href={`/admin/stories/${story.id}/edit`} 
+              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shrink-0"
+            >
+              Chỉnh sửa / Xuất bản
+            </Link>
+          </div>
+        )}
+
         <div className="mb-12">
           <div className="flex flex-wrap items-center gap-3 mb-6">
             {story.city && (
