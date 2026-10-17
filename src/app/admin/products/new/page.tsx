@@ -1,176 +1,512 @@
 'use client';
 
-import { useActionState } from 'react';
-import { createProductAction } from '../actions';
-import Link from 'next/link';
-import { ArrowLeft, Upload, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { getProductSignedUploadUrlsAction, createProductDirectAction } from '../actions';
+import Link from 'next/link';
+import { ArrowLeft, Upload, AlertCircle, CheckCircle2, Sparkles, X, Package, Box } from 'lucide-react';
 
 export default function NewProductPage() {
-  const [errorMessage, formAction, isPending] = useActionState(createProductAction, undefined);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const router = useRouter();
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [name, setName] = useState('');
+  const [slug, setSlug] = useState('');
+  const [isSlugCustomized, setIsSlugCustomized] = useState(false);
+  const [city, setCity] = useState('');
+  const [status, setStatus] = useState('active');
+  const [price, setPrice] = useState('');
+  const [stock, setStock] = useState('100');
+  const [shortDescription, setShortDescription] = useState('');
+  const [description, setDescription] = useState('');
+
+  // Main Box Image
+  const [boxFile, setBoxFile] = useState<File | null>(null);
+  const [boxPreview, setBoxPreview] = useState<string | null>(null);
+
+  // Piece Images (Additional Images)
+  const [pieceFiles, setPieceFiles] = useState<File[]>([]);
+  const [piecePreviews, setPiecePreviews] = useState<string[]>([]);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitProgress, setSubmitProgress] = useState<string>('');
+  const [statusMessage, setStatusMessage] = useState<{ success: boolean; message: string } | null>(null);
+
+  const generateSlug = (text: string) => {
+    return text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[đĐ]/g, "d")
+      .replace(/[^a-z0-9\s_-]/g, "")
+      .trim()
+      .replace(/[\s_]+/g, "-")
+      .replace(/-+/g, "-");
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setName(val);
+    if (!isSlugCustomized) {
+      setSlug(generateSlug(val));
+    }
+  };
+
+  const handleBoxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setPreviewImage(URL.createObjectURL(file));
+      setBoxFile(file);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setBoxPreview(event.target?.result as string);
+      };
+      reader.onerror = () => {
+        setBoxPreview(URL.createObjectURL(file));
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setBoxFile(null);
+      setBoxPreview(null);
+    }
+  };
+
+  const handleRemoveBox = () => {
+    setBoxFile(null);
+    setBoxPreview(null);
+  };
+
+  const handlePieceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const newFiles = Array.from(files);
+      setPieceFiles(prev => [...prev, ...newFiles]);
+
+      newFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setPiecePreviews(prev => [...prev, event.target?.result as string]);
+        };
+        reader.onerror = () => {
+          setPiecePreviews(prev => [...prev, URL.createObjectURL(file)]);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const handleRemovePiece = (indexToRemove: number) => {
+    setPieceFiles(prev => prev.filter((_, idx) => idx !== indexToRemove));
+    setPiecePreviews(prev => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (isSubmitting || statusMessage?.success) return;
+
+    if (!name.trim()) {
+      setStatusMessage({ success: false, message: 'Tên sản phẩm là bắt buộc.' });
+      return;
+    }
+
+    if (!slug.trim()) {
+      setStatusMessage({ success: false, message: 'Slug đường dẫn là bắt buộc.' });
+      return;
+    }
+
+    if (!boxFile && !boxPreview) {
+      setStatusMessage({ success: false, message: 'Vui lòng tải lên ảnh hộp Blind Box chính.' });
+      return;
+    }
+
+    setIsSubmitting(true);
+    setStatusMessage(null);
+
+    try {
+      let uploadedBoxUrl: string | null = null;
+      const uploadedPieceUrls: string[] = [];
+
+      const uploadRequests: Array<{ name: string; type: string; isMain: boolean; index: number }> = [];
+      if (boxFile) {
+        uploadRequests.push({ name: boxFile.name, type: boxFile.type, isMain: true, index: 0 });
+      }
+      pieceFiles.forEach((file, idx) => {
+        uploadRequests.push({ name: file.name, type: file.type, isMain: false, index: idx });
+      });
+
+      if (uploadRequests.length > 0) {
+        setSubmitProgress(`Đang chuẩn bị tải lên ${uploadRequests.length} ảnh...`);
+        const signedRes = await getProductSignedUploadUrlsAction(uploadRequests);
+
+        if (!signedRes.success || !signedRes.urls) {
+          throw new Error(signedRes.message || 'Không thể tạo link tải ảnh trực tiếp');
+        }
+
+        const total = uploadRequests.length;
+        let count = 0;
+
+        for (const item of signedRes.urls) {
+          count++;
+          const isMain = item.isMain;
+          setSubmitProgress(
+            isMain 
+              ? `Đang tải ảnh Hộp Blind Box (${count}/${total})...` 
+              : `Đang tải ảnh mảnh ghép (${count}/${total})...`
+          );
+
+          const targetFile = isMain ? boxFile : pieceFiles[item.index];
+          if (!targetFile) continue;
+
+          const uploadRes = await fetch(item.signedUrl, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': targetFile.type || 'image/jpeg',
+            },
+            body: targetFile,
+          });
+
+          if (!uploadRes.ok) {
+            throw new Error(`Lỗi tải ảnh lên lưu trữ: ${uploadRes.statusText}`);
+          }
+
+          if (isMain) {
+            uploadedBoxUrl = item.publicUrl;
+          } else {
+            uploadedPieceUrls[item.index] = item.publicUrl;
+          }
+        }
+      }
+
+      setSubmitProgress('Đang lưu sản phẩm vào hệ thống...');
+      const saveRes = await createProductDirectAction({
+        name,
+        slug,
+        city: city || 'Việt Nam',
+        short_description: shortDescription,
+        description,
+        price: parseFloat(price) || 0,
+        stock: parseInt(stock) || 0,
+        status,
+        image_url: uploadedBoxUrl,
+        additional_images: uploadedPieceUrls.filter(Boolean),
+      });
+
+      if (!saveRes.success) {
+        throw new Error(saveRes.message || 'Lỗi lưu sản phẩm');
+      }
+
+      setStatusMessage({ success: true, message: saveRes.message || 'Thêm sản phẩm thành công!' });
+      setTimeout(() => {
+        router.push('/admin/products');
+        router.refresh();
+      }, 1000);
+    } catch (err: any) {
+      setStatusMessage({ success: false, message: err.message || 'Có lỗi xảy ra khi lưu sản phẩm' });
+      setIsSubmitting(false);
+      setSubmitProgress('');
     }
   };
 
   return (
-    <div>
+    <div className="p-6 md:p-8 w-full max-w-4xl mx-auto">
       <div className="flex items-center gap-4 mb-8">
         <Link href="/admin/products" className="p-2 bg-white rounded-full border border-foreground/10 hover:bg-background-alt transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-3xl font-display font-black text-foreground uppercase tracking-wider">Thêm Sản Phẩm Mới</h1>
+        <div>
+          <h1 className="text-3xl font-display font-black text-foreground uppercase tracking-wider">Thêm Sản Phẩm Blind Box</h1>
+          <p className="text-xs text-foreground/60 mt-1">
+            Đăng hộp Blind Box chính và các mảnh ghép bí ẩn bên trong
+          </p>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl border-2 border-foreground/10 shadow-[4px_4px_0px_rgba(0,0,0,0.05)] p-6 md:p-8">
-        <form action={formAction} className="space-y-6 max-w-3xl">
+        <form onSubmit={handleSubmit} className="space-y-8">
           
-          {errorMessage?.message && (
-            <div className={`p-4 rounded-lg text-sm font-medium ${errorMessage.success ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
-              {errorMessage.message}
+          {/* Thông báo trạng thái */}
+          {statusMessage?.message && (
+            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2.5 ${statusMessage.success ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+              {statusMessage.success ? (
+                <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
+              ) : (
+                <AlertCircle className="w-5 h-5 shrink-0 text-red-500" />
+              )}
+              <span>
+                {statusMessage.message}
+                {statusMessage.success && ' Đang tự động chuyển hướng về danh sách sản phẩm...'}
+              </span>
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Tên sản phẩm *</label>
-              <input 
-                type="text" 
-                name="name" 
-                required
-                className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors"
-                placeholder="VD: Mảnh Sài Gòn"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Slug (Đường dẫn) *</label>
-              <input 
-                type="text" 
-                name="slug" 
-                required
-                className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors"
-                placeholder="VD: manh-sai-gon"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Thành phố</label>
-              <input 
-                type="text" 
-                name="city" 
-                className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors"
-                placeholder="VD: Sài Gòn"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Trạng thái</label>
-              <select 
-                name="status"
-                className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors appearance-none"
-              >
-                <option value="draft">Bản nháp (Draft)</option>
-                <option value="active">Đang bán (Active)</option>
-                <option value="hidden">Ẩn (Hidden)</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Giá (VNĐ) *</label>
-              <input 
-                type="number" 
-                name="price" 
-                required
-                min="0"
-                className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors"
-                placeholder="0"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Tồn kho *</label>
-              <input 
-                type="number" 
-                name="stock" 
-                required
-                min="0"
-                className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors"
-                placeholder="0"
-              />
-            </div>
-          </div>
-
+          {/* 1. THÔNG TIN CƠ BẢN */}
           <div>
-            <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Mô tả ngắn</label>
-            <textarea 
-              name="short_description" 
-              rows={2}
-              className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors resize-none"
-              placeholder="Nhập mô tả ngắn gọn..."
-            ></textarea>
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Mô tả đầy đủ</label>
-            <textarea 
-              name="description" 
-              rows={4}
-              className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors resize-y"
-              placeholder="Nhập nội dung chi tiết..."
-            ></textarea>
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Hình ảnh chính (Hộp Blindbox) *</label>
-            <div className="flex items-start gap-6 mt-2">
-              <div className="flex-1">
-                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-foreground/10 border-dashed rounded-xl cursor-pointer hover:bg-background-alt transition-colors">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <Upload className="w-8 h-8 mb-3 text-foreground/40" />
-                    <p className="mb-2 text-sm text-foreground/60"><span className="font-bold">Nhấn để tải ảnh lên</span> hoặc kéo thả</p>
-                    <p className="text-xs text-foreground/40">PNG, JPG, WEBP (Max 2MB)</p>
-                  </div>
-                  <input type="file" name="image" className="hidden" accept="image/*" required onChange={handleImageChange} />
-                </label>
-              </div>
-              {previewImage && (
-                <div className="w-32 h-32 rounded-xl border-2 border-foreground/10 overflow-hidden relative shrink-0">
-                  <Image src={previewImage} alt="Preview" fill className="object-cover" />
+            <h2 className="text-xl font-bold uppercase tracking-widest mb-4 border-b-2 border-foreground/10 pb-2">
+              Thông tin sản phẩm
+            </h2>
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Tên sản phẩm (Hộp Blind Box) *</label>
+                  <input 
+                    type="text" 
+                    required
+                    value={name}
+                    onChange={handleNameChange}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors"
+                    placeholder="VD: Blind Box - Mảnh Sài Gòn"
+                  />
                 </div>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Các mảnh ghép (Nhiều ảnh)</label>
-            <div className="flex items-start gap-6 mt-2">
-              <div className="flex-1">
-                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-foreground/10 border-dashed rounded-xl cursor-pointer hover:bg-background-alt transition-colors">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <Upload className="w-6 h-6 mb-2 text-foreground/40" />
-                    <p className="text-sm text-foreground/60">Tải lên các mảnh ghép bên trong (chọn nhiều file)</p>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-bold text-foreground/80 uppercase tracking-wider">Slug (Đường dẫn) *</label>
+                    <button 
+                      type="button" 
+                      onClick={() => { setSlug(generateSlug(name)); setIsSlugCustomized(false); }}
+                      className="text-xs text-terracotta font-bold hover:underline flex items-center gap-1"
+                    >
+                      <Sparkles className="w-3 h-3" /> Tự động tạo
+                    </button>
                   </div>
-                  <input type="file" name="additional_images" className="hidden" accept="image/*" multiple />
-                </label>
+                  <input 
+                    type="text" 
+                    required
+                    value={slug}
+                    onChange={(e) => { setSlug(e.target.value); setIsSlugCustomized(true); }}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors font-mono text-sm"
+                    placeholder="VD: blind-box-manh-sai-gon"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Thành phố / Địa danh</label>
+                  <input 
+                    type="text" 
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors"
+                    placeholder="VD: Sài Gòn, Hà Nội, Đà Nẵng..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Trạng thái</label>
+                  <select 
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors"
+                  >
+                    <option value="active">Đang bán (Hiển thị công khai)</option>
+                    <option value="draft">Bản nháp (Draft)</option>
+                    <option value="hidden">Ẩn</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Giá bán (VNĐ) *</label>
+                  <input 
+                    type="number" 
+                    required
+                    min="0"
+                    step="1000"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors"
+                    placeholder="VD: 149000"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Số lượng tồn kho *</label>
+                  <input 
+                    type="number" 
+                    required
+                    min="0"
+                    value={stock}
+                    onChange={(e) => setStock(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors"
+                    placeholder="VD: 100"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Mô tả ngắn</label>
+                <textarea 
+                  rows={2}
+                  value={shortDescription}
+                  onChange={(e) => setShortDescription(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors resize-none"
+                  placeholder="Mô tả ngắn gọn về bộ Blind Box này..."
+                ></textarea>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Mô tả chi tiết</label>
+                <textarea 
+                  rows={5}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors resize-y leading-relaxed"
+                  placeholder="Giới thiệu đầy đủ về sản phẩm, chất liệu, quy cách đóng gói, danh sách các mảnh ghép có thể mở ra..."
+                ></textarea>
               </div>
             </div>
           </div>
 
-          <div className="pt-6 border-t border-foreground/10 flex justify-end">
+          {/* 2. HÌNH ẢNH: HỘP CHÍNH & CÁC MẢNH GHÉP */}
+          <div>
+            <h2 className="text-xl font-bold uppercase tracking-widest mb-4 border-b-2 border-foreground/10 pb-2">
+              Hình ảnh Blind Box & Các mảnh ghép
+            </h2>
+
+            <div className="space-y-6">
+              {/* Ảnh Hộp Chính */}
+              <div className="p-5 rounded-2xl border-2 border-foreground/10 bg-[#FAF9F5]">
+                <div className="flex justify-between items-center mb-2">
+                  <div className="flex items-center gap-2">
+                    <Box className="w-5 h-5 text-terracotta" />
+                    <label className="text-sm font-black text-foreground uppercase tracking-wider">
+                      1. Ảnh Hộp Blind Box (Ảnh chính sản phẩm) *
+                    </label>
+                  </div>
+                  {boxPreview && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveBox}
+                      className="text-xs text-red-500 font-bold hover:underline"
+                    >
+                      Xóa ảnh hộp
+                    </button>
+                  )}
+                </div>
+                <p className="text-xs text-foreground/60 mb-3">
+                  Đây là ảnh chiếc hộp bên ngoài, sẽ hiển thị to nhất làm ảnh đại diện chính của sản phẩm.
+                </p>
+
+                <div className="border-2 border-dashed border-foreground/20 rounded-xl p-4 text-center relative hover:bg-white transition-colors bg-white/60">
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleBoxChange} 
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                  />
+                  {boxPreview ? (
+                    <div className="relative w-48 h-48 mx-auto rounded-lg overflow-hidden border border-foreground/10 bg-black/5 shadow-sm">
+                      <img 
+                        src={boxPreview} 
+                        alt="Hộp Blind Box" 
+                        className="w-full h-full object-contain" 
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold uppercase tracking-wider pointer-events-none">
+                        Nhấn để đổi ảnh khác
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="py-6 flex flex-col items-center">
+                      <Upload className="w-8 h-8 text-foreground/40 mb-2" />
+                      <span className="text-sm font-bold text-foreground/70">Tải ảnh hộp Blind Box lên</span>
+                      <span className="text-xs text-foreground/40 mt-1">Định dạng JPG, PNG, WEBP</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Ảnh Các Mảnh Ghép Bên Dưới */}
+              <div className="p-5 rounded-2xl border-2 border-foreground/10 bg-[#FAF9F5]">
+                <div className="flex items-center gap-2 mb-2">
+                  <Package className="w-5 h-5 text-terracotta" />
+                  <label className="text-sm font-black text-foreground uppercase tracking-wider">
+                    2. Các mảnh ghép bên trong hộp (Nhiều ảnh)
+                  </label>
+                </div>
+                <p className="text-xs text-foreground/60 mb-3">
+                  💡 <span className="font-bold text-foreground">Tính năng tương tác:</span> Khi khách hàng vào xem sản phẩm trên web, các mảnh này sẽ nằm bên dưới chiếc hộp. Khi bấm vào từng mảnh, ảnh mảnh đó sẽ phóng to lên cực nét để khách ngắm chi tiết!
+                </p>
+
+                {/* Previews grid of pieces */}
+                {piecePreviews.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-xs font-bold text-emerald-700 mb-2">
+                      Đã chọn {piecePreviews.length} mảnh ghép:
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      {piecePreviews.map((preview, i) => (
+                        <div key={i} className="relative aspect-square rounded-xl overflow-hidden border-2 border-foreground/10 bg-white shadow-sm group">
+                          <img 
+                            src={preview} 
+                            alt={`Mảnh ${i + 1}`} 
+                            className="w-full h-full object-contain p-2" 
+                          />
+                          <span className="absolute top-1.5 left-1.5 bg-foreground/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
+                            Mảnh #{i + 1}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemovePiece(i);
+                            }}
+                            className="absolute top-1.5 right-1.5 p-1 bg-red-600 text-white rounded-full opacity-80 hover:opacity-100 transition-opacity cursor-pointer z-20 shadow"
+                            title="Xóa mảnh này"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Upload box for pieces */}
+                <div className="border-2 border-dashed border-foreground/20 rounded-xl p-4 text-center relative hover:bg-white transition-colors bg-white/60">
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    multiple 
+                    onChange={handlePieceChange} 
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                  />
+                  <div className="py-6 flex flex-col items-center">
+                    <Upload className="w-8 h-8 text-foreground/40 mb-2" />
+                    <span className="text-sm font-bold text-foreground/70">
+                      {piecePreviews.length > 0 ? 'Tải thêm ảnh mảnh ghép khác' : 'Tải lên các mảnh ghép bên trong (chọn nhiều ảnh cùng lúc)'}
+                    </span>
+                    <span className="text-xs text-foreground/40 mt-1">Giữ phím Shift hoặc Ctrl / Cmd để chọn cùng lúc nhiều ảnh</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Dual status warning */}
+          {statusMessage?.message && (
+            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2.5 ${statusMessage.success ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+              {statusMessage.success ? (
+                <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
+              ) : (
+                <AlertCircle className="w-5 h-5 shrink-0 text-red-500" />
+              )}
+              <span>
+                {statusMessage.message}
+                {statusMessage.success && ' Đang tự động chuyển hướng về danh sách sản phẩm...'}
+              </span>
+            </div>
+          )}
+
+          <div className="pt-6 border-t border-foreground/10 flex justify-end items-center gap-4">
+            <Link 
+              href="/admin/products" 
+              className="px-6 py-3 rounded-xl border border-foreground/20 text-foreground font-bold hover:bg-background-alt transition-colors text-sm"
+            >
+              Hủy bỏ
+            </Link>
             <button 
               type="submit" 
-              disabled={isPending}
-              className="px-8 py-3 bg-foreground text-white rounded-xl font-bold uppercase tracking-wider hover:bg-terracotta transition-colors disabled:opacity-50 flex items-center gap-2"
+              disabled={isSubmitting || statusMessage?.success} 
+              className="px-8 py-4 bg-foreground text-white rounded-xl font-bold uppercase tracking-wider hover:bg-terracotta transition-colors disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-md"
             >
-              {isPending && <Loader2 className="w-5 h-5 animate-spin" />}
-              {isPending ? 'Đang lưu...' : 'Lưu sản phẩm'}
+              {statusMessage?.success ? 'Đã lưu thành công!' : isSubmitting ? (submitProgress || 'Đang lưu sản phẩm...') : 'Lưu sản phẩm Blind Box'}
             </button>
           </div>
         </form>
