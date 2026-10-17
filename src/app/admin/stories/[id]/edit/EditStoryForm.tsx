@@ -1,104 +1,55 @@
 'use client';
 
-import { useActionState, useState, useEffect, startTransition } from 'react';
+import { useActionState, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateStoryAction } from '../../actions';
-import { optimizeImageFile, optimizeImageFiles } from '@/lib/image-optimizer';
 import Link from 'next/link';
-import { ArrowLeft, Upload, ExternalLink, X, Image as ImageIcon, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Upload, ExternalLink, X, AlertCircle, CheckCircle2 } from 'lucide-react';
 import Image from 'next/image';
 
 export default function EditStoryForm({ story }: { story: any }) {
   const router = useRouter();
-  const [errorMessage, formAction, isPending] = useActionState(updateStoryAction, undefined);
+  const [state, formAction, isPending] = useActionState(updateStoryAction, undefined);
   const [coverPreview, setCoverPreview] = useState<string | null>(story.image_url || null);
   const [existingAdditional, setExistingAdditional] = useState<string[]>(story.additional_images || []);
   const [newAdditionalPreviews, setNewAdditionalPreviews] = useState<string[]>([]);
-  const [newCoverFile, setNewCoverFile] = useState<File | null>(null);
-  const [newAdditionalFiles, setNewAdditionalFiles] = useState<File[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (errorMessage?.success) {
+    if (state?.success) {
       const timer = setTimeout(() => {
         router.push('/admin/stories');
         router.refresh();
-      }, 1200);
+      }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [errorMessage, router]);
+  }, [state, router]);
 
-  const handleCoverChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setCoverPreview(URL.createObjectURL(file));
-      // Tự động tối ưu ảnh dung lượng lớn ở chế độ nền
-      const optimized = await optimizeImageFile(file);
-      setNewCoverFile(optimized);
     } else {
-      setNewCoverFile(null);
+      setCoverPreview(null);
     }
   };
 
   const handleRemoveCover = () => {
     setCoverPreview(null);
-    setNewCoverFile(null);
   };
 
   const handleRemoveExistingAdditional = (indexToRemove: number) => {
     setExistingAdditional(prev => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
-  const handleNewAdditionalChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNewAdditionalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      const fileList = Array.from(files);
-      const urls = fileList.map(file => URL.createObjectURL(file));
+      const urls = Array.from(files).map(file => URL.createObjectURL(file));
       setNewAdditionalPreviews(urls);
-      // Tự động tối ưu các ảnh phụ mới ở chế độ nền
-      const optimizedList = await optimizeImageFiles(fileList);
-      setNewAdditionalFiles(optimizedList);
     } else {
-      setNewAdditionalFiles([]);
       setNewAdditionalPreviews([]);
     }
   };
-
-  const handleFormSubmit = async (formData: FormData) => {
-    setIsSubmitting(true);
-    try {
-      // Thay thế ảnh bìa bằng bản đã được tối ưu nếu có
-      let finalCover = newCoverFile;
-      const inputCover = formData.get('image_url') as File | null;
-      if (!finalCover && inputCover && inputCover.size > 0) {
-        finalCover = await optimizeImageFile(inputCover);
-      }
-      if (finalCover && finalCover.size > 0) {
-        formData.set('image_url', finalCover);
-      }
-
-      // Thay thế ảnh phụ bằng bản đã được tối ưu nếu có
-      let finalAdditional = newAdditionalFiles;
-      const inputAdditionals = formData.getAll('additional_images') as File[];
-      if (finalAdditional.length === 0 && inputAdditionals.length > 0 && inputAdditionals[0].size > 0) {
-        finalAdditional = await optimizeImageFiles(inputAdditionals);
-      }
-      if (finalAdditional.length > 0) {
-        formData.delete('additional_images');
-        for (const f of finalAdditional) {
-          formData.append('additional_images', f);
-        }
-      }
-
-      startTransition(() => {
-        formAction(formData);
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const isBusy = isPending || isSubmitting;
 
   return (
     <div className="p-6 md:p-8 w-full max-w-4xl mx-auto">
@@ -132,21 +83,22 @@ export default function EditStoryForm({ story }: { story: any }) {
       </div>
 
       <div className="bg-white rounded-2xl border-2 border-foreground/10 shadow-[4px_4px_0px_rgba(0,0,0,0.05)] p-6 md:p-8">
-        <form action={handleFormSubmit} className="space-y-8">
+        <form action={formAction} className="space-y-8">
           <input type="hidden" name="id" value={story.id} />
           <input type="hidden" name="existing_cover_url" value={coverPreview || ''} />
           <input type="hidden" name="existing_additional_images" value={JSON.stringify(existingAdditional)} />
 
-          {errorMessage?.message && (
-            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2.5 ${errorMessage.success ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-600 border border-red-200'}`}>
-              {errorMessage.success ? (
-                <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600 animate-bounce" />
+          {/* Thông báo trạng thái ở đầu form */}
+          {state?.message && (
+            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2.5 ${state.success ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+              {state.success ? (
+                <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
               ) : (
-                <AlertCircle className="w-5 h-5 shrink-0" />
+                <AlertCircle className="w-5 h-5 shrink-0 text-red-500" />
               )}
               <span>
-                {errorMessage.message}
-                {errorMessage.success && ' Đang tự động chuyển hướng về danh sách bài viết...'}
+                {state.message}
+                {state.success && ' Đang tự động chuyển hướng về danh sách bài viết...'}
               </span>
             </div>
           )}
@@ -218,7 +170,7 @@ export default function EditStoryForm({ story }: { story: any }) {
                   className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors font-medium text-sm leading-relaxed"
                 ></textarea>
                 <p className="text-xs text-foreground/60 mt-2">
-                  * <span className="font-bold text-foreground">[anh1]</span> tương ứng với ảnh thứ nhất trong ô "Ảnh kèm theo bài viết", <span className="font-bold text-foreground">[anh2]</span> là ảnh thứ hai,... Ảnh sẽ tự động hiển thị khổ lớn giữa bài viết chuẩn tỉ lệ 16:9.
+                  * <span className="font-bold text-foreground">[anh1]</span> tương ứng với ảnh thứ nhất, <span className="font-bold text-foreground">[anh2]</span> là ảnh thứ hai,... Ảnh sẽ hiện to giữa bài viết theo đúng vị trí bạn đặt.
                 </p>
               </div>
             </div>
@@ -232,21 +184,22 @@ export default function EditStoryForm({ story }: { story: any }) {
               <input 
                 type="text" 
                 name="city" 
-                defaultValue={story.city || ''}
-                placeholder="VD: Hà Nội, Sài Gòn, Đà Nẵng, Việt Nam"
+                defaultValue={story.city || ''} 
+                placeholder="VD: Hà Nội, Sài Gòn..."
                 className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors" 
               />
             </div>
+
             <div>
               <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">
-                Trạng thái
+                Trạng thái hiển thị
               </label>
               <select 
                 name="status" 
-                defaultValue={story.status || 'published'}
-                className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors font-medium"
+                defaultValue={story.status || 'published'} 
+                className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors"
               >
-                <option value="published">Xuất bản (Hiển thị trên web)</option>
+                <option value="published">Xuất bản (Hiển thị công khai)</option>
                 <option value="draft">Bản nháp (Ẩn khỏi web)</option>
               </select>
             </div>
@@ -282,14 +235,13 @@ export default function EditStoryForm({ story }: { story: any }) {
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
                   />
                   {coverPreview ? (
-                    <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-foreground/10">
+                    <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-foreground/10 bg-black/5">
                       <Image 
                         src={coverPreview} 
                         alt="Cover Preview" 
                         fill 
-                        sizes="(max-width: 768px) 100vw, 400px"
+                        unoptimized
                         className="object-cover" 
-                        style={{ objectFit: 'cover', objectPosition: 'center' }}
                       />
                       <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold uppercase tracking-wider pointer-events-none">
                         Nhấn để đổi ảnh
@@ -319,14 +271,13 @@ export default function EditStoryForm({ story }: { story: any }) {
                     </p>
                     <div className="grid grid-cols-3 gap-2">
                       {existingAdditional.map((img, i) => (
-                        <div key={i} className="relative aspect-video rounded-lg overflow-hidden border border-foreground/10 group">
+                        <div key={i} className="relative aspect-video rounded-lg overflow-hidden border border-foreground/10 group bg-black/5">
                           <Image 
                             src={img} 
                             alt={`Existing ${i}`} 
                             fill 
-                            sizes="120px"
+                            unoptimized
                             className="object-cover" 
-                            style={{ objectFit: 'cover', objectPosition: 'center' }}
                           />
                           <span className="absolute top-1 left-1 bg-black/70 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
                             [anh{i + 1}]
@@ -362,14 +313,13 @@ export default function EditStoryForm({ story }: { story: any }) {
                       </p>
                       <div className="grid grid-cols-3 gap-2">
                         {newAdditionalPreviews.map((preview, i) => (
-                          <div key={i} className="relative aspect-video rounded-lg overflow-hidden border border-foreground/10">
+                          <div key={i} className="relative aspect-video rounded-lg overflow-hidden border border-foreground/10 bg-black/5">
                             <Image 
                               src={preview} 
                               alt={`New Preview ${i}`} 
                               fill 
-                              sizes="120px"
+                              unoptimized
                               className="object-cover" 
-                              style={{ objectFit: 'cover', objectPosition: 'center' }}
                             />
                             <span className="absolute top-1 left-1 bg-emerald-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
                               Mới
@@ -392,17 +342,17 @@ export default function EditStoryForm({ story }: { story: any }) {
             </div>
           </div>
 
-          {/* Dual error warning above submit button */}
-          {errorMessage?.message && (
-            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2.5 ${errorMessage.success ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-600 border border-red-200'}`}>
-              {errorMessage.success ? (
-                <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600 animate-bounce" />
+          {/* Dual status warning above submit button */}
+          {state?.message && (
+            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2.5 ${state.success ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+              {state.success ? (
+                <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
               ) : (
-                <AlertCircle className="w-5 h-5 shrink-0" />
+                <AlertCircle className="w-5 h-5 shrink-0 text-red-500" />
               )}
               <span>
-                {errorMessage.message}
-                {errorMessage.success && ' Đang tự động chuyển hướng về danh sách bài viết...'}
+                {state.message}
+                {state.success && ' Đang tự động chuyển hướng về danh sách bài viết...'}
               </span>
             </div>
           )}
@@ -416,10 +366,10 @@ export default function EditStoryForm({ story }: { story: any }) {
             </Link>
             <button 
               type="submit" 
-              disabled={isBusy || errorMessage?.success} 
-              className="bg-primary-red text-white px-8 py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-primary-red/90 transition-colors disabled:opacity-50 text-sm shadow-md"
+              disabled={isPending || state?.success} 
+              className="bg-primary-red text-white px-8 py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-primary-red/90 transition-colors disabled:opacity-50 text-sm shadow-md flex items-center gap-2"
             >
-              {errorMessage?.success ? 'Đã lưu thành công!' : isBusy ? 'Đang lưu bài viết và tải ảnh...' : 'Lưu bài viết'}
+              {state?.success ? 'Đã lưu thành công!' : isPending ? 'Đang lưu bài viết và tải ảnh...' : 'Lưu bài viết'}
             </button>
           </div>
         </form>

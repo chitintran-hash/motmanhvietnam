@@ -45,17 +45,18 @@ export async function createStoryAction(prevState: any, formData: FormData) {
       return { success: false, message: 'Slug không hợp lệ. Vui lòng nhập tiêu đề hoặc slug có chữ/số.' };
     }
 
-    // Kiểm tra slug trùng
+    let finalSlug = cleanSlug;
+    // Kiểm tra slug trùng - nếu trùng tự thêm hậu tố để tránh báo lỗi làm gián đoạn người dùng
     const { data: existingSlug } = await supabase.from('mm_stories').select('id').eq('slug', cleanSlug).maybeSingle();
     if (existingSlug) {
-      return { success: false, message: `Slug "${cleanSlug}" đã tồn tại. Vui lòng đổi slug hoặc thêm số vào cuối.` };
+      finalSlug = `${cleanSlug}-${Date.now().toString().slice(-4)}`;
     }
 
     let image_url = null;
     if (coverFile && coverFile.size > 0) {
       const rawExt = coverFile.name.split('.').pop() || 'jpg';
       const fileExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
-      const fileName = `story-${cleanSlug}-${Date.now()}.${fileExt}`;
+      const fileName = `story-${finalSlug}-${Date.now()}.${fileExt}`;
       const { error: uploadError } = await supabase.storage.from('team_images').upload(`public/${fileName}`, coverFile, {
         contentType: coverFile.type || 'image/jpeg',
         upsert: true
@@ -70,7 +71,7 @@ export async function createStoryAction(prevState: any, formData: FormData) {
       if (file && file.size > 0) {
         const rawExt = file.name.split('.').pop() || 'jpg';
         const fileExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
-        const fileName = `story-add-${cleanSlug}-${Date.now()}-${i}.${fileExt}`;
+        const fileName = `story-add-${finalSlug}-${Date.now()}-${i}.${fileExt}`;
         const { error: uploadError } = await supabase.storage.from('team_images').upload(`public/${fileName}`, file, {
           contentType: file.type || 'image/jpeg',
           upsert: true
@@ -84,7 +85,7 @@ export async function createStoryAction(prevState: any, formData: FormData) {
 
     const payload = {
       title: title.trim(), 
-      slug: cleanSlug, 
+      slug: finalSlug, 
       excerpt: excerpt ? excerpt.trim() : '', 
       content: content ? content.trim() : '', 
       city: city ? city.trim() : 'Việt Nam', 
@@ -101,12 +102,12 @@ export async function createStoryAction(prevState: any, formData: FormData) {
 
     revalidatePath('/admin/stories');
     revalidatePath('/story-hub');
-    revalidatePath(`/story-hub/${cleanSlug}`);
+    revalidatePath(`/story-hub/${finalSlug}`);
 
     return { 
       success: true, 
       message: 'Đăng bài viết thành công!',
-      slug: cleanSlug
+      slug: finalSlug
     };
   } catch (error: any) {
     return { success: false, message: 'Lỗi hệ thống: ' + error.message };

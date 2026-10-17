@@ -1,44 +1,40 @@
 'use client';
 
-import { useActionState, useState, useEffect, startTransition } from 'react';
+import { useActionState, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createStoryAction } from '../actions';
-import { optimizeImageFile, optimizeImageFiles } from '@/lib/image-optimizer';
 import Link from 'next/link';
-import { ArrowLeft, Image as ImageIcon, Upload, AlertCircle, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Upload, AlertCircle, Sparkles, CheckCircle2 } from 'lucide-react';
 import Image from 'next/image';
 
 export default function NewStoryPage() {
   const router = useRouter();
-  const [errorMessage, formAction, isPending] = useActionState(createStoryAction, undefined);
+  const [state, formAction, isPending] = useActionState(createStoryAction, undefined);
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [isSlugCustomized, setIsSlugCustomized] = useState(false);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [additionalPreviews, setAdditionalPreviews] = useState<string[]>([]);
-  const [coverFile, setCoverFile] = useState<File | null>(null);
-  const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (errorMessage?.success) {
+    if (state?.success) {
       const timer = setTimeout(() => {
         router.push('/admin/stories');
         router.refresh();
-      }, 1200);
+      }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [errorMessage, router]);
+  }, [state, router]);
 
   const generateSlug = (text: string) => {
     return text
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
-      .replace(/đ/g, "d")
-      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/[đĐ]/g, "d")
+      .replace(/[^a-z0-9\s_-]/g, "")
       .trim()
-      .replace(/\s+/g, "-")
+      .replace(/[\s_]+/g, "-")
       .replace(/-+/g, "-");
   };
 
@@ -55,69 +51,24 @@ export default function NewStoryPage() {
     setIsSlugCustomized(true);
   };
 
-  const handleCoverChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setCoverPreview(URL.createObjectURL(file));
-      // Tự động tối ưu ảnh dung lượng lớn ở chế độ nền
-      const optimized = await optimizeImageFile(file);
-      setCoverFile(optimized);
     } else {
-      setCoverFile(null);
       setCoverPreview(null);
     }
   };
 
-  const handleAdditionalChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAdditionalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      const fileList = Array.from(files);
-      const urls = fileList.map(f => URL.createObjectURL(f));
+      const urls = Array.from(files).map(file => URL.createObjectURL(file));
       setAdditionalPreviews(urls);
-      // Tự động tối ưu các ảnh phụ ở chế độ nền
-      const optimizedList = await optimizeImageFiles(fileList);
-      setAdditionalFiles(optimizedList);
     } else {
-      setAdditionalFiles([]);
       setAdditionalPreviews([]);
     }
   };
-
-  const handleFormSubmit = async (formData: FormData) => {
-    setIsSubmitting(true);
-    try {
-      // Thay thế ảnh bìa bằng bản đã được tối ưu nếu có
-      let finalCover = coverFile;
-      const inputCover = formData.get('image_url') as File | null;
-      if (!finalCover && inputCover && inputCover.size > 0) {
-        finalCover = await optimizeImageFile(inputCover);
-      }
-      if (finalCover && finalCover.size > 0) {
-        formData.set('image_url', finalCover);
-      }
-
-      // Thay thế ảnh phụ bằng bản đã được tối ưu nếu có
-      let finalAdditional = additionalFiles;
-      const inputAdditionals = formData.getAll('additional_images') as File[];
-      if (finalAdditional.length === 0 && inputAdditionals.length > 0 && inputAdditionals[0].size > 0) {
-        finalAdditional = await optimizeImageFiles(inputAdditionals);
-      }
-      if (finalAdditional.length > 0) {
-        formData.delete('additional_images');
-        for (const f of finalAdditional) {
-          formData.append('additional_images', f);
-        }
-      }
-
-      startTransition(() => {
-        formAction(formData);
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const isBusy = isPending || isSubmitting;
 
   return (
     <div className="p-6 md:p-8 w-full max-w-4xl mx-auto">
@@ -129,17 +80,18 @@ export default function NewStoryPage() {
       </div>
 
       <div className="bg-white rounded-2xl border-2 border-foreground/10 shadow-[4px_4px_0px_rgba(0,0,0,0.05)] p-6 md:p-8">
-        <form action={handleFormSubmit} className="space-y-8">
-          {errorMessage?.message && (
-            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2.5 ${errorMessage.success ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-600 border border-red-200'}`}>
-              {errorMessage.success ? (
-                <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600 animate-bounce" />
+        <form action={formAction} className="space-y-8">
+          {/* Thông báo trạng thái ở đầu form */}
+          {state?.message && (
+            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2.5 ${state.success ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+              {state.success ? (
+                <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
               ) : (
-                <AlertCircle className="w-5 h-5 shrink-0" />
+                <AlertCircle className="w-5 h-5 shrink-0 text-red-500" />
               )}
               <span>
-                {errorMessage.message}
-                {errorMessage.success && ' Đang tự động chuyển hướng về danh sách bài viết...'}
+                {state.message}
+                {state.success && ' Đang tự động chuyển hướng về danh sách bài viết...'}
               </span>
             </div>
           )}
@@ -148,7 +100,7 @@ export default function NewStoryPage() {
             <h2 className="text-xl font-bold uppercase tracking-widest mb-4 border-b-2 border-foreground/10 pb-2">Nội dung chính</h2>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Tiêu đề *</label>
+                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Tiêu đề bài viết *</label>
                 <input 
                   type="text" 
                   name="title" 
@@ -185,7 +137,7 @@ export default function NewStoryPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Đoạn trích (Excerpt)</label>
+                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Đoạn trích tóm tắt (Excerpt)</label>
                 <textarea name="excerpt" rows={3} placeholder="Tóm tắt ngắn gọn bài viết..." className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors"></textarea>
               </div>
 
@@ -230,10 +182,10 @@ export default function NewStoryPage() {
                 <div>
                   <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">Ảnh bìa</label>
                   <div className="border-2 border-dashed border-foreground/20 rounded-xl p-4 text-center relative hover:bg-foreground/5 transition-colors">
-                    <input type="file" name="image_url" accept="image/*" onChange={handleCoverChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                    <input type="file" name="image_url" accept="image/*" onChange={handleCoverChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                     {coverPreview ? (
-                      <div className="relative w-full aspect-video rounded-lg overflow-hidden">
-                        <Image src={coverPreview} alt="Preview" fill className="object-cover" />
+                      <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black/5">
+                        <Image src={coverPreview} alt="Preview" fill unoptimized className="object-cover" />
                       </div>
                     ) : (
                       <div className="py-8 flex flex-col items-center">
@@ -250,8 +202,8 @@ export default function NewStoryPage() {
                     {additionalPreviews.length > 0 ? (
                       <div className="grid grid-cols-2 gap-2 w-full mt-2">
                         {additionalPreviews.map((preview, i) => (
-                          <div key={i} className="relative w-full aspect-video rounded-lg overflow-hidden border border-foreground/10">
-                            <Image src={preview} alt={`Preview ${i}`} fill className="object-cover" />
+                          <div key={i} className="relative w-full aspect-video rounded-lg overflow-hidden border border-foreground/10 bg-black/5">
+                            <Image src={preview} alt={`Preview ${i}`} fill unoptimized className="object-cover" />
                           </div>
                         ))}
                       </div>
@@ -266,24 +218,28 @@ export default function NewStoryPage() {
              </div>
           </div>
 
-          {/* Dual error warning above submit button */}
-          {errorMessage?.message && (
-            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2.5 ${errorMessage.success ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-600 border border-red-200'}`}>
-              {errorMessage.success ? (
-                <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600 animate-bounce" />
+          {/* Thông báo trạng thái ở cạnh nút Lưu */}
+          {state?.message && (
+            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2.5 ${state.success ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+              {state.success ? (
+                <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
               ) : (
-                <AlertCircle className="w-5 h-5 shrink-0" />
+                <AlertCircle className="w-5 h-5 shrink-0 text-red-500" />
               )}
               <span>
-                {errorMessage.message}
-                {errorMessage.success && ' Đang tự động chuyển hướng về danh sách bài viết...'}
+                {state.message}
+                {state.success && ' Đang tự động chuyển hướng về danh sách bài viết...'}
               </span>
             </div>
           )}
 
           <div className="flex justify-end pt-6 border-t border-foreground/10">
-            <button type="submit" disabled={isBusy || errorMessage?.success} className="bg-foreground text-white px-8 py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-terracotta transition-colors disabled:opacity-50 shadow-md">
-              {errorMessage?.success ? 'Đã lưu thành công!' : isBusy ? 'Đang lưu bài viết và tải ảnh...' : 'Lưu bài viết'}
+            <button 
+              type="submit" 
+              disabled={isPending || state?.success} 
+              className="bg-foreground text-white px-8 py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-terracotta transition-colors disabled:opacity-50 shadow-md flex items-center gap-2"
+            >
+              {state?.success ? 'Đã lưu thành công!' : isPending ? 'Đang lưu bài viết và tải ảnh...' : 'Lưu bài viết'}
             </button>
           </div>
         </form>
