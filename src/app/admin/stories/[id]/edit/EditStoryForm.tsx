@@ -1,13 +1,15 @@
 'use client';
 
-import { useActionState, useState, startTransition } from 'react';
+import { useActionState, useState, useEffect, startTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { updateStoryAction } from '../../actions';
 import { optimizeImageFile, optimizeImageFiles } from '@/lib/image-optimizer';
 import Link from 'next/link';
-import { ArrowLeft, Upload, ExternalLink, X, Image as ImageIcon, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Upload, ExternalLink, X, Image as ImageIcon, AlertCircle, CheckCircle2 } from 'lucide-react';
 import Image from 'next/image';
 
 export default function EditStoryForm({ story }: { story: any }) {
+  const router = useRouter();
   const [errorMessage, formAction, isPending] = useActionState(updateStoryAction, undefined);
   const [coverPreview, setCoverPreview] = useState<string | null>(story.image_url || null);
   const [existingAdditional, setExistingAdditional] = useState<string[]>(story.additional_images || []);
@@ -15,6 +17,16 @@ export default function EditStoryForm({ story }: { story: any }) {
   const [newCoverFile, setNewCoverFile] = useState<File | null>(null);
   const [newAdditionalFiles, setNewAdditionalFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (errorMessage?.success) {
+      const timer = setTimeout(() => {
+        router.push('/admin/stories');
+        router.refresh();
+      }, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage, router]);
 
   const handleCoverChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -126,9 +138,16 @@ export default function EditStoryForm({ story }: { story: any }) {
           <input type="hidden" name="existing_additional_images" value={JSON.stringify(existingAdditional)} />
 
           {errorMessage?.message && (
-            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2 ${errorMessage.success ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
-              <AlertCircle className="w-5 h-5 shrink-0" />
-              <span>{errorMessage.message}</span>
+            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2.5 ${errorMessage.success ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+              {errorMessage.success ? (
+                <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600 animate-bounce" />
+              ) : (
+                <AlertCircle className="w-5 h-5 shrink-0" />
+              )}
+              <span>
+                {errorMessage.message}
+                {errorMessage.success && ' Đang tự động chuyển hướng về danh sách bài viết...'}
+              </span>
             </div>
           )}
 
@@ -375,9 +394,16 @@ export default function EditStoryForm({ story }: { story: any }) {
 
           {/* Dual error warning above submit button */}
           {errorMessage?.message && (
-            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2 ${errorMessage.success ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
-              <AlertCircle className="w-5 h-5 shrink-0" />
-              <span>{errorMessage.message}</span>
+            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2.5 ${errorMessage.success ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+              {errorMessage.success ? (
+                <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600 animate-bounce" />
+              ) : (
+                <AlertCircle className="w-5 h-5 shrink-0" />
+              )}
+              <span>
+                {errorMessage.message}
+                {errorMessage.success && ' Đang tự động chuyển hướng về danh sách bài viết...'}
+              </span>
             </div>
           )}
 
@@ -390,10 +416,10 @@ export default function EditStoryForm({ story }: { story: any }) {
             </Link>
             <button 
               type="submit" 
-              disabled={isBusy} 
+              disabled={isBusy || errorMessage?.success} 
               className="bg-primary-red text-white px-8 py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-primary-red/90 transition-colors disabled:opacity-50 text-sm shadow-md"
             >
-              {isBusy ? 'Đang lưu bài viết và tải ảnh...' : 'Lưu bài viết'}
+              {errorMessage?.success ? 'Đã lưu thành công!' : isBusy ? 'Đang lưu bài viết và tải ảnh...' : 'Lưu bài viết'}
             </button>
           </div>
         </form>

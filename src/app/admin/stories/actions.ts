@@ -99,13 +99,18 @@ export async function createStoryAction(prevState: any, formData: FormData) {
     const { error: insertError } = await supabase.from('mm_stories').insert([payload]);
     if (insertError) return { success: false, message: 'Lỗi lưu bài viết: ' + insertError.message };
 
+    revalidatePath('/admin/stories');
+    revalidatePath('/story-hub');
+    revalidatePath(`/story-hub/${cleanSlug}`);
+
+    return { 
+      success: true, 
+      message: 'Đăng bài viết thành công!',
+      slug: cleanSlug
+    };
   } catch (error: any) {
     return { success: false, message: 'Lỗi hệ thống: ' + error.message };
   }
-
-  revalidatePath('/admin/stories', 'layout');
-  revalidatePath('/story-hub', 'layout');
-  redirect('/admin/stories');
 }
 
 export async function deleteStoryAction(id: string) {
@@ -243,17 +248,21 @@ export async function updateStoryAction(prevState: any, formData: FormData) {
         .from('mm_story_comments')
         .update({ story_slug: cleanSlug })
         .eq('story_id', id);
-      revalidatePath(`/story-hub/${currentStory.slug}`, 'layout');
+      revalidatePath(`/story-hub/${currentStory.slug}`);
     }
 
+    revalidatePath('/admin/stories');
+    revalidatePath('/story-hub');
+    if (cleanSlug) {
+      revalidatePath(`/story-hub/${cleanSlug}`);
+    }
+
+    return { 
+      success: true, 
+      message: 'Cập nhật bài viết thành công!',
+      slug: cleanSlug
+    };
   } catch (error: any) {
     return { success: false, message: 'Lỗi hệ thống: ' + error.message };
   }
-
-  revalidatePath('/admin/stories', 'layout');
-  revalidatePath('/story-hub', 'layout');
-  if (cleanSlug) {
-    revalidatePath(`/story-hub/${cleanSlug}`, 'layout');
-  }
-  redirect('/admin/stories');
 }

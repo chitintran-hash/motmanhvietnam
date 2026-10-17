@@ -1,13 +1,15 @@
 'use client';
 
-import { useActionState, useState, startTransition } from 'react';
+import { useActionState, useState, useEffect, startTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { createStoryAction } from '../actions';
 import { optimizeImageFile, optimizeImageFiles } from '@/lib/image-optimizer';
 import Link from 'next/link';
-import { ArrowLeft, Image as ImageIcon, Upload, AlertCircle, Sparkles } from 'lucide-react';
+import { ArrowLeft, Image as ImageIcon, Upload, AlertCircle, Sparkles, CheckCircle2 } from 'lucide-react';
 import Image from 'next/image';
 
 export default function NewStoryPage() {
+  const router = useRouter();
   const [errorMessage, formAction, isPending] = useActionState(createStoryAction, undefined);
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
@@ -17,6 +19,16 @@ export default function NewStoryPage() {
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (errorMessage?.success) {
+      const timer = setTimeout(() => {
+        router.push('/admin/stories');
+        router.refresh();
+      }, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage, router]);
 
   const generateSlug = (text: string) => {
     return text
@@ -119,9 +131,16 @@ export default function NewStoryPage() {
       <div className="bg-white rounded-2xl border-2 border-foreground/10 shadow-[4px_4px_0px_rgba(0,0,0,0.05)] p-6 md:p-8">
         <form action={handleFormSubmit} className="space-y-8">
           {errorMessage?.message && (
-            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2 ${errorMessage.success ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
-              <AlertCircle className="w-5 h-5 shrink-0" />
-              <span>{errorMessage.message}</span>
+            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2.5 ${errorMessage.success ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+              {errorMessage.success ? (
+                <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600 animate-bounce" />
+              ) : (
+                <AlertCircle className="w-5 h-5 shrink-0" />
+              )}
+              <span>
+                {errorMessage.message}
+                {errorMessage.success && ' Đang tự động chuyển hướng về danh sách bài viết...'}
+              </span>
             </div>
           )}
 
@@ -249,15 +268,22 @@ export default function NewStoryPage() {
 
           {/* Dual error warning above submit button */}
           {errorMessage?.message && (
-            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2 ${errorMessage.success ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
-              <AlertCircle className="w-5 h-5 shrink-0" />
-              <span>{errorMessage.message}</span>
+            <div className={`p-4 rounded-xl text-sm font-semibold flex items-center gap-2.5 ${errorMessage.success ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+              {errorMessage.success ? (
+                <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600 animate-bounce" />
+              ) : (
+                <AlertCircle className="w-5 h-5 shrink-0" />
+              )}
+              <span>
+                {errorMessage.message}
+                {errorMessage.success && ' Đang tự động chuyển hướng về danh sách bài viết...'}
+              </span>
             </div>
           )}
 
           <div className="flex justify-end pt-6 border-t border-foreground/10">
-            <button type="submit" disabled={isBusy} className="bg-foreground text-white px-8 py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-terracotta transition-colors disabled:opacity-50">
-              {isBusy ? 'Đang lưu bài viết và tải ảnh...' : 'Lưu bài viết'}
+            <button type="submit" disabled={isBusy || errorMessage?.success} className="bg-foreground text-white px-8 py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-terracotta transition-colors disabled:opacity-50 shadow-md">
+              {errorMessage?.success ? 'Đã lưu thành công!' : isBusy ? 'Đang lưu bài viết và tải ảnh...' : 'Lưu bài viết'}
             </button>
           </div>
         </form>
