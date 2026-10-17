@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { createStoryAction } from '../actions';
 import Link from 'next/link';
 import { ArrowLeft, Upload, AlertCircle, Sparkles, CheckCircle2 } from 'lucide-react';
-import Image from 'next/image';
 
 export default function NewStoryPage() {
   const router = useRouter();
@@ -54,7 +53,14 @@ export default function NewStoryPage() {
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setCoverPreview(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setCoverPreview(event.target?.result as string);
+      };
+      reader.onerror = () => {
+        setCoverPreview(URL.createObjectURL(file));
+      };
+      reader.readAsDataURL(file);
     } else {
       setCoverPreview(null);
     }
@@ -63,8 +69,27 @@ export default function NewStoryPage() {
   const handleAdditionalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      const urls = Array.from(files).map(file => URL.createObjectURL(file));
-      setAdditionalPreviews(urls);
+      const fileList = Array.from(files);
+      const newUrls: string[] = [];
+      let loaded = 0;
+      fileList.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          newUrls[index] = event.target?.result as string;
+          loaded++;
+          if (loaded === fileList.length) {
+            setAdditionalPreviews([...newUrls]);
+          }
+        };
+        reader.onerror = () => {
+          newUrls[index] = URL.createObjectURL(file);
+          loaded++;
+          if (loaded === fileList.length) {
+            setAdditionalPreviews([...newUrls]);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
     } else {
       setAdditionalPreviews([]);
     }
@@ -184,8 +209,15 @@ export default function NewStoryPage() {
                   <div className="border-2 border-dashed border-foreground/20 rounded-xl p-4 text-center relative hover:bg-foreground/5 transition-colors">
                     <input type="file" name="image_url" accept="image/*" onChange={handleCoverChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                     {coverPreview ? (
-                      <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black/5">
-                        <Image src={coverPreview} alt="Preview" fill unoptimized className="object-cover" />
+                      <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-foreground/10 bg-black/5">
+                        <img 
+                          src={coverPreview} 
+                          alt="Ảnh bìa" 
+                          className="w-full h-full object-cover" 
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold uppercase tracking-wider pointer-events-none">
+                          Nhấn để đổi ảnh khác
+                        </div>
                       </div>
                     ) : (
                       <div className="py-8 flex flex-col items-center">
@@ -203,7 +235,14 @@ export default function NewStoryPage() {
                       <div className="grid grid-cols-2 gap-2 w-full mt-2">
                         {additionalPreviews.map((preview, i) => (
                           <div key={i} className="relative w-full aspect-video rounded-lg overflow-hidden border border-foreground/10 bg-black/5">
-                            <Image src={preview} alt={`Preview ${i}`} fill unoptimized className="object-cover" />
+                            <img 
+                              src={preview} 
+                              alt={`Ảnh kèm ${i + 1}`} 
+                              className="w-full h-full object-cover" 
+                            />
+                            <span className="absolute top-1 left-1 bg-black/75 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                              [anh{i + 1}]
+                            </span>
                           </div>
                         ))}
                       </div>
@@ -237,7 +276,7 @@ export default function NewStoryPage() {
             <button 
               type="submit" 
               disabled={isPending || state?.success} 
-              className="bg-foreground text-white px-8 py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-terracotta transition-colors disabled:opacity-50 shadow-md flex items-center gap-2"
+              className="bg-foreground text-white px-8 py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-terracotta transition-colors disabled:opacity-50 shadow-md flex items-center gap-2 cursor-pointer"
             >
               {state?.success ? 'Đã lưu thành công!' : isPending ? 'Đang lưu bài viết và tải ảnh...' : 'Lưu bài viết'}
             </button>
