@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { ZoomIn, ZoomOut, Maximize2, X, ChevronLeft, ChevronRight, Package, Sparkles } from "lucide-react";
+import { ZoomIn, ZoomOut, Maximize2, X, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 
 interface ProductGalleryProps {
   mainImage: string;
@@ -13,10 +13,9 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
     const list = [
       { 
         src: mainImage || "https://illustrations.popsy.co/amber/home-office.svg", 
-        label: "HỘP BLIND BOX (ẢNH CHÍNH)",
-        shortLabel: "Hộp chính",
-        isMain: true,
-        isSecret: false
+        label: "",
+        shortLabel: "",
+        isMain: true 
       }
     ];
 
@@ -27,21 +26,11 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
             src: img,
             label: `MẢNH GHÉP SƯU TẦM #${idx + 1}`,
             shortLabel: `Mảnh #${idx + 1}`,
-            isMain: false,
-            isSecret: false
+            isMain: false
           });
         }
       });
     }
-
-    // Luôn có 1 Mảnh Secret Duy Nhất
-    list.push({
-      src: "/images/secret-chest-clean.png",
-      label: "1 MẢNH SECRET DUY NHẤT (BÍ ẨN)",
-      shortLabel: "Secret",
-      isMain: false,
-      isSecret: true
-    });
 
     return list;
   }, [mainImage, additionalImages]);
@@ -101,32 +90,22 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
   };
 
   return (
-    <div className="w-full flex flex-col gap-6">
+    <div className="w-full flex flex-col gap-5">
       {/* 1. KHUNG HIỂN THỊ CHÍNH (MAIN VIEWER) */}
-      <div className="relative w-full aspect-square bg-[#FAF9F5] border-2 border-foreground/15 rounded-2xl p-6 shadow-[6px_6px_0px_rgba(42,42,39,0.08)] flex items-center justify-center transition-all duration-300 group overflow-hidden">
+      <div className="relative w-full aspect-square bg-[#FAF9F5] border-2 border-foreground/15 rounded-2xl shadow-[6px_6px_0px_rgba(42,42,39,0.08)] flex items-center justify-center transition-all duration-300 group overflow-hidden">
         
         {/* Subtle background pattern */}
         <div className="absolute inset-0 opacity-5 bg-[url('data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E')] pointer-events-none"></div>
 
-        {/* Badge góc trái */}
-        <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
-          {currentItem.isMain ? (
-            <span className="inline-flex items-center gap-1.5 bg-foreground text-background text-[11px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">
-              <Package className="w-3.5 h-3.5 text-terracotta" />
-              HỘP BLIND BOX
-            </span>
-          ) : currentItem.isSecret ? (
-            <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-600 via-yellow-600 to-terracotta text-white text-[11px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-md animate-pulse">
-              <Sparkles className="w-3.5 h-3.5 text-yellow-200" />
-              1 MẢNH SECRET DUY NHẤT
-            </span>
-          ) : (
+        {/* Badge góc trái - Chỉ hiển thị cho các mảnh ghép */}
+        {!currentItem.isMain && currentItem.shortLabel && (
+          <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 bg-terracotta text-white text-[11px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">
               <Sparkles className="w-3.5 h-3.5" />
               {currentItem.shortLabel}
             </span>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Nút phóng to góc phải */}
         <button
@@ -139,30 +118,32 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
           <span className="hidden sm:inline text-[11px]">Xem lớn</span>
         </button>
 
-        {/* Image Display */}
+        {/* Image Display - Sản phẩm chính bự lấp khung ảnh (object-cover 100%), các mảnh ghép thì object-contain có padding */}
         <div 
           onClick={() => handleOpenModal()} 
-          className="relative w-[85%] h-[85%] cursor-zoom-in flex items-center justify-center"
+          className={`relative w-full h-full cursor-zoom-in flex items-center justify-center ${
+            currentItem.isMain ? 'p-0' : 'p-6 sm:p-8'
+          }`}
         >
           <img 
             src={currentItem.src}
-            alt={currentItem.label}
-            className={`max-w-full max-h-full object-contain drop-shadow-xl transition-all duration-300 group-hover:scale-105 ${
-              currentItem.isSecret ? 'filter drop-shadow-[0_0_20px_rgba(245,158,11,0.4)]' : ''
-            }`}
+            alt={currentItem.label || "Hình ảnh sản phẩm"}
+            className={
+              currentItem.isMain 
+                ? "w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                : "max-w-full max-h-full object-contain drop-shadow-xl transition-transform duration-300 group-hover:scale-105"
+            }
           />
         </div>
 
-        {/* Label Bottom */}
-        <div className="absolute bottom-4 left-0 w-full text-center z-10 pointer-events-none px-4">
-          <span className={`inline-block px-4 py-1.5 rounded-full border shadow-sm text-xs font-black uppercase tracking-wider ${
-            currentItem.isSecret 
-              ? 'bg-[#2A2A27] text-gold border-gold/40' 
-              : 'bg-white/95 backdrop-blur-sm border-foreground/10 text-foreground'
-          }`}>
-            {currentItem.label}
-          </span>
-        </div>
+        {/* Label Bottom - Chỉ hiển thị cho các mảnh ghép, KHÔNG hiển thị chữ hộp blind box (ảnh chính) */}
+        {!currentItem.isMain && currentItem.label && (
+          <div className="absolute bottom-4 left-0 w-full text-center z-10 pointer-events-none px-4">
+            <span className="inline-block px-4 py-1.5 rounded-full border shadow-sm text-xs font-black uppercase tracking-wider bg-white/95 backdrop-blur-sm border-foreground/10 text-foreground">
+              {currentItem.label}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* 2. CÁC MẢNH GHÉP BÊN DƯỚI (PIECE SELECTOR STRIP) */}
@@ -171,11 +152,7 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-terracotta" />
             <h3 className="text-xs font-black uppercase tracking-widest text-foreground">
-              {images.length > 2 
-                ? `Các mảnh bên trong hộp (${images.length - 2} mảnh thường + 1 SECRET):` 
-                : images.length > 1 
-                  ? `Các mảnh bên trong hộp (${images.length - 1} mảnh):` 
-                  : 'Hình ảnh sản phẩm:'}
+              {images.length > 1 ? `Các mảnh bên trong hộp (${images.length - 1} mảnh):` : 'Hình ảnh sản phẩm:'}
             </h3>
           </div>
           <span className="text-[11px] font-bold text-foreground/50">
@@ -184,7 +161,7 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
         </div>
 
         {/* Thumbnails Grid */}
-        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-8 gap-2.5">
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-2.5">
           {images.map((img, idx) => {
             const isActive = activeIndex === idx;
             return (
@@ -193,34 +170,33 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
                 type="button"
                 onClick={() => setActiveIndex(idx)}
                 onDoubleClick={() => handleOpenModal(idx)}
-                className={`group relative aspect-square rounded-xl border-2 transition-all duration-200 overflow-hidden p-1.5 cursor-pointer flex flex-col items-center justify-center ${
-                  img.isSecret
-                    ? isActive 
-                      ? 'border-amber-500 shadow-[0_0_0_2px_rgba(245,158,11,0.4)] scale-105 bg-amber-50/60' 
-                      : 'border-amber-500/50 bg-amber-50/20 hover:border-amber-500 hover:scale-102 opacity-85 hover:opacity-100'
-                    : isActive 
-                      ? 'border-terracotta shadow-[0_0_0_2px_rgba(200,82,44,0.2)] scale-105 bg-terracotta/5 bg-white' 
-                      : 'border-foreground/10 hover:border-foreground/40 hover:scale-102 opacity-75 hover:opacity-100 bg-white'
+                className={`group relative aspect-square rounded-xl border-2 transition-all duration-200 overflow-hidden p-1.5 cursor-pointer flex flex-col items-center justify-center bg-white ${
+                  isActive 
+                    ? 'border-terracotta shadow-[0_0_0_2px_rgba(200,82,44,0.2)] scale-105 bg-terracotta/5' 
+                    : 'border-foreground/10 hover:border-foreground/40 hover:scale-102 opacity-75 hover:opacity-100'
                 }`}
-                title={`Nhấn để xem ${img.label}`}
+                title={img.isMain ? "Hộp sản phẩm chính" : `Nhấn để xem ${img.label}`}
               >
                 <div className="relative w-full h-full flex items-center justify-center">
                   <img 
                     src={img.src}
-                    alt={img.label}
-                    className={`max-w-full max-h-full object-contain transition-transform duration-200 group-hover:scale-110 ${
-                      img.isSecret ? 'drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]' : ''
-                    }`}
+                    alt={img.label || "Sản phẩm"}
+                    className={
+                      img.isMain 
+                        ? "w-full h-full object-cover rounded-lg group-hover:scale-110 transition-transform duration-200" 
+                        : "max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-200"
+                    }
                   />
                 </div>
 
-                <span className={`absolute bottom-1 inset-x-1 text-[9px] font-black uppercase tracking-wider py-0.5 rounded text-center truncate ${
-                  img.isSecret
-                    ? isActive ? 'bg-amber-600 text-white font-black' : 'bg-amber-700/90 text-white font-bold'
-                    : isActive ? 'bg-terracotta text-white' : 'bg-foreground/80 text-white'
-                }`}>
-                  {img.isMain ? 'Hộp chính' : img.isSecret ? '✨ Secret' : `Mảnh #${idx}`}
-                </span>
+                {/* Giữ nguyên chữ Mảnh #1, Mảnh #2... và KHÔNG hiển thị chữ hộp blind box (ảnh chính) */}
+                {!img.isMain && (
+                  <span className={`absolute bottom-1 inset-x-1 text-[9px] font-black uppercase tracking-wider py-0.5 rounded text-center truncate ${
+                    isActive ? 'bg-terracotta text-white' : 'bg-foreground/80 text-white'
+                  }`}>
+                    {img.shortLabel}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -242,10 +218,12 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3">
-              <span className="bg-terracotta text-white text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full">
-                {currentItem.label}
-              </span>
-              <span className="text-white/60 text-xs font-mono hidden sm:inline">
+              {!currentItem.isMain && currentItem.label && (
+                <span className="bg-terracotta text-white text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full">
+                  {currentItem.label}
+                </span>
+              )}
+              <span className="text-white/60 text-xs font-mono">
                 ({activeIndex + 1} / {images.length})
               </span>
             </div>
@@ -307,14 +285,14 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
 
             {/* Large Image */}
             <div 
-              className="relative max-h-[75vh] max-w-[85vw] flex items-center justify-center transition-transform duration-200 cursor-zoom-in"
+              className="relative max-h-[80vh] max-w-[85vw] flex items-center justify-center transition-transform duration-200 cursor-zoom-in"
               style={{ transform: `scale(${modalZoom})` }}
               onClick={() => setModalZoom((prev) => (prev === 1 ? 1.6 : 1))}
             >
               <img 
                 src={currentItem.src}
-                alt={currentItem.label}
-                className="max-h-[75vh] max-w-[85vw] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
+                alt={currentItem.label || "Hình ảnh"}
+                className="max-h-[80vh] max-w-[85vw] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
               />
             </div>
           </div>
@@ -333,9 +311,7 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
                   setModalZoom(1);
                 }}
                 className={`relative w-12 h-12 rounded-lg overflow-hidden border-2 transition-all shrink-0 bg-white/10 p-1 ${
-                  activeIndex === idx 
-                    ? (img.isSecret ? 'border-amber-400 scale-110 bg-amber-500/20' : 'border-terracotta scale-110 bg-white/25') 
-                    : (img.isSecret ? 'border-amber-400/50 opacity-70 hover:opacity-100' : 'border-white/20 opacity-50 hover:opacity-100')
+                  activeIndex === idx ? 'border-terracotta scale-110 bg-white/25' : 'border-white/20 opacity-50 hover:opacity-100'
                 }`}
               >
                 <img src={img.src} alt={img.label} className="w-full h-full object-contain" />

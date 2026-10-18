@@ -111,7 +111,7 @@ export default async function CollectionPage() {
             />
 
             {/* Benefit Highlights */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-b border-foreground/10 py-6 mb-8 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-b border-foreground/10 py-6 text-sm">
               <div className="flex items-center gap-3 text-foreground-muted font-medium">
                 <Truck className="w-5 h-5 text-terracotta shrink-0" />
                 <span>Giao hàng toàn quốc 2 - 4 ngày</span>
@@ -129,15 +129,22 @@ export default async function CollectionPage() {
                 <span>Cơ hội mở ra Secret Piece độc bản</span>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
 
-            {/* Full Story Description */}
-            <div className="space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-foreground/80">
+      {/* Product Detail Description Section (Ngang hàng, trải đều cân đối 2 bên) */}
+      <div className="container mx-auto px-6 max-w-[1200px] mb-24">
+        <div className="border-t border-foreground/10 pt-12">
+          <div className="bg-[#FAF9F5] border-2 border-foreground/10 rounded-2xl p-8 md:p-12 shadow-[4px_4px_0px_rgba(42,42,39,0.06)]">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="w-2.5 h-2.5 bg-terracotta rounded-full"></span>
+              <h3 className="text-xs md:text-sm font-black uppercase tracking-[0.25em] text-foreground">
                 MÔ TẢ CHI TIẾT
               </h3>
-              <p className="text-foreground-muted leading-relaxed font-medium whitespace-pre-line text-sm md:text-base">
-                {product.description || "Mỗi mảnh ghép mang trong mình một câu chuyện độc đáo về văn hóa, con người và những kỷ niệm khó quên của Việt Nam. Chiếc pin nhỏ gọn nhưng lưu giữ trọn vẹn hồn cốt của những địa danh thân thương."}
-              </p>
+            </div>
+            <div className="text-foreground-muted leading-relaxed font-medium whitespace-pre-line text-base md:text-lg max-w-4xl space-y-4">
+              {product.description || "Mỗi mảnh ghép mang trong mình một câu chuyện độc đáo về văn hóa, con người và những kỷ niệm khó quên của Việt Nam. Chiếc pin nhỏ gọn nhưng lưu giữ trọn vẹn hồn cốt của những địa danh thân thương."}
             </div>
           </div>
         </div>

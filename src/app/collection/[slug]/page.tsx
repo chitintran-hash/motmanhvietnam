@@ -77,10 +77,22 @@ export default async function ProductDetail(props: { params: Promise<{ slug: str
               </div>
             </div>
 
-            <div className="border-t border-foreground/10 pt-8">
-              <p className="text-foreground-muted leading-relaxed font-medium">
+          </div>
+        </div>
+
+        {/* Product Detail Description Section (Ngang hàng, trải đều cân đối 2 bên) */}
+        <div className="mb-24">
+          <div className="border-t border-foreground/10 pt-12">
+            <div className="bg-[#FAF9F5] border-2 border-foreground/10 rounded-2xl p-8 md:p-12 shadow-[4px_4px_0px_rgba(42,42,39,0.06)]">
+              <div className="flex items-center gap-3 mb-6">
+                <span className="w-2.5 h-2.5 bg-terracotta rounded-full"></span>
+                <h3 className="text-xs md:text-sm font-black uppercase tracking-[0.25em] text-foreground">
+                  MÔ TẢ CHI TIẾT
+                </h3>
+              </div>
+              <div className="text-foreground-muted leading-relaxed font-medium whitespace-pre-line text-base md:text-lg max-w-4xl space-y-4">
                 {product.description || "Mỗi mảnh ghép mang trong mình một câu chuyện độc đáo về văn hóa, con người và những kỷ niệm khó quên. Hãy cùng khám phá vẻ đẹp của Việt Nam qua lăng kính sáng tạo."}
-              </p>
+              </div>
             </div>
           </div>
         </div>
