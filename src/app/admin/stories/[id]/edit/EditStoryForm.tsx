@@ -150,6 +150,8 @@ export default function EditStoryForm({ story }: { story: any }) {
       }
 
       setSubmitProgress('Đang lưu bài viết vào hệ thống...');
+      await new Promise(r => setTimeout(r, 60));
+
       const finalCover = coverFile ? uploadedCoverUrl : coverPreview;
       const finalAdditional = [...existingAdditional, ...uploadedNewAdditionalUrls.filter(Boolean)];
 
@@ -172,9 +174,8 @@ export default function EditStoryForm({ story }: { story: any }) {
 
       setStatusMessage({ success: true, message: updateRes.message || 'Cập nhật bài viết thành công!' });
       setTimeout(() => {
-        router.push('/admin/stories');
-        router.refresh();
-      }, 1000);
+        window.location.href = '/admin/stories';
+      }, 800);
     } catch (err: any) {
       setStatusMessage({ success: false, message: err.message || 'Có lỗi xảy ra khi lưu bài viết' });
       setIsSubmitting(false);

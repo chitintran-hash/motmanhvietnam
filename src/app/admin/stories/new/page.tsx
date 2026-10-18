@@ -183,9 +183,8 @@ export default function NewStoryPage() {
 
       setStatusMessage({ success: true, message: saveRes.message || 'Đăng bài viết thành công!' });
       setTimeout(() => {
-        router.push('/admin/stories');
-        router.refresh();
-      }, 1000);
+        window.location.href = '/admin/stories';
+      }, 800);
     } catch (err: any) {
       setStatusMessage({ success: false, message: err.message || 'Có lỗi xảy ra khi lưu bài viết' });
       setIsSubmitting(false);
