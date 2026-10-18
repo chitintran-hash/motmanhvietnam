@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { handleSignOut } from "@/app/lib/actions";
+import Link from "next/link";
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -39,8 +40,15 @@ export default async function ProfilePage() {
           </div>
 
           <div className="border-t border-foreground/5 pt-6 mt-6">
-            <h3 className="font-bold mb-4">Đơn hàng của tôi</h3>
-            <p className="text-foreground/60 text-sm">Chưa có đơn hàng nào.</p>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-bold">Đơn hàng của tôi</h3>
+              <Link href="/profile/orders" className="text-xs font-bold text-terracotta hover:underline">
+                Xem tất cả đơn hàng →
+              </Link>
+            </div>
+            <Link href="/profile/orders" className="inline-flex items-center gap-2 px-4 py-2 bg-background-alt text-foreground hover:bg-foreground hover:text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-colors">
+              Xem tiến độ giao hàng & lịch sử đơn
+            </Link>
           </div>
 
           <form action={handleSignOut} className="mt-8">

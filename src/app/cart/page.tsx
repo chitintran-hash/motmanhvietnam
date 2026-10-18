@@ -1,15 +1,19 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Trash2, ArrowRight, Minus, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Trash2, ArrowRight, Minus, Plus, User, X, ShieldCheck } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
-
-import { useEffect } from "react";
+import { getAuthSession } from "@/app/checkout/actions";
 
 export default function CartPage() {
+  const router = useRouter();
   const [items, setItems] = useState<any[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('mm_cart');
@@ -43,6 +47,28 @@ export default function CartPage() {
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = items.length > 0 ? 30000 : 0;
   const total = subtotal + shipping;
+
+  const handleProceedToCheckout = async () => {
+    trackEvent('checkout_start', { 
+      value: total, 
+      currency: 'VND', 
+      items: items.map(i => ({ item_id: i.id, item_name: i.name, quantity: i.quantity, price: i.price })) 
+    });
+
+    setIsCheckingAuth(true);
+    try {
+      const sess = await getAuthSession();
+      setIsCheckingAuth(false);
+      if (!sess?.user) {
+        setShowAuthModal(true);
+      } else {
+        router.push('/checkout');
+      }
+    } catch (err) {
+      setIsCheckingAuth(false);
+      router.push('/checkout');
+    }
+  };
 
   if (!mounted) return null;
 
@@ -82,12 +108,13 @@ export default function CartPage() {
                   
                   <div className="flex-1 flex flex-col w-full">
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className={`font-display font-black text-2xl uppercase tracking-wider ${item.color}`}>
+                      <h3 className={`font-display font-black text-2xl uppercase tracking-wider ${item.color || 'text-foreground'}`}>
                         {item.name}
                       </h3>
                       <button 
                         onClick={() => removeItem(item.id)}
                         className="text-foreground/40 hover:text-primary-red transition-colors p-2"
+                        title="Xóa khỏi giỏ"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>
@@ -153,10 +180,11 @@ export default function CartPage() {
                 </div>
                 
                 <button 
-                  className="w-full py-4 bg-primary-green text-cream font-bold uppercase tracking-widest hover:bg-primary-red transition-colors border-2 border-primary-green hover:border-primary-red shadow-[4px_4px_0px_rgba(46,91,70,1)] flex items-center justify-center gap-2"
-                  onClick={() => trackEvent('checkout_start', { value: total, currency: 'VND', items: items.map(i => ({ item_id: i.id, item_name: i.name, quantity: i.quantity, price: i.price })) })}
+                  disabled={isCheckingAuth}
+                  className="w-full py-4 bg-primary-green text-cream font-bold uppercase tracking-widest hover:bg-primary-red transition-colors border-2 border-primary-green hover:border-primary-red shadow-[4px_4px_0px_rgba(46,91,70,1)] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75"
+                  onClick={handleProceedToCheckout}
                 >
-                  TIẾN HÀNH THANH TOÁN
+                  {isCheckingAuth ? "ĐANG KIỂM TRA..." : "TIẾN HÀNH THANH TOÁN"}
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </div>
@@ -164,6 +192,56 @@ export default function CartPage() {
           </div>
         )}
       </div>
+
+      {/* MODAL YÊU CẦU ĐĂNG NHẬP / ĐĂNG KÝ */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="relative w-full max-w-md bg-white border-4 border-foreground p-8 shadow-[8px_8px_0px_rgba(42,42,39,1)] animate-fadeIn">
+            <button
+              onClick={() => setShowAuthModal(false)}
+              className="absolute top-4 right-4 text-foreground/50 hover:text-foreground p-1 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="w-16 h-16 bg-primary-red/10 text-primary-red rounded-full flex items-center justify-center mx-auto mb-4">
+              <User className="w-8 h-8" />
+            </div>
+
+            <h3 className="font-display font-black text-2xl uppercase tracking-wider text-center text-foreground mb-2">
+              YÊU CẦU TÀI KHOẢN
+            </h3>
+
+            <p className="text-foreground/70 font-medium text-center text-sm mb-6 leading-relaxed">
+              Để tiến hành thanh toán, lưu thông tin giao nhận và theo dõi hành trình đơn hàng theo thời gian thực, quý khách vui lòng đăng ký tài khoản mới hoặc đăng nhập tài khoản hiện có.
+            </p>
+
+            <div className="flex flex-col gap-3">
+              <Link
+                href="/register?callbackUrl=/checkout"
+                className="w-full py-3.5 bg-primary-red text-cream font-bold text-xs uppercase tracking-widest text-center hover:bg-primary-red/90 transition-colors border-2 border-primary-red shadow-[4px_4px_0px_rgba(137,8,8,1)]"
+              >
+                TẠO TÀI KHOẢN MỚI
+              </Link>
+
+              <Link
+                href="/login?callbackUrl=/checkout"
+                className="w-full py-3.5 bg-beige text-foreground font-bold text-xs uppercase tracking-widest text-center hover:bg-foreground hover:text-cream transition-colors border-2 border-foreground"
+              >
+                ĐÃ CÓ TÀI KHOẢN - ĐĂNG NHẬP
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => setShowAuthModal(false)}
+                className="text-xs font-bold text-foreground/50 hover:text-foreground transition-colors mt-2 text-center"
+              >
+                Đóng / Tiếp tục xem giỏ hàng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

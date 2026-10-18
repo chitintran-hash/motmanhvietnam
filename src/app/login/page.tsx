@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [errorMessage, formAction, isPending] = useActionState(authenticate, undefined);
   const searchParams = useSearchParams();
   const registered = searchParams.get('registered');
+  const callbackUrl = searchParams.get('callbackUrl') || searchParams.get('redirectTo') || '/';
 
   return (
     <div className="min-h-screen pt-40 pb-24 flex items-center justify-center bg-background">
@@ -41,11 +42,12 @@ export default function LoginPage() {
           className="space-y-4"
           onSubmit={() => trackEvent('click_login')}
         >
+          <input type="hidden" name="redirectTo" value={callbackUrl} />
           <div>
             <label className="block text-sm font-medium text-foreground/80 mb-1">Email</label>
             <input 
               type="email" 
-              name="email"
+              name="email" 
               required 
               className="w-full px-4 py-3 rounded-lg border border-foreground/20 focus:outline-none focus:border-terracotta transition-colors"
               placeholder="Nhập email của bạn"
@@ -60,7 +62,7 @@ export default function LoginPage() {
             </div>
             <input 
               type="password" 
-              name="password"
+              name="password" 
               required 
               className="w-full px-4 py-3 rounded-lg border border-foreground/20 focus:outline-none focus:border-terracotta transition-colors"
               placeholder="Nhập mật khẩu"
@@ -83,7 +85,7 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-8 text-center text-sm text-foreground/60">
-          Chưa có tài khoản? <Link href="/register" className="text-terracotta font-medium hover:underline">Đăng ký ngay</Link>
+          Chưa có tài khoản? <Link href={`/register?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="text-terracotta font-medium hover:underline">Đăng ký ngay</Link>
         </div>
       </div>
     </div>

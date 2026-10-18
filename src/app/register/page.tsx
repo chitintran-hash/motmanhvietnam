@@ -1,11 +1,15 @@
 "use client";
+
 import { useActionState } from "react";
 import Link from "next/link";
 import { register } from "@/app/lib/actions";
 import { trackEvent } from "@/lib/analytics";
+import { useSearchParams } from "next/navigation";
 
 export default function RegisterPage() {
   const [errorMessage, formAction, isPending] = useActionState(register, undefined);
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || searchParams.get('redirectTo') || '';
 
   return (
     <div className="min-h-screen pt-40 pb-24 flex items-center justify-center bg-background">
@@ -68,7 +72,7 @@ export default function RegisterPage() {
         </form>
 
         <div className="mt-8 text-center text-sm text-foreground/60">
-          Đã có tài khoản? <Link href="/login" className="text-terracotta font-medium hover:underline">Đăng nhập</Link>
+          Đã có tài khoản? <Link href={callbackUrl ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/login"} className="text-terracotta font-medium hover:underline">Đăng nhập</Link>
         </div>
       </div>
     </div>

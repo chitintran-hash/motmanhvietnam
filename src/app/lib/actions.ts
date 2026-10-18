@@ -14,10 +14,12 @@ export async function authenticate(
         return `LỖI HỆ THỐNG: Chưa cấu hình biến môi trường Supabase.`;
     }
 
+    const redirectTo = (formData.get('redirectTo') as string) || (formData.get('callbackUrl') as string) || '/';
+
     try {
         await signIn('credentials', {
             ...Object.fromEntries(formData),
-            redirectTo: '/',
+            redirectTo,
         });
     } catch (error: any) {
         if (error instanceof AuthError) {

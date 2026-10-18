@@ -20,7 +20,7 @@ export default async function AdminOrdersPage() {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending': return 'Chờ xử lý';
+      case 'pending': return 'Chờ xác nhận';
       case 'confirmed': return 'Đã xác nhận';
       case 'preparing': return 'Đang chuẩn bị';
       case 'shipping': return 'Đang giao';
