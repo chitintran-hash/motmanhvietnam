@@ -12,7 +12,7 @@ export default function CollectionPreview({ products }: { products: any[] }) {
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-3 mb-4">
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta">COLLECTION 01</span>
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta">BỘ SƯU TẬP DI SẢN</span>
               <div className="w-12 h-px bg-terracotta/50"></div>
             </div>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black text-foreground mb-4 uppercase tracking-tight">

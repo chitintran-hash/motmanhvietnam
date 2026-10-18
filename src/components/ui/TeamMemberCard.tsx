@@ -34,9 +34,6 @@ export default function TeamMemberCard({ member, index }: { member: any, index: 
       </div>
       
       <div className="flex-1 flex flex-col">
-        <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest font-mono mb-2">
-          ARCHIVE_NO_0{index + 1}
-        </span>
         <h3 className="font-display font-black text-3xl text-foreground uppercase tracking-wider mb-2">
           {member.full_name}
         </h3>

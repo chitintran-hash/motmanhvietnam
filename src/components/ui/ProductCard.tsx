@@ -57,10 +57,6 @@ export default function ProductCard({ slug, name, city, collectionNumber, price,
         
         <div className="flex justify-between items-start mb-6">
           <div className="flex flex-col gap-1">
-            <div className={`inline-block px-2 py-1 ${primaryColor} text-cream text-[10px] font-bold uppercase tracking-widest self-start mb-2`}>
-              BLIND BOX
-            </div>
-            <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest font-mono">{collectionNumber}</span>
             <span className={`text-xs font-black uppercase tracking-wider ${textColor}`}>{city}</span>
           </div>
           {isNew && <div className={`${secondaryColor} ${secondaryTextColor} px-2 py-1 text-[10px] font-black uppercase tracking-widest border-2 border-foreground`}>NEW</div>}

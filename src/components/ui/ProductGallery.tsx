@@ -15,7 +15,8 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
         src: mainImage || "https://illustrations.popsy.co/amber/home-office.svg", 
         label: "HỘP BLIND BOX (ẢNH CHÍNH)",
         shortLabel: "Hộp chính",
-        isMain: true 
+        isMain: true,
+        isSecret: false
       }
     ];
 
@@ -26,11 +27,21 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
             src: img,
             label: `MẢNH GHÉP SƯU TẦM #${idx + 1}`,
             shortLabel: `Mảnh #${idx + 1}`,
-            isMain: false
+            isMain: false,
+            isSecret: false
           });
         }
       });
     }
+
+    // Luôn có 1 Mảnh Secret Duy Nhất
+    list.push({
+      src: "/images/secret-chest-clean.png",
+      label: "1 MẢNH SECRET DUY NHẤT (BÍ ẨN)",
+      shortLabel: "Secret",
+      isMain: false,
+      isSecret: true
+    });
 
     return list;
   }, [mainImage, additionalImages]);
@@ -104,6 +115,11 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
               <Package className="w-3.5 h-3.5 text-terracotta" />
               HỘP BLIND BOX
             </span>
+          ) : currentItem.isSecret ? (
+            <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-600 via-yellow-600 to-terracotta text-white text-[11px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-md animate-pulse">
+              <Sparkles className="w-3.5 h-3.5 text-yellow-200" />
+              1 MẢNH SECRET DUY NHẤT
+            </span>
           ) : (
             <span className="inline-flex items-center gap-1.5 bg-terracotta text-white text-[11px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">
               <Sparkles className="w-3.5 h-3.5" />
@@ -131,13 +147,19 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
           <img 
             src={currentItem.src}
             alt={currentItem.label}
-            className="max-w-full max-h-full object-contain drop-shadow-xl transition-all duration-300 group-hover:scale-105"
+            className={`max-w-full max-h-full object-contain drop-shadow-xl transition-all duration-300 group-hover:scale-105 ${
+              currentItem.isSecret ? 'filter drop-shadow-[0_0_20px_rgba(245,158,11,0.4)]' : ''
+            }`}
           />
         </div>
 
         {/* Label Bottom */}
         <div className="absolute bottom-4 left-0 w-full text-center z-10 pointer-events-none px-4">
-          <span className="inline-block bg-white/95 backdrop-blur-sm px-4 py-1.5 rounded-full border border-foreground/10 shadow-sm text-xs font-black uppercase tracking-wider text-foreground">
+          <span className={`inline-block px-4 py-1.5 rounded-full border shadow-sm text-xs font-black uppercase tracking-wider ${
+            currentItem.isSecret 
+              ? 'bg-[#2A2A27] text-gold border-gold/40' 
+              : 'bg-white/95 backdrop-blur-sm border-foreground/10 text-foreground'
+          }`}>
             {currentItem.label}
           </span>
         </div>
@@ -149,7 +171,11 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-terracotta" />
             <h3 className="text-xs font-black uppercase tracking-widest text-foreground">
-              {images.length > 1 ? `Các mảnh bên trong hộp (${images.length - 1} mảnh):` : 'Hình ảnh sản phẩm:'}
+              {images.length > 2 
+                ? `Các mảnh bên trong hộp (${images.length - 2} mảnh thường + 1 SECRET):` 
+                : images.length > 1 
+                  ? `Các mảnh bên trong hộp (${images.length - 1} mảnh):` 
+                  : 'Hình ảnh sản phẩm:'}
             </h3>
           </div>
           <span className="text-[11px] font-bold text-foreground/50">
@@ -158,7 +184,7 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
         </div>
 
         {/* Thumbnails Grid */}
-        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2.5">
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-8 gap-2.5">
           {images.map((img, idx) => {
             const isActive = activeIndex === idx;
             return (
@@ -167,10 +193,14 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
                 type="button"
                 onClick={() => setActiveIndex(idx)}
                 onDoubleClick={() => handleOpenModal(idx)}
-                className={`group relative aspect-square rounded-xl border-2 transition-all duration-200 overflow-hidden bg-white p-1.5 cursor-pointer flex flex-col items-center justify-center ${
-                  isActive 
-                    ? 'border-terracotta shadow-[0_0_0_2px_rgba(200,82,44,0.2)] scale-105 bg-terracotta/5' 
-                    : 'border-foreground/10 hover:border-foreground/40 hover:scale-102 opacity-75 hover:opacity-100'
+                className={`group relative aspect-square rounded-xl border-2 transition-all duration-200 overflow-hidden p-1.5 cursor-pointer flex flex-col items-center justify-center ${
+                  img.isSecret
+                    ? isActive 
+                      ? 'border-amber-500 shadow-[0_0_0_2px_rgba(245,158,11,0.4)] scale-105 bg-amber-50/60' 
+                      : 'border-amber-500/50 bg-amber-50/20 hover:border-amber-500 hover:scale-102 opacity-85 hover:opacity-100'
+                    : isActive 
+                      ? 'border-terracotta shadow-[0_0_0_2px_rgba(200,82,44,0.2)] scale-105 bg-terracotta/5 bg-white' 
+                      : 'border-foreground/10 hover:border-foreground/40 hover:scale-102 opacity-75 hover:opacity-100 bg-white'
                 }`}
                 title={`Nhấn để xem ${img.label}`}
               >
@@ -178,14 +208,18 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
                   <img 
                     src={img.src}
                     alt={img.label}
-                    className="max-w-full max-h-full object-contain transition-transform duration-200 group-hover:scale-110"
+                    className={`max-w-full max-h-full object-contain transition-transform duration-200 group-hover:scale-110 ${
+                      img.isSecret ? 'drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]' : ''
+                    }`}
                   />
                 </div>
 
                 <span className={`absolute bottom-1 inset-x-1 text-[9px] font-black uppercase tracking-wider py-0.5 rounded text-center truncate ${
-                  isActive ? 'bg-terracotta text-white' : 'bg-foreground/80 text-white'
+                  img.isSecret
+                    ? isActive ? 'bg-amber-600 text-white font-black' : 'bg-amber-700/90 text-white font-bold'
+                    : isActive ? 'bg-terracotta text-white' : 'bg-foreground/80 text-white'
                 }`}>
-                  {img.isMain ? 'Hộp chính' : `Mảnh #${idx}`}
+                  {img.isMain ? 'Hộp chính' : img.isSecret ? '✨ Secret' : `Mảnh #${idx}`}
                 </span>
               </button>
             );
@@ -299,7 +333,9 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
                   setModalZoom(1);
                 }}
                 className={`relative w-12 h-12 rounded-lg overflow-hidden border-2 transition-all shrink-0 bg-white/10 p-1 ${
-                  activeIndex === idx ? 'border-terracotta scale-110 bg-white/25' : 'border-white/20 opacity-50 hover:opacity-100'
+                  activeIndex === idx 
+                    ? (img.isSecret ? 'border-amber-400 scale-110 bg-amber-500/20' : 'border-terracotta scale-110 bg-white/25') 
+                    : (img.isSecret ? 'border-amber-400/50 opacity-70 hover:opacity-100' : 'border-white/20 opacity-50 hover:opacity-100')
                 }`}
               >
                 <img src={img.src} alt={img.label} className="w-full h-full object-contain" />

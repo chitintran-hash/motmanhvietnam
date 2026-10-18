@@ -36,14 +36,14 @@ export default async function ProductDetail(props: { params: Promise<{ slug: str
           Quay lại Collection
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24 items-start">
           {/* Product Image Gallery */}
           <div className="w-full">
             <ProductGallery mainImage={imageUrl} additionalImages={product.additional_images || []} />
           </div>
 
           {/* Product Info */}
-          <div className="flex flex-col justify-center">
+          <div className="flex flex-col justify-start">
             <div className="inline-flex items-center gap-3 mb-4">
               <span className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta">
                 {product.city || "Việt Nam"}
@@ -105,6 +105,50 @@ export default async function ProductDetail(props: { params: Promise<{ slug: str
               <FileText className="w-10 h-10 text-jade mb-4" />
               <h3 className="font-display font-bold mb-2 uppercase">01 x Story Card</h3>
               <p className="text-sm text-foreground-muted font-medium">Thẻ câu chuyện kèm mã QR để mở khóa nội dung số.</p>
+            </div>
+          </div>
+
+          {/* 1 Mảnh SECRET Duy Nhất Row */}
+          <div className="mt-8 relative overflow-hidden bg-gradient-to-r from-[#2A2A27] via-[#383833] to-[#2A2A27] text-white border-2 border-gold/40 p-6 md:p-8 rounded-2xl shadow-[6px_6px_0px_rgba(230,195,106,0.25)]">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gold/10 rounded-full blur-3xl pointer-events-none -mr-16 -mt-16"></div>
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+                <div className="relative w-24 h-24 shrink-0 bg-black/40 border-2 border-gold/50 rounded-xl p-3 flex items-center justify-center shadow-inner group">
+                  <Image 
+                    src="/images/secret-chest-clean.png" 
+                    alt="1 Mảnh SECRET Duy Nhất" 
+                    width={80} 
+                    height={80} 
+                    className="object-contain filter drop-shadow-[0_0_12px_rgba(230,195,106,0.5)] transform hover:scale-110 transition-transform duration-300"
+                  />
+                  <span className="absolute -top-2.5 -right-2.5 bg-terracotta text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border border-white/20 shadow">
+                    SECRET
+                  </span>
+                </div>
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-gold/20 border border-gold/30 rounded-full text-gold text-xs font-black uppercase tracking-widest mb-2">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    Cơ Hội Mở Ra Phiên Bản Giới Hạn
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-display font-black text-white tracking-tight uppercase">
+                    1 Mảnh SECRET Duy Nhất
+                  </h3>
+                  <p className="text-sm text-white/80 font-medium max-w-xl mt-1 leading-relaxed">
+                    Mỗi hộp Blind Box đều ẩn chứa cơ hội mở ra Mảnh Ghép SECRET cực hiếm mang tính biểu tượng đặc biệt, tráng men dạ quang phát sáng và mạ viền vàng độc bản.
+                  </p>
+                </div>
+              </div>
+              <div className="shrink-0 flex sm:flex-col items-center sm:items-end justify-center gap-2 border-t sm:border-t-0 sm:border-l border-white/10 pt-4 sm:pt-0 sm:pl-8">
+                <span className="text-[11px] font-bold text-white/50 uppercase tracking-widest">
+                  Tỷ lệ may mắn
+                </span>
+                <span className="text-2xl md:text-3xl font-display font-black text-gold">
+                  1 : 72
+                </span>
+                <span className="text-[10px] font-semibold text-white/60 bg-white/10 px-2.5 py-1 rounded-full">
+                  Siêu Giới Hạn
+                </span>
+              </div>
             </div>
           </div>
         </div>
