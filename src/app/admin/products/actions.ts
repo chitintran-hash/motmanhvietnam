@@ -5,7 +5,7 @@ import { auth } from '@/auth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-export async function getProductSignedUploadUrlsAction(requests: Array<{ name: string; type: string; isMain?: boolean; index?: number }>) {
+export async function getProductSignedUploadUrlsAction(requests: Array<{ name: string; type: string; isMain?: boolean; kind?: string; index?: number }>) {
   try {
     const session = await auth();
     if (!session || (session.user as any)?.role !== 'admin') {
@@ -13,14 +13,14 @@ export async function getProductSignedUploadUrlsAction(requests: Array<{ name: s
     }
 
     const supabase = getSupabaseServer();
-    const urls: Array<{ signedUrl: string; publicUrl: string; isMain: boolean; index: number; fileName: string }> = [];
+    const urls: Array<{ signedUrl: string; publicUrl: string; isMain: boolean; kind?: string; index: number; fileName: string }> = [];
 
     for (const req of requests) {
       const rawExt = req.name.split('.').pop() || 'jpg';
       const fileExt = rawExt.toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
       const timestamp = Date.now();
       const rand = Math.random().toString(36).substring(2, 7);
-      const prefix = req.isMain ? 'box' : 'piece';
+      const prefix = req.isMain ? 'box' : (req.kind || 'piece');
       const fileName = `product-${prefix}-${timestamp}-${rand}-${req.index ?? 0}.${fileExt}`;
       const filePath = `public/${fileName}`;
 
@@ -35,6 +35,7 @@ export async function getProductSignedUploadUrlsAction(requests: Array<{ name: s
         signedUrl: data.signedUrl,
         publicUrl,
         isMain: !!req.isMain,
+        kind: req.kind,
         index: req.index ?? 0,
         fileName
       });
@@ -52,6 +53,7 @@ export async function createProductDirectAction(data: {
   city?: string;
   short_description?: string;
   description?: string;
+  story?: string | null;
   price: number;
   stock: number;
   status: string;
@@ -97,6 +99,7 @@ export async function createProductDirectAction(data: {
       city: data.city ? data.city.trim() : 'Việt Nam',
       short_description: data.short_description ? data.short_description.trim() : '',
       description: data.description ? data.description.trim() : '',
+      story: data.story !== undefined ? data.story : null,
       price: Number(data.price) || 0,
       stock: Number(data.stock) || 0,
       status: data.status || 'draft',
@@ -131,6 +134,7 @@ export async function updateProductDirectAction(data: {
   city?: string;
   short_description?: string;
   description?: string;
+  story?: string | null;
   price: number;
   stock: number;
   status: string;
@@ -174,7 +178,7 @@ export async function updateProductDirectAction(data: {
       return { success: false, message: 'Slug này đã được sử dụng bởi sản phẩm khác.' };
     }
 
-    const payload = {
+    const payload: any = {
       name: data.name.trim(),
       slug: cleanSlug,
       city: data.city ? data.city.trim() : 'Việt Nam',
@@ -186,6 +190,10 @@ export async function updateProductDirectAction(data: {
       image_url: data.image_url ?? null,
       additional_images: Array.isArray(data.additional_images) ? data.additional_images : []
     };
+
+    if (data.story !== undefined) {
+      payload.story = data.story;
+    }
 
     const { error: updateError } = await supabase.from('mm_products').update(payload).eq('id', data.id);
     if (updateError) {
@@ -224,6 +232,7 @@ export async function createProductAction(prevState: any, formData: FormData) {
     const price = parseFloat(formData.get('price') as string || '0');
     const stock = parseInt(formData.get('stock') as string || '0');
     const status = formData.get('status') as string;
+    const story = formData.get('story') as string;
     const imageFile = formData.get('image') as File;
     const additionalImagesFiles = formData.getAll('additional_images') as File[];
 
@@ -279,6 +288,7 @@ export async function createProductAction(prevState: any, formData: FormData) {
       city,
       short_description,
       description,
+      story: story || null,
       price,
       stock,
       status,
@@ -317,6 +327,7 @@ export async function editProductAction(prevState: any, formData: FormData) {
     const city = formData.get('city') as string;
     const short_description = formData.get('short_description') as string;
     const description = formData.get('description') as string;
+    const story = formData.get('story') as string;
     const price = parseFloat(formData.get('price') as string || '0');
     const stock = parseInt(formData.get('stock') as string || '0');
     const status = formData.get('status') as string;
@@ -337,6 +348,10 @@ export async function editProductAction(prevState: any, formData: FormData) {
       stock,
       status,
     };
+
+    if (story !== undefined) {
+      productPayload.story = story || null;
+    }
 
     if (imageFile && imageFile.size > 0) {
       const fileExt = imageFile.name.split('.').pop();

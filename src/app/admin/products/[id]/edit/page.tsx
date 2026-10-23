@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { getProductSignedUploadUrlsAction, updateProductDirectAction } from '../../actions';
 import Link from 'next/link';
-import { ArrowLeft, Upload, AlertCircle, CheckCircle2, Sparkles, X, Package, Box, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Upload, AlertCircle, CheckCircle2, Sparkles, X, Package, Box, ExternalLink, FileText } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -39,6 +39,19 @@ export default function EditProductPage() {
   const [newPieceFiles, setNewPieceFiles] = useState<File[]>([]);
   const [newPiecePreviews, setNewPiecePreviews] = useState<string[]>([]);
 
+  // 3-Frame "Trong mỗi hộp có gì?" Items:
+  // 1. 01 x Blind Box
+  const [boxItemFile, setBoxItemFile] = useState<File | null>(null);
+  const [boxItemPreview, setBoxItemPreview] = useState<string | null>(null);
+
+  // 2. 01 x Pin Kim Loại
+  const [pinItemFile, setPinItemFile] = useState<File | null>(null);
+  const [pinItemPreview, setPinItemPreview] = useState<string | null>(null);
+
+  // 3. 01 x Story Card
+  const [cardItemFile, setCardItemFile] = useState<File | null>(null);
+  const [cardItemPreview, setCardItemPreview] = useState<string | null>(null);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitProgress, setSubmitProgress] = useState<string>('');
   const [statusMessage, setStatusMessage] = useState<{ success: boolean; message: string } | null>(null);
@@ -58,6 +71,20 @@ export default function EditProductPage() {
         setDescription(data.description || '');
         setBoxPreview(data.image_url || null);
         setExistingPieces(Array.isArray(data.additional_images) ? data.additional_images : []);
+
+        // Load 3 frame images from story JSON
+        if (data.story) {
+          try {
+            const parsed = JSON.parse(data.story);
+            if (parsed && typeof parsed === 'object') {
+              setBoxItemPreview(parsed.box_image || null);
+              setPinItemPreview(parsed.pin_image || null);
+              setCardItemPreview(parsed.card_image || null);
+            }
+          } catch (e) {
+            // Not a JSON string, ignore
+          }
+        }
       }
       setLoading(false);
     }
@@ -127,6 +154,55 @@ export default function EditProductPage() {
     setNewPiecePreviews(prev => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
+  // 3-Frame Handlers
+  const handleBoxItemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setBoxItemFile(file);
+      const reader = new FileReader();
+      reader.onload = (event) => setBoxItemPreview(event.target?.result as string);
+      reader.onerror = () => setBoxItemPreview(URL.createObjectURL(file));
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveBoxItem = () => {
+    setBoxItemFile(null);
+    setBoxItemPreview(null);
+  };
+
+  const handlePinItemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPinItemFile(file);
+      const reader = new FileReader();
+      reader.onload = (event) => setPinItemPreview(event.target?.result as string);
+      reader.onerror = () => setPinItemPreview(URL.createObjectURL(file));
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemovePinItem = () => {
+    setPinItemFile(null);
+    setPinItemPreview(null);
+  };
+
+  const handleCardItemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCardItemFile(file);
+      const reader = new FileReader();
+      reader.onload = (event) => setCardItemPreview(event.target?.result as string);
+      reader.onerror = () => setCardItemPreview(URL.createObjectURL(file));
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveCardItem = () => {
+    setCardItemFile(null);
+    setCardItemPreview(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isSubmitting || statusMessage?.success) return;
@@ -147,14 +223,26 @@ export default function EditProductPage() {
     try {
       let uploadedBoxUrl: string | null = null;
       const uploadedPieceUrls: string[] = [];
+      let uploadedBoxItemUrl: string | null = null;
+      let uploadedPinItemUrl: string | null = null;
+      let uploadedCardItemUrl: string | null = null;
 
-      const uploadRequests: Array<{ name: string; type: string; isMain: boolean; index: number }> = [];
+      const uploadRequests: Array<{ name: string; type: string; isMain: boolean; kind?: string; index: number }> = [];
       if (boxFile) {
         uploadRequests.push({ name: boxFile.name, type: boxFile.type, isMain: true, index: 0 });
       }
       newPieceFiles.forEach((file, idx) => {
-        uploadRequests.push({ name: file.name, type: file.type, isMain: false, index: idx });
+        uploadRequests.push({ name: file.name, type: file.type, isMain: false, kind: 'piece', index: idx });
       });
+      if (boxItemFile) {
+        uploadRequests.push({ name: boxItemFile.name, type: boxItemFile.type, isMain: false, kind: 'item-box', index: 0 });
+      }
+      if (pinItemFile) {
+        uploadRequests.push({ name: pinItemFile.name, type: pinItemFile.type, isMain: false, kind: 'item-pin', index: 0 });
+      }
+      if (cardItemFile) {
+        uploadRequests.push({ name: cardItemFile.name, type: cardItemFile.type, isMain: false, kind: 'item-card', index: 0 });
+      }
 
       if (uploadRequests.length > 0) {
         setSubmitProgress(`Đang chuẩn bị tải lên ${uploadRequests.length} ảnh mới...`);
@@ -169,15 +257,29 @@ export default function EditProductPage() {
 
         for (const item of signedRes.urls) {
           count++;
-          const isMain = item.isMain;
-          setSubmitProgress(
-            isMain 
-              ? `Đang tải ảnh Hộp Blind Box (${count}/${total})...` 
-              : `Đang tải ảnh mảnh ghép (${count}/${total})...`
-          );
+          let targetFile: File | null = null;
+          let label = 'ảnh';
 
-          const targetFile = isMain ? boxFile : newPieceFiles[item.index];
+          if (item.isMain) {
+            targetFile = boxFile;
+            label = 'ảnh Hộp Blind Box chính';
+          } else if (item.kind === 'item-box') {
+            targetFile = boxItemFile;
+            label = 'ảnh Khung 1 (01 x Blind Box)';
+          } else if (item.kind === 'item-pin') {
+            targetFile = pinItemFile;
+            label = 'ảnh Khung 2 (01 x Pin Kim Loại)';
+          } else if (item.kind === 'item-card') {
+            targetFile = cardItemFile;
+            label = 'ảnh Khung 3 (01 x Story Card)';
+          } else {
+            targetFile = newPieceFiles[item.index];
+            label = `ảnh mảnh ghép #${item.index + 1}`;
+          }
+
           if (!targetFile) continue;
+
+          setSubmitProgress(`Đang tải ${label} (${count}/${total})...`);
 
           const uploadRes = await fetch(item.signedUrl, {
             method: 'PUT',
@@ -191,8 +293,14 @@ export default function EditProductPage() {
             throw new Error(`Lỗi tải ảnh lên lưu trữ: ${uploadRes.statusText}`);
           }
 
-          if (isMain) {
+          if (item.isMain) {
             uploadedBoxUrl = item.publicUrl;
+          } else if (item.kind === 'item-box') {
+            uploadedBoxItemUrl = item.publicUrl;
+          } else if (item.kind === 'item-pin') {
+            uploadedPinItemUrl = item.publicUrl;
+          } else if (item.kind === 'item-card') {
+            uploadedCardItemUrl = item.publicUrl;
           } else {
             uploadedPieceUrls[item.index] = item.publicUrl;
           }
@@ -203,6 +311,12 @@ export default function EditProductPage() {
       const finalBox = boxFile ? uploadedBoxUrl : boxPreview;
       const finalPieces = [...existingPieces, ...uploadedPieceUrls.filter(Boolean)];
 
+      const finalStory = JSON.stringify({
+        box_image: uploadedBoxItemUrl || boxItemPreview || null,
+        pin_image: uploadedPinItemUrl || pinItemPreview || null,
+        card_image: uploadedCardItemUrl || cardItemPreview || null,
+      });
+
       const updateRes = await updateProductDirectAction({
         id,
         name,
@@ -210,6 +324,7 @@ export default function EditProductPage() {
         city: city || 'Việt Nam',
         short_description: shortDescription,
         description,
+        story: finalStory,
         price: parseFloat(price) || 0,
         stock: parseInt(stock) || 0,
         status,
@@ -544,6 +659,181 @@ export default function EditProductPage() {
                     </span>
                     <span className="text-xs text-foreground/40 mt-1">Giữ phím Shift hoặc Ctrl / Cmd để chọn cùng lúc nhiều ảnh</span>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. HÌNH ẢNH 3 KHUNG "TRONG MỖI HỘP BLIND BOX CÓ GÌ?" */}
+          <div>
+            <div className="flex items-center justify-between mb-4 border-b-2 border-foreground/10 pb-2">
+              <div>
+                <h2 className="text-xl font-bold uppercase tracking-widest text-foreground">
+                  3. Hình ảnh 3 khung &ldquo;Trong mỗi hộp Blind Box có gì?&rdquo;
+                </h2>
+                <p className="text-xs text-foreground/60 mt-0.5">
+                  Đăng ảnh thực tế cho 3 khung hiển thị trên trang sản phẩm: 01 x Blind Box, 01 x Pin Kim Loại, 01 x Story Card
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Khung 1: 01 x Blind Box */}
+              <div className="p-5 rounded-2xl border-2 border-foreground/10 bg-[#FAF9F5] flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-black uppercase tracking-wider text-terracotta bg-terracotta/10 px-2.5 py-1 rounded-md">
+                      Khung 1
+                    </span>
+                    {boxItemPreview && (
+                      <button
+                        type="button"
+                        onClick={handleRemoveBoxItem}
+                        className="text-xs text-red-500 font-bold hover:underline"
+                      >
+                        Xóa ảnh
+                      </button>
+                    )}
+                  </div>
+                  <h3 className="font-display font-bold text-base text-foreground uppercase mb-1">
+                    01 x Blind Box
+                  </h3>
+                  <p className="text-xs text-foreground/60 mb-3">
+                    Ảnh hộp kín kraft bảo mật bên ngoài
+                  </p>
+                </div>
+
+                <div className="border-2 border-dashed border-foreground/20 rounded-xl p-3 text-center relative hover:bg-white transition-colors bg-white/60 aspect-square flex items-center justify-center overflow-hidden">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBoxItemChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  />
+                  {boxItemPreview ? (
+                    <div className="relative w-full h-full rounded-lg overflow-hidden group">
+                      <img
+                        src={boxItemPreview}
+                        alt="01 x Blind Box"
+                        className="w-full h-full object-contain"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold uppercase tracking-wider pointer-events-none">
+                        Bấm để đổi ảnh
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center p-4">
+                      <Package className="w-8 h-8 text-foreground/40 mb-2" />
+                      <span className="text-xs font-bold text-foreground/70">Tải ảnh Hộp Blind Box</span>
+                      <span className="text-[10px] text-foreground/40 mt-1">Khung 01 x Blind Box</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Khung 2: 01 x Pin Kim Loại */}
+              <div className="p-5 rounded-2xl border-2 border-foreground/10 bg-[#FAF9F5] flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-black uppercase tracking-wider text-gold bg-gold/15 px-2.5 py-1 rounded-md">
+                      Khung 2
+                    </span>
+                    {pinItemPreview && (
+                      <button
+                        type="button"
+                        onClick={handleRemovePinItem}
+                        className="text-xs text-red-500 font-bold hover:underline"
+                      >
+                        Xóa ảnh
+                      </button>
+                    )}
+                  </div>
+                  <h3 className="font-display font-bold text-base text-foreground uppercase mb-1">
+                    01 x Pin Kim Loại
+                  </h3>
+                  <p className="text-xs text-foreground/60 mb-3">
+                    Ảnh huy hiệu pin tráng men cao cấp
+                  </p>
+                </div>
+
+                <div className="border-2 border-dashed border-foreground/20 rounded-xl p-3 text-center relative hover:bg-white transition-colors bg-white/60 aspect-square flex items-center justify-center overflow-hidden">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePinItemChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  />
+                  {pinItemPreview ? (
+                    <div className="relative w-full h-full rounded-lg overflow-hidden group">
+                      <img
+                        src={pinItemPreview}
+                        alt="01 x Pin Kim Loại"
+                        className="w-full h-full object-contain"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold uppercase tracking-wider pointer-events-none">
+                        Bấm để đổi ảnh
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center p-4">
+                      <Sparkles className="w-8 h-8 text-foreground/40 mb-2" />
+                      <span className="text-xs font-bold text-foreground/70">Tải ảnh Pin Kim Loại</span>
+                      <span className="text-[10px] text-foreground/40 mt-1">Khung 01 x Pin Kim Loại</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Khung 3: 01 x Story Card */}
+              <div className="p-5 rounded-2xl border-2 border-foreground/10 bg-[#FAF9F5] flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-black uppercase tracking-wider text-jade bg-jade/10 px-2.5 py-1 rounded-md">
+                      Khung 3
+                    </span>
+                    {cardItemPreview && (
+                      <button
+                        type="button"
+                        onClick={handleRemoveCardItem}
+                        className="text-xs text-red-500 font-bold hover:underline"
+                      >
+                        Xóa ảnh
+                      </button>
+                    )}
+                  </div>
+                  <h3 className="font-display font-bold text-base text-foreground uppercase mb-1">
+                    01 x Story Card
+                  </h3>
+                  <p className="text-xs text-foreground/60 mb-3">
+                    Ảnh thẻ câu chuyện và mã QR
+                  </p>
+                </div>
+
+                <div className="border-2 border-dashed border-foreground/20 rounded-xl p-3 text-center relative hover:bg-white transition-colors bg-white/60 aspect-square flex items-center justify-center overflow-hidden">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCardItemChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  />
+                  {cardItemPreview ? (
+                    <div className="relative w-full h-full rounded-lg overflow-hidden group">
+                      <img
+                        src={cardItemPreview}
+                        alt="01 x Story Card"
+                        className="w-full h-full object-contain"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold uppercase tracking-wider pointer-events-none">
+                        Bấm để đổi ảnh
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center p-4">
+                      <FileText className="w-8 h-8 text-foreground/40 mb-2" />
+                      <span className="text-xs font-bold text-foreground/70">Tải ảnh Story Card</span>
+                      <span className="text-[10px] text-foreground/40 mt-1">Khung 01 x Story Card</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

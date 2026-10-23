@@ -122,7 +122,16 @@ export const translations = {
       enlargeBtn: "Xem lớn",
       zoomTip: "💡 Nhấp để xem lớn",
       emptyProduct: "Chưa có sản phẩm",
-      emptyProductDesc: "Sản phẩm đang được cập nhật. Vui lòng quay lại sau."
+      emptyProductDesc: "Sản phẩm đang được cập nhật. Vui lòng quay lại sau.",
+      orderNow: "ĐẶT HÀNG NGAY (COD)",
+      orderNowShort: "ĐẶT HÀNG NGAY",
+      orderCodSubtitle: "Thanh toán khi nhận hàng • Đồng kiểm trước khi nhận",
+      quantityLabel: "Số lượng",
+      addedSuccess: "Đã thêm vào giỏ hàng thành công!",
+      viewCartLink: "Xem giỏ hàng",
+      bottomOrderTitle: "SỞ HỮU NGAY HỘP BLIND BOX NÀY",
+      bottomOrderSubtitle: "Số lượng có hạn. Đặt hàng ngay để không bỏ lỡ mảnh ghép di sản độc bản!",
+      viewDetails: "Xem chi tiết ảnh"
     },
     cart: {
       badge: "CHECKOUT",
@@ -364,7 +373,16 @@ export const translations = {
       enlargeBtn: "Enlarge",
       zoomTip: "💡 Click to enlarge",
       emptyProduct: "No products available",
-      emptyProductDesc: "Products are currently being updated. Please check back soon."
+      emptyProductDesc: "Products are currently being updated. Please check back soon.",
+      orderNow: "ORDER NOW (COD)",
+      orderNowShort: "ORDER NOW",
+      orderCodSubtitle: "Cash on Delivery (COD) • Inspect before paying",
+      quantityLabel: "Quantity",
+      addedSuccess: "Successfully added to cart!",
+      viewCartLink: "View Cart",
+      bottomOrderTitle: "ORDER THIS BLIND BOX NOW",
+      bottomOrderSubtitle: "Limited stock available. Order now to own unique heritage pieces!",
+      viewDetails: "View Full Image"
     },
     cart: {
       badge: "CHECKOUT",
