@@ -18,24 +18,44 @@ export default function ProductDetailClient({ product }: { product: any }) {
   const priceFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(displayPrice);
   const imageUrl = product.image_url || "/images/product-slide-1.jpg";
 
-  // Parse 3 box item images from product.story JSON
-  let boxItems = {
-    box_image: "/images/product-slide-1.jpg",
-    pin_image: "/images/product-slide-2.jpg",
-    card_image: "/images/product-slide-3.jpg",
-  };
+  // Parse story JSON for 3 frame images and optional English translations
+  let storyData: any = {};
   if (product.story) {
     try {
       const parsed = JSON.parse(product.story);
       if (parsed && typeof parsed === "object") {
-        if (parsed.box_image) boxItems.box_image = parsed.box_image;
-        if (parsed.pin_image) boxItems.pin_image = parsed.pin_image;
-        if (parsed.card_image) boxItems.card_image = parsed.card_image;
+        storyData = parsed;
       }
     } catch (e) {
       // not JSON, fallback to defaults
     }
   }
+
+  const boxItems = {
+    box_image: storyData.box_image || "/images/product-slide-1.jpg",
+    pin_image: storyData.pin_image || "/images/product-slide-2.jpg",
+    card_image: storyData.card_image || "/images/product-slide-3.jpg",
+  };
+
+  const isEnglish = lang === 'en';
+
+  const displayTitle = isEnglish
+    ? (storyData.name_en || (product.name?.toLowerCase().includes("sài gòn") ? "Saigon Piece - Official Blind Box Collection" : product.name))
+    : product.name;
+
+  const displayCity = isEnglish
+    ? (product.city?.toLowerCase().includes("hồ chí minh") || product.city?.toLowerCase().includes("sài gòn")
+        ? "HO CHI MINH CITY"
+        : (product.city || "VIETNAM"))
+    : (product.city || "TP. HỒ CHÍ MINH");
+
+  const displayShortDesc = isEnglish
+    ? (storyData.short_description_en || t("product.defaultShortDesc", "Mystery blind box containing 01 random metal piece depicting iconic landmarks of Ho Chi Minh City such as City Theatre, Ben Thanh Market, Central Post Office... along with 01 exclusive heritage story card."))
+    : (product.short_description || t("product.defaultShortDesc", "Hộp mù chứa 1 mảnh kim loại ngẫu nhiên trong số các biểu tượng của TP. Hồ Chí Minh như Nhà hát Thành phố, Chợ Bến Thành, Bưu điện Trung tâm... kèm 01 thẻ bài di sản độc bản."));
+
+  const displayFullDesc = isEnglish
+    ? (storyData.description_en || t("product.defaultFullDesc", "Each piece in the collection is an intimate tribute to the history, architectural essence, and cherished memories of Vietnam. Crafted with multi-layered hard enamel and shimmering gold-plated borders, this pocket-sized keepsake preserves the living spirit of beloved landmarks close to your heart.\n\nWhether you are a traveler cherishing past journeys or a heritage enthusiast seeking bespoke souvenirs, unboxing each blind box unveils an authentic narrative waiting to be shared."))
+    : (product.description || t("product.defaultFullDesc", "Mỗi mảnh ghép trong bộ sưu tập là một lát cắt văn hóa giàu xúc cảm, được kết tinh từ tình yêu tha thiết với những vùng đất của dải đất hình chữ S. Chiếc huy hiệu pin tráng men nhỏ gọn nhưng chứa đựng trọn vẹn hồn cốt kiến trúc, con người và những kỷ niệm khó quên.\n\nDù bạn là người con xa xứ muốn mang theo một phần quê hương, hay một lữ khách muốn lưu giữ những chặng đường tươi đẹp, mỗi hộp Blind Box mở ra sẽ là một bất ngờ đầy ý nghĩa và niềm tự hào dân tộc."));
 
   return (
     <div className="min-h-screen pt-32 pb-24 bg-background">
@@ -54,16 +74,24 @@ export default function ProductDetailClient({ product }: { product: any }) {
           {/* Product Info */}
           <div className="flex flex-col justify-start">
             <div className="inline-flex items-center gap-3 mb-4">
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta">
-                {product.city || (lang === 'en' ? "Vietnam" : "Việt Nam")}
+              <span className="text-xs font-bold uppercase tracking-widest text-terracotta px-3 py-1 bg-terracotta/10 border border-terracotta/20 rounded-md">
+                {displayCity}
               </span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-black text-foreground mb-4 uppercase tracking-tighter leading-[1.15]">
-              {product.name}
+              {displayTitle}
             </h1>
-            <p className="text-lg md:text-xl text-foreground-muted font-medium mb-6">
-              {product.short_description || t("product.defaultDesc", "Mảnh ghép độc quyền")}
-            </p>
+
+            {/* Highlighted Short Description Callout */}
+            <div className="bg-gradient-to-r from-terracotta/[0.08] via-terracotta/[0.03] to-transparent border-l-4 border-terracotta p-4 rounded-r-2xl mb-6 shadow-sm">
+              <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-terracotta mb-1.5">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{t("product.highlightBadge", "ĐẶC ĐIỂM NỔI BẬT")}</span>
+              </div>
+              <p className="text-base text-foreground font-medium leading-relaxed">
+                {displayShortDesc}
+              </p>
+            </div>
             
             <div className="bg-[#F5F2EB] border-2 border-foreground/10 p-5 rounded-xl mb-6 flex items-baseline justify-between">
               <div>
@@ -100,25 +128,143 @@ export default function ProductDetailClient({ product }: { product: any }) {
                 <span className="text-xs font-bold uppercase tracking-wider text-foreground-muted flex items-center gap-2">
                   <Map className="w-4 h-4" /> {t("product.cityLabel", "Thành phố")}
                 </span>
-                <span className="font-bold text-foreground">{product.city || (lang === 'en' ? "Vietnam" : "Việt Nam")}</span>
+                <span className="font-bold text-foreground">{displayCity}</span>
               </div>
             </div>
 
           </div>
         </div>
 
-        {/* Product Detail Description Section */}
+        {/* Product Detail Description & Highlights Showcase */}
         <div className="mb-24">
-          <div className="border-t border-foreground/10 pt-12">
-            <div className="bg-[#FAF9F5] border-2 border-foreground/10 rounded-2xl p-8 md:p-12 shadow-[4px_4px_0px_rgba(42,42,39,0.06)]">
-              <div className="flex items-center gap-3 mb-6">
-                <span className="w-2.5 h-2.5 bg-terracotta rounded-full"></span>
-                <h3 className="text-xs md:text-sm font-black uppercase tracking-[0.25em] text-foreground">
-                  {t("product.detailDescTitle", "MÔ TẢ CHI TIẾT")}
-                </h3>
+          <div className="border-t border-foreground/10 pt-16">
+            <div className="text-center max-w-2xl mx-auto mb-12">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-terracotta/10 border border-terracotta/25 rounded-full text-terracotta text-xs font-black uppercase tracking-widest mb-3 shadow-xs">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{t("product.highlightBadge", "ĐẶC ĐIỂM NỔI BẬT")}</span>
               </div>
-              <div className="text-foreground-muted leading-relaxed font-medium whitespace-pre-line text-base md:text-lg max-w-4xl space-y-4">
-                {product.description || t("product.defaultFullDesc", "Mỗi mảnh ghép mang trong mình một câu chuyện độc đáo về văn hóa, con người và những kỷ niệm khó quên. Hãy cùng khám phá vẻ đẹp của Việt Nam qua lăng kính sáng tạo.")}
+              <h2 className="text-3xl md:text-5xl font-display font-black text-foreground uppercase tracking-tight">
+                {t("product.productStoryTitle", "CÂU CHUYỆN SẢN PHẨM & GIÁ TRỊ DI SẢN")}
+              </h2>
+            </div>
+
+            {/* 4 Feature Highlights Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+              {/* Card 1 */}
+              <div className="bg-[#FAF9F5] border-2 border-foreground/10 p-6 rounded-2xl shadow-[4px_4px_0px_rgba(42,42,39,0.06)] hover:border-terracotta/50 transition-all hover:translate-y-[-2px] flex flex-col justify-between">
+                <div>
+                  <div className="w-12 h-12 rounded-xl bg-terracotta/10 text-terracotta flex items-center justify-center font-black text-xl mb-4 border border-terracotta/20 shadow-xs">
+                    🏛️
+                  </div>
+                  <h3 className="font-display font-black text-lg text-foreground uppercase mb-2">
+                    {t("product.highlight1Title", "Di sản văn hóa độc bản")}
+                  </h3>
+                  <p className="text-xs text-foreground-muted font-medium leading-relaxed">
+                    {t("product.highlight1Desc", "Từng biểu tượng được nghiên cứu và thiết kế độc quyền, tái hiện nét văn hóa và kiến trúc lịch sử đặc trưng.")}
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 2 */}
+              <div className="bg-[#FAF9F5] border-2 border-foreground/10 p-6 rounded-2xl shadow-[4px_4px_0px_rgba(42,42,39,0.06)] hover:border-gold/60 transition-all hover:translate-y-[-2px] flex flex-col justify-between">
+                <div>
+                  <div className="w-12 h-12 rounded-xl bg-gold/15 text-gold flex items-center justify-center font-black text-xl mb-4 border border-gold/30 shadow-xs">
+                    ✨
+                  </div>
+                  <h3 className="font-display font-black text-lg text-foreground uppercase mb-2">
+                    {t("product.highlight2Title", "Chế tác tráng men cao cấp")}
+                  </h3>
+                  <p className="text-xs text-foreground-muted font-medium leading-relaxed">
+                    {t("product.highlight2Desc", "Hợp kim kẽm đúc nguyên khối dày dặn, tráng men nhiều lớp bề mặt phẳng bóng bẩy, viền mạ chống trầy và oxi hóa.")}
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 3 */}
+              <div className="bg-[#FAF9F5] border-2 border-foreground/10 p-6 rounded-2xl shadow-[4px_4px_0px_rgba(42,42,39,0.06)] hover:border-jade/50 transition-all hover:translate-y-[-2px] flex flex-col justify-between">
+                <div>
+                  <div className="w-12 h-12 rounded-xl bg-jade/10 text-jade flex items-center justify-center font-black text-xl mb-4 border border-jade/20 shadow-xs">
+                    🎴
+                  </div>
+                  <h3 className="font-display font-black text-lg text-foreground uppercase mb-2">
+                    {t("product.highlight3Title", "Thẻ câu chuyện & Bản đồ số")}
+                  </h3>
+                  <p className="text-xs text-foreground-muted font-medium leading-relaxed">
+                    {t("product.highlight3Desc", "Mỗi hộp đi kèm 01 Story Card với mã QR để thắp sáng địa danh trên Bản Đồ Di Sản và lưu giữ hành trình số hóa.")}
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 4 */}
+              <div className="bg-[#FAF9F5] border-2 border-foreground/10 p-6 rounded-2xl shadow-[4px_4px_0px_rgba(42,42,39,0.06)] hover:border-terracotta/50 transition-all hover:translate-y-[-2px] flex flex-col justify-between">
+                <div>
+                  <div className="w-12 h-12 rounded-xl bg-terracotta/10 text-terracotta flex items-center justify-center font-black text-xl mb-4 border border-terracotta/20 shadow-xs">
+                    🎁
+                  </div>
+                  <h3 className="font-display font-black text-lg text-foreground uppercase mb-2">
+                    {t("product.highlight4Title", "Hộp mù bất ngờ (Blind Box)")}
+                  </h3>
+                  <p className="text-xs text-foreground-muted font-medium leading-relaxed">
+                    {t("product.highlight4Desc", "Đóng gói kín nguyên seal trong hộp kraft tái chế, mang đến sự bất ngờ và niềm vui hồi hộp khi khui hộp.")}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Detailed Story Box & Quote */}
+            <div className="bg-[#FAF9F5] border-2 border-foreground/10 rounded-3xl p-8 md:p-12 shadow-[6px_6px_0px_rgba(42,42,39,0.06)]">
+              {/* Highlighted Quote Callout */}
+              <div className="border-l-4 border-terracotta pl-6 py-3 mb-8 bg-terracotta/[0.04] rounded-r-2xl">
+                <p className="font-display font-bold text-lg md:text-xl text-foreground italic leading-relaxed">
+                  {t("product.highlightQuote", "“Không chỉ là một món phụ kiện, Một Mảnh Việt Nam là cách bạn lưu giữ và mang theo một góc ký ức quê hương bên mình trên mọi chặng đường.”")}
+                </p>
+              </div>
+
+              {/* Story Content with Highlight styling */}
+              <div className="text-foreground/80 leading-relaxed font-medium whitespace-pre-line text-base md:text-lg space-y-4 mb-10 max-w-4xl">
+                {displayFullDesc}
+              </div>
+
+              {/* Specifications Grid */}
+              <div className="border-t border-foreground/10 pt-8">
+                <h3 className="text-xs md:text-sm font-black uppercase tracking-[0.2em] text-foreground mb-6 flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 bg-terracotta rounded-full"></span>
+                  {t("product.specsTitle", "QUY CÁCH ĐÓNG GÓI & THÔNG SỐ")}
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-white p-5 rounded-xl border border-foreground/10 shadow-sm">
+                    <span className="text-[11px] font-bold uppercase text-foreground/50 block mb-1">
+                      {t("product.specMaterialLabel", "Chất liệu")}
+                    </span>
+                    <span className="text-xs md:text-sm font-bold text-foreground">
+                      {t("product.specMaterialValue", "Hợp kim kẽm, tráng men cứng (Hard Enamel)")}
+                    </span>
+                  </div>
+                  <div className="bg-white p-5 rounded-xl border border-foreground/10 shadow-sm">
+                    <span className="text-[11px] font-bold uppercase text-foreground/50 block mb-1">
+                      {t("product.specSizeLabel", "Kích thước")}
+                    </span>
+                    <span className="text-xs md:text-sm font-bold text-foreground">
+                      {t("product.specSizeValue", "3.5 cm - 4.5 cm (tiêu chuẩn cài áo / balo)")}
+                    </span>
+                  </div>
+                  <div className="bg-white p-5 rounded-xl border border-foreground/10 shadow-sm">
+                    <span className="text-[11px] font-bold uppercase text-foreground/50 block mb-1">
+                      {t("product.specPackageLabel", "Quy cách đóng gói")}
+                    </span>
+                    <span className="text-xs md:text-sm font-bold text-foreground">
+                      {t("product.specPackageValue", "01 Hộp kín + 01 Pin + 01 Thẻ Story Card")}
+                    </span>
+                  </div>
+                  <div className="bg-white p-5 rounded-xl border border-foreground/10 shadow-sm">
+                    <span className="text-[11px] font-bold uppercase text-foreground/50 block mb-1">
+                      {t("product.specOriginLabel", "Xuất xứ & Bản quyền")}
+                    </span>
+                    <span className="text-xs md:text-sm font-bold text-foreground">
+                      {t("product.specOriginValue", "Thiết kế độc quyền bởi Một Mảnh Việt Nam")}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -266,10 +412,10 @@ export default function ProductDetailClient({ product }: { product: any }) {
                 <div>
                   <div className="inline-flex items-center gap-2 px-3 py-1 bg-terracotta/10 border border-terracotta/20 rounded-full text-terracotta text-xs font-black uppercase tracking-widest mb-2">
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>{product.city || (lang === 'en' ? "VIETNAM" : "VIỆT NAM")}</span>
+                    <span>{displayCity}</span>
                   </div>
                   <h3 className="text-2xl md:text-3xl font-display font-black text-foreground uppercase tracking-tight mb-2">
-                    {product.name}
+                    {displayTitle}
                   </h3>
                   <p className="text-sm text-foreground-muted font-medium mb-3 max-w-md">
                     {t("product.bottomOrderSubtitle", "Số lượng có hạn. Đặt hàng ngay để không bỏ lỡ mảnh ghép di sản độc bản!")}
@@ -357,10 +503,10 @@ export default function ProductDetailClient({ product }: { product: any }) {
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-foreground/10 px-4 py-3 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] md:hidden flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="relative w-11 h-11 shrink-0 rounded-lg overflow-hidden border border-foreground/10 bg-white">
-            <Image src={imageUrl} alt={product.name} fill className="object-contain p-1" />
+            <Image src={imageUrl} alt={displayTitle} fill className="object-contain p-1" />
           </div>
           <div className="min-w-0 flex flex-col">
-            <span className="text-xs font-bold text-foreground truncate">{product.name}</span>
+            <span className="text-xs font-bold text-foreground truncate">{displayTitle}</span>
             <span className="text-sm font-black text-terracotta">{priceFormatted}</span>
           </div>
         </div>

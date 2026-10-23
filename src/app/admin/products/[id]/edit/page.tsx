@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { getProductSignedUploadUrlsAction, updateProductDirectAction } from '../../actions';
 import Link from 'next/link';
-import { ArrowLeft, Upload, AlertCircle, CheckCircle2, Sparkles, X, Package, Box, ExternalLink, FileText } from 'lucide-react';
+import { ArrowLeft, Upload, AlertCircle, CheckCircle2, Sparkles, X, Package, Box, ExternalLink, FileText, Languages } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -27,6 +27,11 @@ export default function EditProductPage() {
   const [stock, setStock] = useState('100');
   const [shortDescription, setShortDescription] = useState('');
   const [description, setDescription] = useState('');
+
+  // English Translation fields
+  const [nameEn, setNameEn] = useState('');
+  const [shortDescriptionEn, setShortDescriptionEn] = useState('');
+  const [descriptionEn, setDescriptionEn] = useState('');
 
   // Box Image
   const [boxFile, setBoxFile] = useState<File | null>(null);
@@ -72,7 +77,7 @@ export default function EditProductPage() {
         setBoxPreview(data.image_url || null);
         setExistingPieces(Array.isArray(data.additional_images) ? data.additional_images : []);
 
-        // Load 3 frame images from story JSON
+        // Load 3 frame images and English translations from story JSON
         if (data.story) {
           try {
             const parsed = JSON.parse(data.story);
@@ -80,6 +85,9 @@ export default function EditProductPage() {
               setBoxItemPreview(parsed.box_image || null);
               setPinItemPreview(parsed.pin_image || null);
               setCardItemPreview(parsed.card_image || null);
+              setNameEn(parsed.name_en || '');
+              setShortDescriptionEn(parsed.short_description_en || '');
+              setDescriptionEn(parsed.description_en || '');
             }
           } catch (e) {
             // Not a JSON string, ignore
@@ -315,6 +323,9 @@ export default function EditProductPage() {
         box_image: uploadedBoxItemUrl || boxItemPreview || null,
         pin_image: uploadedPinItemUrl || pinItemPreview || null,
         card_image: uploadedCardItemUrl || cardItemPreview || null,
+        name_en: nameEn.trim() || undefined,
+        short_description_en: shortDescriptionEn.trim() || undefined,
+        description_en: descriptionEn.trim() || undefined,
       });
 
       const updateRes = await updateProductDirectAction({
@@ -835,6 +846,65 @@ export default function EditProductPage() {
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. BẢN DỊCH TIẾNG ANH (ENGLISH TRANSLATION - TÙY CHỌN) */}
+          <div className="pt-4">
+            <div className="flex items-center justify-between border-b-2 border-foreground/10 pb-2 mb-4">
+              <div>
+                <h2 className="text-xl font-bold uppercase tracking-widest text-foreground flex items-center gap-2">
+                  <Languages className="w-5 h-5 text-terracotta" />
+                  Bản dịch tiếng Anh (English Translation - Tùy chọn)
+                </h2>
+                <p className="text-xs text-foreground/60 mt-1">
+                  Nội dung hiển thị khi người dùng đổi sang ngôn ngữ Tiếng Anh (EN). Nếu để trống, hệ thống sẽ tự động sử dụng bản dịch chuẩn.
+                </p>
+              </div>
+              <span className="hidden sm:inline-block text-[11px] font-bold uppercase tracking-wider text-terracotta bg-terracotta/10 border border-terracotta/20 px-2.5 py-1 rounded-md">
+                Bilingual Mode
+              </span>
+            </div>
+
+            <div className="space-y-6 bg-[#FAF9F5] p-6 rounded-2xl border-2 border-foreground/10">
+              <div>
+                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">
+                  Tên sản phẩm tiếng Anh (Product Name - EN)
+                </label>
+                <input 
+                  type="text" 
+                  value={nameEn}
+                  onChange={(e) => setNameEn(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors font-medium bg-white"
+                  placeholder="VD: Saigon Piece - Official Blind Box Collection"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">
+                  Mô tả ngắn tiếng Anh (Short Description - EN)
+                </label>
+                <textarea 
+                  rows={2}
+                  value={shortDescriptionEn}
+                  onChange={(e) => setShortDescriptionEn(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors resize-none bg-white"
+                  placeholder="VD: Mystery blind box containing 01 random metal piece depicting iconic landmarks..."
+                ></textarea>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-foreground/80 mb-2 uppercase tracking-wider">
+                  Mô tả chi tiết tiếng Anh (Detailed Description - EN)
+                </label>
+                <textarea 
+                  rows={5}
+                  value={descriptionEn}
+                  onChange={(e) => setDescriptionEn(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-foreground/10 focus:border-terracotta focus:outline-none transition-colors resize-y leading-relaxed bg-white"
+                  placeholder="VD: Each piece in the collection is an intimate tribute to the history, architectural essence, and cherished memories..."
+                ></textarea>
               </div>
             </div>
           </div>
