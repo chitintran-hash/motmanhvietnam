@@ -4,12 +4,14 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Trash2, ArrowRight, Minus, Plus, User, X, ShieldCheck } from "lucide-react";
+import { Trash2, ArrowRight, Minus, Plus, User, X } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { getAuthSession } from "@/app/checkout/actions";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function CartPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [items, setItems] = useState<any[]>([]);
   const [mounted, setMounted] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -79,20 +81,24 @@ export default function CartPage() {
           <div className="inline-flex items-center gap-3 mb-4">
             <div className="w-8 h-1 bg-primary-red"></div>
             <span className="text-xs font-bold uppercase tracking-[0.3em] text-primary-red">
-              CHECKOUT
+              {t("cart.badge", "CHECKOUT")}
             </span>
           </div>
           <h1 className="text-4xl md:text-5xl font-display font-black text-primary-red uppercase tracking-tighter">
-            GIỎ HÀNG CỦA BẠN
+            {t("cart.title", "GIỎ HÀNG CỦA BẠN")}
           </h1>
         </div>
 
         {items.length === 0 ? (
           <div className="text-center py-20 border-4 border-dashed border-primary-green/20">
-            <h2 className="font-display font-black text-2xl text-primary-green mb-4">Giỏ hàng trống</h2>
-            <p className="text-foreground/60 font-medium mb-8">Bạn chưa có mảnh ghép nào trong giỏ hàng. Hãy khám phá ngay!</p>
+            <h2 className="font-display font-black text-2xl text-primary-green mb-4">
+              {t("cart.emptyTitle", "Giỏ hàng trống")}
+            </h2>
+            <p className="text-foreground/60 font-medium mb-8">
+              {t("cart.emptyDesc", "Bạn chưa có mảnh ghép nào trong giỏ hàng. Hãy khám phá ngay!")}
+            </p>
             <Link href="/collection" className="inline-flex items-center gap-2 px-8 py-4 bg-primary-red text-cream font-bold uppercase tracking-widest hover:bg-primary-green transition-colors border-2 border-primary-red hover:border-primary-green shadow-[4px_4px_0px_rgba(137,8,8,1)] hover:shadow-[4px_4px_0px_rgba(46,91,70,1)]">
-              Khám phá sản phẩm
+              {t("cart.exploreBtn", "Khám phá sản phẩm")}
               <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
@@ -114,7 +120,7 @@ export default function CartPage() {
                       <button 
                         onClick={() => removeItem(item.id)}
                         className="text-foreground/40 hover:text-primary-red transition-colors p-2"
-                        title="Xóa khỏi giỏ"
+                        title={t("cart.removeBtn", "Xóa khỏi giỏ")}
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>
@@ -156,23 +162,23 @@ export default function CartPage() {
             <div className="lg:col-span-1">
               <div className="bg-beige border-4 border-primary-green p-8 sticky top-32 shadow-[8px_8px_0px_rgba(46,91,70,1)]">
                 <h3 className="font-display font-black text-2xl text-primary-green uppercase tracking-wider mb-6 pb-4 border-b-2 border-primary-green/20">
-                  TỔNG ĐƠN HÀNG
+                  {t("cart.summaryTitle", "TỔNG ĐƠN HÀNG")}
                 </h3>
                 
                 <div className="flex flex-col gap-4 mb-6">
                   <div className="flex justify-between items-center text-foreground font-medium">
-                    <span>Tạm tính</span>
+                    <span>{t("cart.subtotal", "Tạm tính")}</span>
                     <span>{subtotal.toLocaleString('vi-VN')} ₫</span>
                   </div>
                   <div className="flex justify-between items-center text-foreground font-medium">
-                    <span>Phí vận chuyển</span>
+                    <span>{t("cart.shippingFee", "Phí vận chuyển")}</span>
                     <span>{shipping.toLocaleString('vi-VN')} ₫</span>
                   </div>
                 </div>
                 
                 <div className="border-t-2 border-primary-green/20 pt-4 mb-8">
                   <div className="flex justify-between items-end">
-                    <span className="font-bold text-primary-green uppercase tracking-widest">TỔNG CỘNG</span>
+                    <span className="font-bold text-primary-green uppercase tracking-widest">{t("cart.total", "TỔNG CỘNG")}</span>
                     <span className="font-display font-black text-3xl text-primary-red">
                       {total.toLocaleString('vi-VN')} ₫
                     </span>
@@ -184,7 +190,7 @@ export default function CartPage() {
                   className="w-full py-4 bg-primary-green text-cream font-bold uppercase tracking-widest hover:bg-primary-red transition-colors border-2 border-primary-green hover:border-primary-red shadow-[4px_4px_0px_rgba(46,91,70,1)] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75"
                   onClick={handleProceedToCheckout}
                 >
-                  {isCheckingAuth ? "ĐANG KIỂM TRA..." : "TIẾN HÀNH THANH TOÁN"}
+                  {isCheckingAuth ? t("cart.checkingAuth", "ĐANG KIỂM TRA...") : t("cart.proceedBtn", "TIẾN HÀNH THANH TOÁN")}
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </div>
@@ -209,11 +215,11 @@ export default function CartPage() {
             </div>
 
             <h3 className="font-display font-black text-2xl uppercase tracking-wider text-center text-foreground mb-2">
-              YÊU CẦU TÀI KHOẢN
+              {t("cart.authModalTitle", "YÊU CẦU TÀI KHOẢN")}
             </h3>
 
             <p className="text-foreground/70 font-medium text-center text-sm mb-6 leading-relaxed">
-              Để tiến hành thanh toán, lưu thông tin giao nhận và theo dõi hành trình đơn hàng theo thời gian thực, quý khách vui lòng đăng ký tài khoản mới hoặc đăng nhập tài khoản hiện có.
+              {t("cart.authModalDesc", "Để tiến hành thanh toán, lưu thông tin giao nhận và theo dõi hành trình đơn hàng theo thời gian thực, quý khách vui lòng đăng ký tài khoản mới hoặc đăng nhập tài khoản hiện có.")}
             </p>
 
             <div className="flex flex-col gap-3">
@@ -221,14 +227,14 @@ export default function CartPage() {
                 href="/register?callbackUrl=/checkout"
                 className="w-full py-3.5 bg-primary-red text-cream font-bold text-xs uppercase tracking-widest text-center hover:bg-primary-red/90 transition-colors border-2 border-primary-red shadow-[4px_4px_0px_rgba(137,8,8,1)]"
               >
-                TẠO TÀI KHOẢN MỚI
+                {t("cart.registerBtn", "TẠO TÀI KHOẢN MỚI")}
               </Link>
 
               <Link
                 href="/login?callbackUrl=/checkout"
                 className="w-full py-3.5 bg-beige text-foreground font-bold text-xs uppercase tracking-widest text-center hover:bg-foreground hover:text-cream transition-colors border-2 border-foreground"
               >
-                ĐÃ CÓ TÀI KHOẢN - ĐĂNG NHẬP
+                {t("cart.loginBtn", "ĐÃ CÓ TÀI KHOẢN - ĐĂNG NHẬP")}
               </Link>
 
               <button
@@ -236,7 +242,7 @@ export default function CartPage() {
                 onClick={() => setShowAuthModal(false)}
                 className="text-xs font-bold text-foreground/50 hover:text-foreground transition-colors mt-2 text-center"
               >
-                Đóng / Tiếp tục xem giỏ hàng
+                {t("cart.closeModal", "Đóng / Tiếp tục xem giỏ hàng")}
               </button>
             </div>
           </div>

@@ -5,6 +5,8 @@ import { ArrowRight, Map, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
+import { useLanguage } from "@/context/LanguageContext";
+
 const carouselSlides = [
   {
     id: "hanoi",
@@ -24,10 +26,18 @@ const carouselSlides = [
 ];
 
 export default function Hero() {
+  const { t } = useLanguage();
   const [activeSlide, setActiveSlide] = useState(0);
 
   const nextSlide = () => setActiveSlide((p) => (p + 1) % carouselSlides.length);
   const prevSlide = () => setActiveSlide((p) => (p - 1 + carouselSlides.length) % carouselSlides.length);
+
+  const getCityLabel = (id: string, defaultCity: string) => {
+    if (id === "hanoi") return t("hero.cities.hanoi", defaultCity);
+    if (id === "saigon") return t("hero.cities.saigon", defaultCity);
+    if (id === "danang") return t("hero.cities.danang", defaultCity);
+    return defaultCity;
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -72,9 +82,9 @@ export default function Hero() {
               transition={{ duration: 1, delay: 0.2 }}
               className="text-5xl md:text-[4.5rem] lg:text-[5.5rem] font-display font-black text-foreground mb-8 leading-[1.2] md:leading-[1.15] tracking-tighter uppercase"
             >
-              Mang một mảnh <br />
-              <span className="text-terracotta relative inline-block">Việt Nam</span> <br />
-              theo bên mình
+              {t("hero.title1", "Mang một mảnh")} <br />
+              <span className="text-terracotta relative inline-block">{t("hero.titleHighlight", "Việt Nam")}</span> <br />
+              {t("hero.title2", "theo bên mình")}
             </motion.h1>
 
             <motion.p
@@ -83,7 +93,7 @@ export default function Hero() {
               transition={{ duration: 1, delay: 0.4 }}
               className="text-lg md:text-xl text-foreground-muted max-w-lg mb-12 font-medium leading-relaxed border-l-2 border-foreground/10 pl-6"
             >
-              Những chiếc pin nhỏ lưu giữ câu chuyện về những thành phố, ký ức và khoảnh khắc rất Việt Nam.
+              {t("hero.subtitle", "Những chiếc pin nhỏ lưu giữ câu chuyện về những thành phố, ký ức và khoảnh khắc rất Việt Nam.")}
             </motion.p>
 
             <motion.div
@@ -93,12 +103,12 @@ export default function Hero() {
               className="flex flex-col sm:flex-row gap-6"
             >
               <Link href="/collection" className="group flex items-center justify-center gap-3 px-8 py-4 bg-primary-red text-cream font-bold tracking-widest text-sm uppercase border border-primary-red hover:bg-[#A30D0D] transition-all shadow-[4px_4px_0px_rgba(42,42,39,1)] hover:shadow-[2px_2px_0px_rgba(42,42,39,1)] hover:translate-x-[2px] hover:translate-y-[2px]">
-                KHÁM PHÁ COLLECTION
+                {t("hero.exploreCollection", "KHÁM PHÁ COLLECTION")}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link href="/map" className="group flex items-center justify-center gap-3 px-8 py-4 bg-transparent text-primary-green font-bold tracking-widest text-sm uppercase border border-primary-green hover:bg-primary-green hover:text-cream transition-all">
                 <Map className="w-4 h-4" />
-                MỞ BẢN ĐỒ DI SẢN
+                {t("hero.openHeritageMap", "MỞ BẢN ĐỒ DI SẢN")}
               </Link>
             </motion.div>
           </div>
@@ -173,7 +183,7 @@ export default function Hero() {
 
                         {/* Label */}
                         <div className="absolute bottom-4 left-0 w-full flex justify-center items-center px-6">
-                           <span className="font-display font-black text-4xl tracking-wider text-foreground/80">{slide.city}</span>
+                           <span className="font-display font-black text-4xl tracking-wider text-foreground/80">{getCityLabel(slide.id, slide.city)}</span>
                         </div>
                       </div>
                     </motion.div>

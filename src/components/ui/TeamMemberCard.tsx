@@ -2,9 +2,11 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, User } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function TeamMemberCard({ member, index }: { member: any, index: number }) {
+  const { t } = useLanguage();
   const colors = ["bg-primary-red", "bg-primary-green", "bg-orange", "bg-teal"];
   const textColors = ["text-primary-red", "text-primary-green", "text-orange", "text-teal"];
   const colorIndex = index % colors.length;
@@ -47,7 +49,7 @@ export default function TeamMemberCard({ member, index }: { member: any, index: 
         
         <Link href={`/team/${member.slug}`} className={`group/link flex items-center justify-between w-full p-4 border-2 border-foreground bg-white hover:${bgColor} transition-colors mt-auto`}>
           <span className="text-xs font-bold uppercase tracking-widest text-foreground group-hover/link:text-cream transition-colors">
-            HỒ SƠ CHI TIẾT
+            {t("team.viewProfile", "HỒ SƠ CHI TIẾT")}
           </span>
           <ArrowRight className="w-5 h-5 text-foreground group-hover/link:text-cream transform group-hover/link:translate-x-1 transition-all" />
         </Link>

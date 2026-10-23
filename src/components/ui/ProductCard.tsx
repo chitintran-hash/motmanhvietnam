@@ -2,9 +2,9 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import Badge from "./Badge";
 import { ArrowRight } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ProductCardProps {
   slug: string;
@@ -17,6 +17,8 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ slug, name, city, collectionNumber, price, imageUrl, isNew }: ProductCardProps) {
+  const { t } = useLanguage();
+
   let primaryColor = "bg-primary-red";
   let secondaryColor = "bg-yellow";
   let secondaryTextColor = "text-foreground";
@@ -59,7 +61,11 @@ export default function ProductCard({ slug, name, city, collectionNumber, price,
           <div className="flex flex-col gap-1">
             <span className={`text-xs font-black uppercase tracking-wider ${textColor}`}>{city}</span>
           </div>
-          {isNew && <div className={`${secondaryColor} ${secondaryTextColor} px-2 py-1 text-[10px] font-black uppercase tracking-widest border-2 border-foreground`}>NEW</div>}
+          {isNew && (
+            <div className={`${secondaryColor} ${secondaryTextColor} px-2 py-1 text-[10px] font-black uppercase tracking-widest border-2 border-foreground`}>
+              {t("collectionPreview.newBadge", "MỚI")}
+            </div>
+          )}
         </div>
 
         {/* Image Area */}
@@ -90,7 +96,7 @@ export default function ProductCard({ slug, name, city, collectionNumber, price,
           
           <div className={`flex items-center justify-between w-full border-t-2 border-foreground/10 pt-4`}>
             <span className={`text-xs font-bold uppercase tracking-widest ${textColor}`}>
-              Khám phá
+              {t("collectionPreview.exploreBtn", "Khám phá")}
             </span>
             <div className={`w-8 h-8 rounded-full border-2 ${borderColor} flex items-center justify-center ${hoverColor} group-hover:text-cream transition-colors ${textColor}`}>
               <ArrowRight className="w-4 h-4" />

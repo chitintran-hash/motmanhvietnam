@@ -8,6 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { trackEvent } from "@/lib/analytics";
 import { usePathname } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
 
 type CityKey = "Hà Nội" | "Đà Nẵng" | "Thành phố Hồ Chí Minh";
 
@@ -122,6 +123,7 @@ const DEFAULT_MAP_CONFIG: Record<string, any> = {
 const MAP_CONFIG_URL = "https://rcecvmzweeoavlbwnjxn.supabase.co/storage/v1/object/public/team_images/public/digital-map-config.json";
 
 export default function MapPage() {
+  const { t, lang } = useLanguage();
   const [mapData, setMapData] = useState<Record<string, any>>(DEFAULT_MAP_CONFIG);
   const [code, setCode] = useState("");
   const [unlocked, setUnlocked] = useState<string[]>([]);
@@ -236,22 +238,24 @@ export default function MapPage() {
               </span>
             </div>
             <h1 className="text-5xl md:text-6xl font-display font-black text-primary-green mb-4 uppercase tracking-tighter leading-[1.3] md:leading-[1.25]">
-              BẢN ĐỒ<br/>DI SẢN
+              {lang === 'en' ? <>HERITAGE<br/>MAP</> : <>BẢN ĐỒ<br/>DI SẢN</>}
             </h1>
             <p className="text-foreground-muted font-medium leading-relaxed border-l-2 border-foreground/10 pl-4">
-              Nhập mã bí mật trên Thẻ Câu Chuyện trong Blind Box để thắp sáng mảnh ghép của bạn.
+              {lang === 'en' 
+                ? "Enter the secret code from your Blind Box Story Card to illuminate your collected pieces." 
+                : "Nhập mã bí mật trên Thẻ Câu Chuyện trong Blind Box để thắp sáng mảnh ghép của bạn."}
             </p>
           </div>
           
           <form onSubmit={handleUnlock} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <label className="text-xs font-bold uppercase tracking-widest text-foreground/60">
-                MÃ MỞ KHÓA
+                {lang === 'en' ? "UNLOCK CODE" : "MÃ MỞ KHÓA"}
               </label>
               <div className="flex">
                 <input
                   type="text"
-                  placeholder="VD: HANOI, HCM, BENTHANH"
+                  placeholder={lang === 'en' ? "E.G.: HANOI, HCM, BENTHANH" : "VD: HANOI, HCM, BENTHANH"}
                   className="flex-1 px-4 py-4 border-2 border-primary-green bg-transparent focus:outline-none focus:ring-0 focus:border-primary-green uppercase tracking-[0.2em] font-mono font-bold text-primary-green placeholder-primary-green/30"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
@@ -259,14 +263,14 @@ export default function MapPage() {
                 <button 
                   type="submit"
                   className="px-6 py-4 bg-primary-green text-cream hover:bg-primary-red transition-colors border-y-2 border-r-2 border-primary-green cursor-pointer"
-                  title="Mở khóa"
+                  title={lang === 'en' ? "Unlock" : "Mở khóa"}
                 >
                   <KeyRound className="w-5 h-5" />
                 </button>
               </div>
               {error && (
                 <p className="text-primary-red text-xs font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
-                   Mã không hợp lệ. Vui lòng thử lại.
+                  {lang === 'en' ? "Invalid code. Please try again." : "Mã không hợp lệ. Vui lòng thử lại."}
                 </p>
               )}
             </div>
@@ -276,7 +280,7 @@ export default function MapPage() {
             <div className="flex items-center justify-between border-b-2 border-primary-green/20 pb-4 mb-4">
               <h3 className="font-display font-bold text-sm uppercase tracking-widest flex items-center gap-2 text-primary-green">
                 <MapPin className="w-4 h-4 text-primary-green" />
-                BỘ SƯU TẬP
+                {lang === 'en' ? "MY COLLECTION" : "BỘ SƯU TẬP"}
               </h3>
               <span className="font-mono font-bold text-foreground/50">
                 {unlocked.length}/64
@@ -285,7 +289,9 @@ export default function MapPage() {
             
             {unlocked.length === 0 ? (
               <p className="text-foreground/50 text-sm font-medium italic">
-                Bạn chưa khám phá mảnh ghép nào. Hãy nhập mã từ Thẻ Câu Chuyện!
+                {lang === 'en' 
+                  ? "You haven't unlocked any pieces yet. Enter your code from the Story Card!" 
+                  : "Bạn chưa khám phá mảnh ghép nào. Hãy nhập mã từ Thẻ Câu Chuyện!"}
               </p>
             ) : (
               <ul className="space-y-4">
@@ -303,7 +309,7 @@ export default function MapPage() {
                       </div>
                       <span className="font-bold font-display uppercase tracking-widest text-sm text-primary-green">{place}</span>
                     </div>
-                    <Badge variant="retro">ĐÃ MỞ</Badge>
+                    <Badge variant="retro">{lang === 'en' ? "UNLOCKED" : "ĐÃ MỞ"}</Badge>
                   </motion.li>
                 ))}
               </ul>
@@ -456,8 +462,8 @@ export default function MapPage() {
                 {/* Collection Status */}
                 <div className={`px-4 py-3 rounded-xl border mb-6 text-sm ${unlocked.includes(activeNode) ? 'bg-primary-green/5 border-primary-green/20 text-primary-green font-bold' : 'bg-foreground/5 border-foreground/10 text-foreground-muted'}`}>
                   {unlocked.includes(activeNode) 
-                    ? `✓ Bạn đã mở khóa mảnh ký ức tại ${activeData.title}`
-                    : `Bạn chưa sở hữu mảnh ký ức nào tại ${activeData.title}.`}
+                    ? (lang === 'en' ? `✓ You unlocked the regional memory in ${activeData.title}` : `✓ Bạn đã mở khóa mảnh ký ức tại ${activeData.title}`)
+                    : (lang === 'en' ? `You haven't unlocked any memory in ${activeData.title} yet.` : `Bạn chưa sở hữu mảnh ký ức nào tại ${activeData.title}.`)}
                 </div>
 
                 {/* Story Preview Cards */}
@@ -477,7 +483,7 @@ export default function MapPage() {
                               : 'border-foreground/10 hover:border-primary-green/30 hover:bg-cream/50'
                         }`}
                       >
-                        {/* Image - Sử dụng img tag đảm bảo 100% hiển thị không bao giờ bị lỗi */}
+                        {/* Image */}
                         <div className="w-16 h-16 shrink-0 bg-white rounded-lg border border-foreground/10 flex items-center justify-center overflow-hidden p-1 group-hover:scale-105 transition-transform duration-300 shadow-xs">
                           <img 
                             src={story.img} 
@@ -494,12 +500,12 @@ export default function MapPage() {
                             <span className="text-[10px] text-foreground/40 font-mono font-bold">0{i + 1}</span>
                             {isFeatured && (
                               <span className="text-[9px] bg-terracotta text-white font-black uppercase px-1.5 py-0.2 rounded flex items-center gap-0.5">
-                                <Star className="w-2.5 h-2.5 fill-white" /> Nổi bật
+                                <Star className="w-2.5 h-2.5 fill-white" /> {lang === 'en' ? "Featured" : "Nổi bật"}
                               </span>
                             )}
                             {isNewlyUnlocked && (
                               <span className="text-[9px] bg-emerald-600 text-white font-black uppercase px-1.5 py-0.2 rounded animate-pulse">
-                                Vừa mở khóa
+                                {lang === 'en' ? "Just Unlocked" : "Vừa mở khóa"}
                               </span>
                             )}
                           </div>
@@ -515,13 +521,15 @@ export default function MapPage() {
                 {/* Footer Action */}
                 <div className="pt-4 border-t border-foreground/10 flex flex-col items-center">
                   <div className="text-xs text-foreground/50 mb-3 font-medium">
-                    {activeData.stories?.length || 3} / {activeData.totalStories || 15} mảnh đang được giới thiệu
+                    {lang === 'en' 
+                      ? `${activeData.stories?.length || 3} / ${activeData.totalStories || 15} pieces currently featured`
+                      : `${activeData.stories?.length || 3} / ${activeData.totalStories || 15} mảnh đang được giới thiệu`}
                   </div>
                   <Link 
                     href="/collection"
                     className="w-full text-center bg-transparent border-2 border-primary-green text-primary-green hover:bg-primary-green hover:text-white transition-colors duration-300 font-bold uppercase tracking-widest text-xs py-4 rounded-xl cursor-pointer"
                   >
-                    {activeData.exploreText || "KHÁM PHÁ COLLECTION"} &rarr;
+                    {lang === 'en' ? "DISCOVER COLLECTION" : (activeData.exploreText || "KHÁM PHÁ COLLECTION")} &rarr;
                   </Link>
                 </div>
               </motion.div>

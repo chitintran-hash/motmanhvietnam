@@ -4,11 +4,13 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ShieldCheck, Truck, CheckCircle2, User, Phone, MapPin, Mail, FileText, AlertCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Truck, CheckCircle2, User, Phone, MapPin, Mail, AlertCircle, Loader2 } from "lucide-react";
 import { getAuthSession, createOrder } from "./actions";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { t, lang } = useLanguage();
   const [items, setItems] = useState<any[]>([]);
   const [mounted, setMounted] = useState(false);
   const [session, setSession] = useState<any>(null);
@@ -53,34 +55,34 @@ export default function CheckoutPage() {
     setErrorMessage("");
 
     if (!session?.user) {
-      setErrorMessage("Vui lòng đăng nhập hoặc đăng ký tài khoản để tiếp tục thanh toán.");
+      setErrorMessage(t("checkout.errRequireAuth", "Vui lòng đăng nhập hoặc đăng ký tài khoản để tiếp tục thanh toán."));
       return;
     }
 
     if (!name.trim()) {
-      setErrorMessage("Vui lòng nhập họ và tên người nhận hàng.");
+      setErrorMessage(t("checkout.errName", "Vui lòng nhập họ và tên người nhận hàng."));
       return;
     }
 
     if (!phone.trim()) {
-      setErrorMessage("Vui lòng nhập số điện thoại nhận hàng.");
+      setErrorMessage(t("checkout.errPhone", "Vui lòng nhập số điện thoại nhận hàng."));
       return;
     }
 
     // Kiểm tra định dạng số điện thoại Việt Nam (10 chữ số)
     const phoneRegex = /(84|0[3|5|7|8|9])+([0-9]{8})\b/;
     if (!phoneRegex.test(phone.trim().replace(/\s+/g, ''))) {
-      setErrorMessage("Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại gồm 10 chữ số.");
+      setErrorMessage(t("checkout.errPhoneInvalid", "Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại gồm 10 chữ số."));
       return;
     }
 
     if (!address.trim()) {
-      setErrorMessage("Vui lòng nhập địa chỉ nhận hàng chi tiết.");
+      setErrorMessage(t("checkout.errAddress", "Vui lòng nhập địa chỉ nhận hàng chi tiết."));
       return;
     }
 
     if (items.length === 0) {
-      setErrorMessage("Giỏ hàng của bạn đang trống.");
+      setErrorMessage(t("checkout.errEmptyCart", "Giỏ hàng của bạn đang trống."));
       return;
     }
 
@@ -98,7 +100,7 @@ export default function CheckoutPage() {
       });
 
       if (!res.success) {
-        setErrorMessage(res.message || "Đặt hàng thất bại. Vui lòng thử lại.");
+        setErrorMessage(res.message || t("checkout.errFailed", "Đặt hàng thất bại. Vui lòng thử lại."));
         setIsSubmitting(false);
         return;
       }
@@ -111,7 +113,7 @@ export default function CheckoutPage() {
       router.push(`/orders/${res.orderId}`);
     } catch (err: any) {
       console.error(err);
-      setErrorMessage("Đã có lỗi kết nối. Vui lòng thử lại sau.");
+      setErrorMessage(t("checkout.errFailed", "Đã có lỗi kết nối. Vui lòng thử lại sau."));
       setIsSubmitting(false);
     }
   };
@@ -122,7 +124,7 @@ export default function CheckoutPage() {
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="w-8 h-8 text-terracotta animate-spin" />
           <span className="text-sm font-bold text-foreground/60 uppercase tracking-wider">
-            Đang tải thông tin thanh toán...
+            {t("checkout.loading", "Đang tải thông tin thanh toán...")}
           </span>
         </div>
       </div>
@@ -139,11 +141,11 @@ export default function CheckoutPage() {
           </div>
 
           <h2 className="text-2xl font-display font-black text-foreground uppercase tracking-tight mb-3">
-            Yêu cầu tài khoản
+            {t("checkout.authRequiredTitle", "Yêu cầu tài khoản")}
           </h2>
 
           <p className="text-sm text-foreground/70 font-medium mb-8 leading-relaxed">
-            Để tiến hành thanh toán, lưu trữ thông tin giao hàng và theo dõi hành trình đơn hàng theo thời gian thực, bạn vui lòng đăng ký hoặc đăng nhập tài khoản.
+            {t("checkout.authRequiredDesc", "Để tiến hành thanh toán, lưu trữ thông tin giao hàng và theo dõi hành trình đơn hàng theo thời gian thực, bạn vui lòng đăng ký hoặc đăng nhập tài khoản.")}
           </p>
 
           <div className="flex flex-col gap-3">
@@ -151,21 +153,21 @@ export default function CheckoutPage() {
               href="/register?callbackUrl=/checkout"
               className="w-full py-3.5 bg-terracotta text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-terracotta-hover transition-colors shadow-sm"
             >
-              Đăng ký tài khoản mới
+              {t("checkout.registerNow", "Đăng ký tài khoản mới")}
             </Link>
 
             <Link
               href="/login?callbackUrl=/checkout"
               className="w-full py-3.5 bg-background-alt text-foreground font-bold text-xs uppercase tracking-widest rounded-xl border border-foreground/10 hover:bg-foreground hover:text-white transition-colors"
             >
-              Đã có tài khoản? Đăng nhập
+              {t("checkout.loginNow", "Đã có tài khoản? Đăng nhập")}
             </Link>
 
             <Link
               href="/cart"
               className="inline-flex items-center justify-center gap-2 text-xs font-bold text-foreground/50 hover:text-foreground transition-colors mt-2"
             >
-              <ArrowLeft className="w-3.5 h-3.5" /> Quay lại giỏ hàng
+              <ArrowLeft className="w-3.5 h-3.5" /> {t("checkout.backToCart", "Quay lại giỏ hàng")}
             </Link>
           </div>
         </div>
@@ -179,16 +181,16 @@ export default function CheckoutPage() {
       <div className="min-h-screen pt-40 pb-24 bg-[#FAF9F5] flex items-center justify-center px-6">
         <div className="max-w-md w-full bg-white border-2 border-foreground/15 rounded-2xl p-8 shadow-[6px_6px_0px_rgba(42,42,39,0.08)] text-center">
           <h2 className="text-2xl font-display font-black text-foreground uppercase tracking-tight mb-3">
-            Giỏ hàng trống
+            {t("cart.emptyTitle", "Giỏ hàng trống")}
           </h2>
           <p className="text-sm text-foreground/70 font-medium mb-6">
-            Bạn chưa chọn mảnh ghép nào trong giỏ hàng.
+            {t("cart.emptyDesc", "Bạn chưa chọn mảnh ghép nào trong giỏ hàng.")}
           </p>
           <Link
             href="/collection"
             className="inline-flex items-center gap-2 px-6 py-3 bg-terracotta text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-terracotta-hover transition-colors"
           >
-            Khám phá bộ sưu tập
+            {t("cart.exploreBtn", "Khám phá bộ sưu tập")}
           </Link>
         </div>
       </div>
@@ -204,17 +206,17 @@ export default function CheckoutPage() {
             href="/cart"
             className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-foreground/60 hover:text-terracotta transition-colors mb-4"
           >
-            <ArrowLeft className="w-4 h-4" /> Quay lại giỏ hàng
+            <ArrowLeft className="w-4 h-4" /> {t("checkout.backToCart", "Quay lại giỏ hàng")}
           </Link>
 
           <div className="flex items-center gap-3">
             <span className="w-2.5 h-2.5 bg-terracotta rounded-full"></span>
             <span className="text-xs font-bold uppercase tracking-[0.25em] text-terracotta">
-              XÁC NHẬN ĐƠN HÀNG
+              {t("checkout.badge", "XÁC NHẬN ĐƠN HÀNG")}
             </span>
           </div>
           <h1 className="text-3xl md:text-5xl font-display font-black text-foreground uppercase tracking-tight mt-2">
-            THANH TOÁN ĐƠN HÀNG
+            {t("checkout.title", "THANH TOÁN ĐƠN HÀNG")}
           </h1>
         </div>
 
@@ -233,14 +235,14 @@ export default function CheckoutPage() {
               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-foreground/10">
                 <MapPin className="w-5 h-5 text-terracotta" />
                 <h2 className="text-lg font-display font-black text-foreground uppercase tracking-wider">
-                  1. THÔNG TIN GIAO HÀNG
+                  {t("checkout.step1", "1. THÔNG TIN GIAO HÀNG")}
                 </h2>
               </div>
 
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-2">
-                    Họ và tên người nhận <span className="text-red-500">*</span>
+                    {t("checkout.fullName", "Họ và tên người nhận")} <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <User className="w-4 h-4 text-foreground/40 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -249,7 +251,7 @@ export default function CheckoutPage() {
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="Nguyễn Văn A"
+                      placeholder={t("checkout.fullNamePlaceholder", "Nguyễn Văn A")}
                       className="w-full pl-11 pr-4 py-3 bg-[#FAF9F5] border-2 border-foreground/15 rounded-xl font-medium text-foreground focus:outline-none focus:border-terracotta transition-colors text-sm"
                     />
                   </div>
@@ -258,7 +260,7 @@ export default function CheckoutPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-2">
-                      Số điện thoại nhận hàng <span className="text-red-500">*</span>
+                      {t("checkout.phone", "Số điện thoại nhận hàng")} <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <Phone className="w-4 h-4 text-foreground/40 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -267,7 +269,7 @@ export default function CheckoutPage() {
                         required
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        placeholder="0912 345 678"
+                        placeholder={t("checkout.phonePlaceholder", "0912 345 678")}
                         className="w-full pl-11 pr-4 py-3 bg-[#FAF9F5] border-2 border-foreground/15 rounded-xl font-medium text-foreground focus:outline-none focus:border-terracotta transition-colors text-sm"
                       />
                     </div>
@@ -275,7 +277,7 @@ export default function CheckoutPage() {
 
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-2">
-                      Email thông báo đơn hàng
+                      {t("checkout.email", "Email thông báo đơn hàng")}
                     </label>
                     <div className="relative">
                       <Mail className="w-4 h-4 text-foreground/40 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -283,7 +285,7 @@ export default function CheckoutPage() {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="email@vidu.com"
+                        placeholder={t("checkout.emailPlaceholder", "email@vidu.com")}
                         className="w-full pl-11 pr-4 py-3 bg-[#FAF9F5] border-2 border-foreground/15 rounded-xl font-medium text-foreground focus:outline-none focus:border-terracotta transition-colors text-sm"
                       />
                     </div>
@@ -292,27 +294,27 @@ export default function CheckoutPage() {
 
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-2">
-                    Địa chỉ nhận hàng chi tiết <span className="text-red-500">*</span>
+                    {t("checkout.address", "Địa chỉ nhận hàng chi tiết")} <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     required
                     rows={3}
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Số nhà, tên đường, Phường/Xã, Quận/Huyện, Tỉnh/Thành phố..."
+                    placeholder={t("checkout.addressPlaceholder", "Số nhà, tên đường, Phường/Xã, Quận/Huyện, Tỉnh/Thành phố...")}
                     className="w-full p-4 bg-[#FAF9F5] border-2 border-foreground/15 rounded-xl font-medium text-foreground focus:outline-none focus:border-terracotta transition-colors text-sm"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-2">
-                    Ghi chú đơn hàng (Tùy chọn)
+                    {t("checkout.note", "Ghi chú đơn hàng (Tùy chọn)")}
                   </label>
                   <input
                     type="text"
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
-                    placeholder="Giao hàng giờ hành chính, gọi trước khi giao..."
+                    placeholder={t("checkout.notePlaceholder", "Giao hàng giờ hành chính, gọi trước khi giao...")}
                     className="w-full px-4 py-3 bg-[#FAF9F5] border-2 border-foreground/15 rounded-xl font-medium text-foreground focus:outline-none focus:border-terracotta transition-colors text-sm"
                   />
                 </div>
@@ -324,7 +326,7 @@ export default function CheckoutPage() {
               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-foreground/10">
                 <ShieldCheck className="w-5 h-5 text-jade" />
                 <h2 className="text-lg font-display font-black text-foreground uppercase tracking-wider">
-                  2. PHƯƠNG THỨC THANH TOÁN
+                  {t("checkout.step2", "2. PHƯƠNG THỨC THANH TOÁN")}
                 </h2>
               </div>
 
@@ -337,14 +339,14 @@ export default function CheckoutPage() {
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-bold text-foreground text-sm uppercase tracking-wider">
-                      Thanh toán khi nhận hàng (COD)
+                      {t("checkout.codTitle", "Thanh toán khi nhận hàng (COD)")}
                     </span>
                     <span className="text-[11px] font-black uppercase tracking-wider text-jade bg-jade/10 px-2.5 py-0.5 rounded-full">
-                      Khuyên dùng
+                      {lang === 'en' ? "Recommended" : "Khuyên dùng"}
                     </span>
                   </div>
                   <p className="text-xs text-foreground/70 font-medium leading-relaxed">
-                    Bạn chỉ thanh toán bằng tiền mặt trực tiếp cho nhân viên giao hàng khi nhận và kiểm tra bưu kiện. An toàn và tiện lợi 100%.
+                    {t("checkout.codDesc", "Bạn chỉ thanh toán bằng tiền mặt trực tiếp cho nhân viên giao hàng khi nhận và kiểm tra bưu kiện. An toàn và tiện lợi 100%.")}
                   </p>
                 </div>
               </div>
@@ -355,7 +357,7 @@ export default function CheckoutPage() {
           <div className="lg:col-span-5 flex flex-col gap-6">
             <div className="bg-white border-2 border-foreground/10 rounded-2xl p-6 md:p-8 shadow-[6px_6px_0px_rgba(42,42,39,0.08)]">
               <h3 className="font-display font-black text-xl text-foreground uppercase tracking-wider mb-6 pb-4 border-b-2 border-foreground/10">
-                ĐƠN HÀNG CỦA BẠN ({items.length} món)
+                {t("checkout.summaryTitle", "ĐƠN HÀNG CỦA BẠN")} ({items.length} {t("checkout.itemsTitle", "món").toLowerCase()})
               </h3>
 
               {/* Danh sách sản phẩm */}
@@ -367,7 +369,7 @@ export default function CheckoutPage() {
                         <Image src={item.image} alt={item.name} fill className="object-cover" />
                       ) : (
                         <div className="w-full h-full bg-foreground/5 flex items-center justify-center text-xs font-bold text-foreground/40">
-                          Hộp
+                          Box
                         </div>
                       )}
                     </div>
@@ -376,7 +378,7 @@ export default function CheckoutPage() {
                         {item.name}
                       </h4>
                       <p className="text-xs text-foreground/60 font-medium">
-                        Số lượng: x{item.quantity}
+                        {t("checkout.quantityShort", "Số lượng")}: x{item.quantity}
                       </p>
                     </div>
                     <div className="text-sm font-bold text-foreground text-right shrink-0">
@@ -389,19 +391,19 @@ export default function CheckoutPage() {
               {/* Phí và tổng tiền */}
               <div className="space-y-3 border-t-2 border-foreground/10 pt-4 mb-6 text-sm">
                 <div className="flex justify-between items-center text-foreground/70 font-medium">
-                  <span>Tạm tính</span>
+                  <span>{t("checkout.subtotal", "Tạm tính")}</span>
                   <span className="font-bold text-foreground">{subtotal.toLocaleString("vi-VN")} ₫</span>
                 </div>
                 <div className="flex justify-between items-center text-foreground/70 font-medium">
                   <span className="flex items-center gap-1.5">
                     <Truck className="w-4 h-4 text-terracotta" />
-                    Phí vận chuyển toàn quốc
+                    {t("checkout.shipping", "Phí vận chuyển")}
                   </span>
                   <span className="font-bold text-foreground">{shipping.toLocaleString("vi-VN")} ₫</span>
                 </div>
                 <div className="border-t border-dashed border-foreground/15 pt-3 flex justify-between items-baseline">
                   <span className="font-black text-foreground uppercase tracking-wider text-base">
-                    TỔNG CỘNG
+                    {t("checkout.total", "TỔNG CỘNG")}
                   </span>
                   <span className="text-2xl md:text-3xl font-display font-black text-terracotta">
                     {total.toLocaleString("vi-VN")} ₫
@@ -418,18 +420,18 @@ export default function CheckoutPage() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>ĐANG XỬ LÝ ĐẶT HÀNG...</span>
+                    <span>{t("checkout.submittingBtn", "ĐANG XỬ LÝ ĐẶT HÀNG...")}</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="w-5 h-5" />
-                    <span>XÁC NHẬN ĐẶT HÀNG (COD)</span>
+                    <span>{t("checkout.placeOrderBtn", "XÁC NHẬN ĐẶT HÀNG (COD)")}</span>
                   </>
                 )}
               </button>
 
               <p className="text-[11px] text-foreground/50 text-center mt-4 font-medium leading-relaxed">
-                Bằng việc nhấn đặt hàng, bạn đồng ý với các điều khoản mua sắm và chính sách vận chuyển của Một Mảnh Việt Nam.
+                {t("checkout.commitment", "Cam kết đóng gói chống sốc và bảo mật seal nguyên bản 100%.")}
               </p>
             </div>
           </div>

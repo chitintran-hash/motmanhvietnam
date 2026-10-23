@@ -3,27 +3,32 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import ProductCard from "../ui/ProductCard";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function CollectionPreview({ products }: { products: any[] }) {
+  const { t } = useLanguage();
   const displayProducts = products.length > 0 ? products : [];
+  
   return (
     <section className="py-32">
       <div className="container mx-auto px-6 max-w-[1400px]">
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-3 mb-4">
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta">BỘ SƯU TẬP DI SẢN</span>
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta">
+                {t("collectionPreview.badge", "BỘ SƯU TẬP DI SẢN")}
+              </span>
               <div className="w-12 h-px bg-terracotta/50"></div>
             </div>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black text-foreground mb-4 uppercase tracking-tight">
-              Những Mảnh Đầu&nbsp;Tiên
+              {t("collectionPreview.title", "Những Mảnh Đầu Tiên")}
             </h2>
             <p className="text-lg text-foreground-muted font-medium max-w-2xl">
-              Ba thành phố. Ba nhịp sống. Ba mảnh ký ức để bắt đầu hành trình khám phá Việt Nam.
+              {t("collectionPreview.subtitle", "Ba thành phố. Ba nhịp sống. Ba mảnh ký ức để bắt đầu hành trình khám phá Việt Nam.")}
             </p>
           </div>
           <Link href="/collection" className="group flex items-center gap-3 px-6 py-3 bg-transparent border-2 border-foreground text-foreground font-bold tracking-widest text-xs uppercase hover:bg-foreground hover:text-white transition-colors">
-            Xem Toàn Bộ
+            {t("collectionPreview.viewAll", "Xem Toàn Bộ")}
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>

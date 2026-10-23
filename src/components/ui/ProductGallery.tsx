@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { ZoomIn, ZoomOut, Maximize2, X, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ProductGalleryProps {
   mainImage: string;
@@ -9,6 +10,8 @@ interface ProductGalleryProps {
 }
 
 export default function ProductGallery({ mainImage, additionalImages = [] }: ProductGalleryProps) {
+  const { t, lang } = useLanguage();
+
   const images = useMemo(() => {
     const list = [
       { 
@@ -24,8 +27,8 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
         if (img) {
           list.push({
             src: img,
-            label: `MẢNH GHÉP SƯU TẦM #${idx + 1}`,
-            shortLabel: `Mảnh #${idx + 1}`,
+            label: `${t("product.collectiblePiecePrefix", "MẢNH GHÉP SƯU TẦM")} #${idx + 1}`,
+            shortLabel: `${t("product.pieceLabel", "Mảnh")} #${idx + 1}`,
             isMain: false
           });
         }
@@ -33,7 +36,7 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
     }
 
     return list;
-  }, [mainImage, additionalImages]);
+  }, [mainImage, additionalImages, t]);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -112,13 +115,13 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
           type="button"
           onClick={() => handleOpenModal()}
           className="absolute top-4 right-4 z-10 p-2.5 bg-white/90 backdrop-blur-sm border border-foreground/10 text-foreground hover:bg-foreground hover:text-white rounded-full transition-all duration-200 shadow-sm flex items-center gap-1 text-xs font-bold cursor-pointer hover:scale-105"
-          title="Phóng to ảnh xem chi tiết"
+          title={t("product.enlargeBtn", "Xem lớn")}
         >
           <Maximize2 className="w-4 h-4" />
-          <span className="hidden sm:inline text-[11px]">Xem lớn</span>
+          <span className="hidden sm:inline text-[11px]">{t("product.enlargeBtn", "Xem lớn")}</span>
         </button>
 
-        {/* Image Display - Sản phẩm chính bự lấp khung ảnh (object-cover 100%), các mảnh ghép thì object-contain có padding */}
+        {/* Image Display */}
         <div 
           onClick={() => handleOpenModal()} 
           className={`relative w-full h-full cursor-zoom-in flex items-center justify-center ${
@@ -127,7 +130,7 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
         >
           <img 
             src={currentItem.src}
-            alt={currentItem.label || "Hình ảnh sản phẩm"}
+            alt={currentItem.label || "Product Image"}
             className={
               currentItem.isMain 
                 ? "w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
@@ -136,7 +139,7 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
           />
         </div>
 
-        {/* Label Bottom - Chỉ hiển thị cho các mảnh ghép, KHÔNG hiển thị chữ hộp blind box (ảnh chính) */}
+        {/* Label Bottom - Chỉ hiển thị cho các mảnh ghép */}
         {!currentItem.isMain && currentItem.label && (
           <div className="absolute bottom-4 left-0 w-full text-center z-10 pointer-events-none px-4">
             <span className="inline-block px-4 py-1.5 rounded-full border shadow-sm text-xs font-black uppercase tracking-wider bg-white/95 backdrop-blur-sm border-foreground/10 text-foreground">
@@ -152,11 +155,13 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-terracotta" />
             <h3 className="text-xs font-black uppercase tracking-widest text-foreground">
-              {images.length > 1 ? `Các mảnh bên trong hộp (${images.length - 1} mảnh):` : 'Hình ảnh sản phẩm:'}
+              {images.length > 1 
+                ? `${t("product.insidePiecesLabel", "Các mảnh bên trong hộp")} (${images.length - 1} ${t("product.pieceLabel", "mảnh").toLowerCase()}):` 
+                : `${t("product.productImagesLabel", "Hình ảnh sản phẩm")}:`}
             </h3>
           </div>
           <span className="text-[11px] font-bold text-foreground/50">
-            💡 Nhấp để xem lớn
+            {t("product.zoomTip", "💡 Nhấp để xem lớn")}
           </span>
         </div>
 
@@ -175,12 +180,12 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
                     ? 'border-terracotta shadow-[0_0_0_2px_rgba(200,82,44,0.2)] scale-105 bg-terracotta/5' 
                     : 'border-foreground/10 hover:border-foreground/40 hover:scale-102 opacity-75 hover:opacity-100'
                 }`}
-                title={img.isMain ? "Hộp sản phẩm chính" : `Nhấn để xem ${img.label}`}
+                title={img.isMain ? (lang === 'en' ? "Main box" : "Hộp sản phẩm chính") : img.label}
               >
                 <div className="relative w-full h-full flex items-center justify-center">
                   <img 
                     src={img.src}
-                    alt={img.label || "Sản phẩm"}
+                    alt={img.label || "Product"}
                     className={
                       img.isMain 
                         ? "w-full h-full object-cover rounded-lg group-hover:scale-110 transition-transform duration-200" 
@@ -189,7 +194,6 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
                   />
                 </div>
 
-                {/* Giữ nguyên chữ Mảnh #1, Mảnh #2... và KHÔNG hiển thị chữ hộp blind box (ảnh chính) */}
                 {!img.isMain && (
                   <span className={`absolute bottom-1 inset-x-1 text-[9px] font-black uppercase tracking-wider py-0.5 rounded text-center truncate ${
                     isActive ? 'bg-terracotta text-white' : 'bg-foreground/80 text-white'
@@ -234,7 +238,7 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
                 type="button"
                 onClick={() => setModalZoom((prev) => (prev === 1 ? 1.6 : prev === 1.6 ? 2.2 : 1))}
                 className="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors flex items-center gap-1.5 text-xs font-bold"
-                title="Phóng to / Thu nhỏ"
+                title="Zoom In / Zoom Out"
               >
                 {modalZoom > 1 ? <ZoomOut className="w-4 h-4" /> : <ZoomIn className="w-4 h-4" />}
                 <span className="hidden sm:inline">{modalZoom}x</span>
@@ -247,7 +251,7 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
                   setModalZoom(1);
                 }}
                 className="p-2.5 bg-white/10 hover:bg-red-600 text-white rounded-full transition-colors"
-                title="Đóng (ESC)"
+                title="Close (ESC)"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -259,31 +263,28 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
             className="relative flex-1 w-full max-w-5xl flex items-center justify-center my-4 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Previous Arrow */}
             {images.length > 1 && (
               <button
                 type="button"
                 onClick={handlePrev}
                 className="absolute left-2 sm:left-4 z-20 p-3 bg-white/10 hover:bg-white/25 text-white rounded-full transition-all duration-200 cursor-pointer backdrop-blur-sm hover:scale-110"
-                title="Mảnh trước (Mũi tên trái)"
+                title="Previous"
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
             )}
 
-            {/* Next Arrow */}
             {images.length > 1 && (
               <button
                 type="button"
                 onClick={handleNext}
                 className="absolute right-2 sm:right-4 z-20 p-3 bg-white/10 hover:bg-white/25 text-white rounded-full transition-all duration-200 cursor-pointer backdrop-blur-sm hover:scale-110"
-                title="Mảnh tiếp theo (Mũi tên phải)"
+                title="Next"
               >
                 <ChevronRight className="w-6 h-6" />
               </button>
             )}
 
-            {/* Large Image */}
             <div 
               className="relative max-h-[80vh] max-w-[85vw] flex items-center justify-center transition-transform duration-200 cursor-zoom-in"
               style={{ transform: `scale(${modalZoom})` }}
@@ -291,7 +292,7 @@ export default function ProductGallery({ mainImage, additionalImages = [] }: Pro
             >
               <img 
                 src={currentItem.src}
-                alt={currentItem.label || "Hình ảnh"}
+                alt={currentItem.label || "Image"}
                 className="max-h-[80vh] max-w-[85vw] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
               />
             </div>

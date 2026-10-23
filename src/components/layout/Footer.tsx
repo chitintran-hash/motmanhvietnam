@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { MapPin, Mail } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 const FacebookIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -27,6 +30,8 @@ const socialLinks = {
 };
 
 export default function Footer() {
+  const { t } = useLanguage();
+
   return (
     <footer className="bg-primary-green text-cream pt-20 pb-10 border-t-8 border-primary-red relative overflow-hidden">
       {/* Decorative texture */}
@@ -36,41 +41,47 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-16">
           <div className="col-span-1 md:col-span-2">
             <h2 className="font-display font-black text-3xl mb-6 tracking-tighter uppercase">
-              MỘT MẢNH <span className="text-yellow">VIỆT NAM</span>
+              {t("footer.brandTitle", "MỘT MẢNH")} <span className="text-yellow">{t("footer.brandHighlight", "VIỆT NAM")}</span>
             </h2>
             <p className="text-cream/80 max-w-md mb-8 leading-relaxed font-medium">
-              Thương hiệu phụ kiện sưu tầm lấy cảm hứng từ địa danh, vùng đất, văn hóa và những ký ức đời thường của Việt Nam. Mang một mảnh Việt Nam theo bên mình.
+              {t("footer.brandDesc", "Thương hiệu phụ kiện sưu tầm lấy cảm hứng từ địa danh, vùng đất, văn hóa và những ký ức đời thường của Việt Nam. Mang một mảnh Việt Nam theo bên mình.")}
             </p>
             <div className="flex gap-4">
-              <a href={socialLinks.youtube} target="_blank" rel="noopener noreferrer" className="w-12 h-12 border-2 border-cream/20 flex items-center justify-center hover:bg-primary-red hover:border-primary-red hover:text-cream transition-colors">
+              <a href={socialLinks.youtube} target="_blank" rel="noopener noreferrer" className="w-12 h-12 border-2 border-cream/20 flex items-center justify-center hover:bg-primary-red hover:border-primary-red hover:text-cream transition-colors" aria-label="YouTube">
                 <YoutubeIcon />
               </a>
-              <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="w-12 h-12 border-2 border-cream/20 flex items-center justify-center hover:bg-primary-red hover:border-primary-red hover:text-cream transition-colors">
+              <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="w-12 h-12 border-2 border-cream/20 flex items-center justify-center hover:bg-primary-red hover:border-primary-red hover:text-cream transition-colors" aria-label="Facebook">
                 <FacebookIcon />
               </a>
-              <a href={socialLinks.tiktok} target="_blank" rel="noopener noreferrer" className="w-12 h-12 border-2 border-cream/20 flex items-center justify-center hover:bg-primary-red hover:border-primary-red hover:text-cream transition-colors">
+              <a href={socialLinks.tiktok} target="_blank" rel="noopener noreferrer" className="w-12 h-12 border-2 border-cream/20 flex items-center justify-center hover:bg-primary-red hover:border-primary-red hover:text-cream transition-colors" aria-label="TikTok">
                 <TiktokIcon />
               </a>
             </div>
           </div>
           
           <div>
-            <h3 className="font-display font-bold text-sm mb-6 text-gold tracking-widest uppercase">Khám phá</h3>
+            <h3 className="font-display font-bold text-sm mb-6 text-gold tracking-widest uppercase">
+              {t("footer.explore", "Khám phá")}
+            </h3>
             <ul className="space-y-4 font-bold text-sm">
-              <li><Link href="/collection" className="text-cream/80 hover:text-white hover:underline underline-offset-4 decoration-yellow transition-all">KHÁM PHÁ SẢN PHẨM</Link></li>
-              <li><Link href="/map" className="text-cream/80 hover:text-white hover:underline underline-offset-4 decoration-yellow transition-all">BẢN ĐỒ DI SẢN</Link></li>
-              <li><Link href="/story-hub" className="text-cream/80 hover:text-white hover:underline underline-offset-4 decoration-yellow transition-all">STORY HUB</Link></li>
-              <li><Link href="/#ve-chung-toi" className="text-cream/80 hover:text-white hover:underline underline-offset-4 decoration-yellow transition-all">VỀ CHÚNG TÔI</Link></li>
-              <li><Link href="/team" className="text-cream/80 hover:text-white hover:underline underline-offset-4 decoration-yellow transition-all">ĐỘI NGŨ</Link></li>
+              <li><Link href="/collection" className="text-cream/80 hover:text-white hover:underline underline-offset-4 decoration-yellow transition-all uppercase">{t("nav.collection", "KHÁM PHÁ SẢN PHẨM")}</Link></li>
+              <li><Link href="/map" className="text-cream/80 hover:text-white hover:underline underline-offset-4 decoration-yellow transition-all uppercase">{t("nav.map", "BẢN ĐỒ DI SẢN")}</Link></li>
+              <li><Link href="/story-hub" className="text-cream/80 hover:text-white hover:underline underline-offset-4 decoration-yellow transition-all uppercase">{t("nav.storyHub", "STORY HUB")}</Link></li>
+              <li><Link href="/#ve-chung-toi" className="text-cream/80 hover:text-white hover:underline underline-offset-4 decoration-yellow transition-all uppercase">{t("nav.aboutUs", "VỀ CHÚNG TÔI")}</Link></li>
+              <li><Link href="/team" className="text-cream/80 hover:text-white hover:underline underline-offset-4 decoration-yellow transition-all uppercase">{t("nav.team", "ĐỘI NGŨ")}</Link></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="font-display font-bold text-sm mb-6 text-gold tracking-widest uppercase">Liên hệ</h3>
+            <h3 className="font-display font-bold text-sm mb-6 text-gold tracking-widest uppercase">
+              {t("footer.contact", "Liên hệ")}
+            </h3>
             <ul className="space-y-5 font-medium">
               <li className="flex items-start gap-4">
                 <MapPin className="w-5 h-5 text-yellow shrink-0" />
-                <span className="text-cream/80 text-sm leading-relaxed">Quận 7, TP. Hồ Chí Minh,<br/>Việt Nam</span>
+                <span className="text-cream/80 text-sm leading-relaxed whitespace-pre-line">
+                  {t("footer.location", "Quận 7, TP. Hồ Chí Minh,\nViệt Nam")}
+                </span>
               </li>
               <li className="flex items-center gap-4">
                 <Mail className="w-5 h-5 text-yellow shrink-0" />
@@ -81,13 +92,13 @@ export default function Footer() {
         </div>
         
         <div className="pt-8 border-t border-cream/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-bold tracking-widest uppercase text-cream/50">
-          <p>© 2027 MỘT MẢNH VIỆT NAM.</p>
+          <p>{t("footer.copyright", "© 2027 MỘT MẢNH VIỆT NAM.")}</p>
           <div className="flex flex-wrap gap-4 md:gap-8 justify-center">
-            <Link href="/privacy" className="hover:text-white transition-colors">Bảo mật</Link>
-            <Link href="/terms" className="hover:text-white transition-colors">Điều khoản</Link>
-            <Link href="/cookies" className="hover:text-white transition-colors">Cookies</Link>
-            <Link href="/shipping" className="hover:text-white transition-colors">Giao hàng</Link>
-            <Link href="/returns" className="hover:text-white transition-colors">Đổi trả</Link>
+            <Link href="/privacy" className="hover:text-white transition-colors">{t("footer.privacy", "Bảo mật")}</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">{t("footer.terms", "Điều khoản")}</Link>
+            <Link href="/cookies" className="hover:text-white transition-colors">{t("footer.cookies", "Cookies")}</Link>
+            <Link href="/shipping" className="hover:text-white transition-colors">{t("footer.shipping", "Giao hàng")}</Link>
+            <Link href="/returns" className="hover:text-white transition-colors">{t("footer.returns", "Đổi trả")}</Link>
           </div>
         </div>
       </div>

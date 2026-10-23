@@ -24,6 +24,7 @@ export const metadata: Metadata = {
 };
 
 import { auth } from "@/auth";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 export default async function RootLayout({
   children,
@@ -36,11 +37,13 @@ export default async function RootLayout({
     <html lang="vi" className={`${beVietnam.variable} ${montserrat.variable}`}>
       <body className="antialiased min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-terracotta selection:text-white">
         <GoogleAnalytics />
-        <Header session={session} />
-        <main className="flex-1 w-full relative">
-          {children}
-        </main>
-        <Footer />
+        <LanguageProvider>
+          <Header session={session} />
+          <main className="flex-1 w-full relative">
+            {children}
+          </main>
+          <Footer />
+        </LanguageProvider>
       </body>
     </html>
   );

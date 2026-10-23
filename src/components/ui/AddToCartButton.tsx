@@ -2,6 +2,7 @@
 
 import { ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function AddToCartButton({ 
   product, 
@@ -13,6 +14,7 @@ export default function AddToCartButton({
   displayPrice: number
 }) {
   const router = useRouter();
+  const { t } = useLanguage();
 
   const handleAddToCart = () => {
     const saved = localStorage.getItem('mm_cart');
@@ -48,7 +50,7 @@ export default function AddToCartButton({
       className="w-full bg-foreground text-white font-bold uppercase tracking-wider py-5 rounded-xl hover:bg-terracotta transition-colors flex items-center justify-center gap-3 shadow-[4px_4px_0px_rgba(0,0,0,0.1)] hover:shadow-[2px_2px_0px_rgba(0,0,0,0.1)] hover:translate-y-[2px] hover:translate-x-[2px] duration-200 mb-8"
     >
       <ShoppingBag className="w-5 h-5" />
-      THÊM VÀO GIỎ ({priceFormatted})
+      {t("product.addToCart", "THÊM VÀO GIỎ")} ({priceFormatted})
     </button>
   );
 }

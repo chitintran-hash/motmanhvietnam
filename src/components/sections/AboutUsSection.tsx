@@ -1,10 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, Heart, MapPin, Puzzle, MessageSquareQuote, ArrowRight } from "lucide-react";
+import { Heart, MapPin, Puzzle, MessageSquareQuote, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function AboutUsSection() {
+  const { t } = useLanguage();
+
   return (
     <section id="ve-chung-toi" className="py-28 md:py-36 bg-background relative overflow-hidden border-t border-foreground/10">
       {/* Subtle texture overlay */}
@@ -21,7 +24,7 @@ export default function AboutUsSection() {
           >
             <div className="w-8 h-px bg-terracotta"></div>
             <span className="text-xs font-bold uppercase tracking-[0.3em] text-terracotta border border-terracotta px-4 py-1.5 bg-[#F5F2EB] shadow-[2px_2px_0px_rgba(137,8,8,1)]">
-              🇻🇳 VỀ CHÚNG TÔI
+              {t("aboutUs.badge", "🇻🇳 VỀ CHÚNG TÔI")}
             </span>
             <div className="w-8 h-px bg-terracotta"></div>
           </motion.div>
@@ -33,8 +36,10 @@ export default function AboutUsSection() {
             transition={{ delay: 0.1 }}
             className="text-3xl md:text-5xl lg:text-6xl font-display font-black text-foreground mb-8 uppercase tracking-tight leading-[1.2]"
           >
-            Nếu chỉ được mang theo một nơi của Việt Nam bên mình,{" "}
-            <span className="text-terracotta block mt-2">bạn sẽ chọn đâu?</span>
+            {t("aboutUs.headline1", "Nếu chỉ được mang theo một nơi của Việt Nam bên mình,")}{" "}
+            <span className="text-terracotta block mt-2">
+              {t("aboutUs.headline2", "bạn sẽ chọn đâu?")}
+            </span>
           </motion.h2>
 
           <motion.p
@@ -44,9 +49,10 @@ export default function AboutUsSection() {
             transition={{ delay: 0.2 }}
             className="text-lg md:text-xl text-foreground-muted font-medium leading-relaxed max-w-3xl mx-auto"
           >
-            <span className="text-foreground font-bold">✨ Một Mảnh Việt Nam</span> bắt đầu từ một câu hỏi rất đơn giản như thế. 
-            Có người sẽ chọn quê hương. Có người chọn thành phố mình từng sống. Có người lại nhớ về một nơi chỉ vì một chuyến đi, một người đặc biệt hay một khoảnh khắc rất nhỏ nhưng vẫn ở lại thật lâu trong ký ức. 
-            Từ những câu chuyện như vậy, Một Mảnh Việt Nam ra đời.
+            <span className="text-foreground font-bold">
+              {t("aboutUs.introLead", "✨ Một Mảnh Việt Nam")}
+            </span>{" "}
+            {t("aboutUs.introBody", "bắt đầu từ một câu hỏi rất đơn giản như thế. Có người sẽ chọn quê hương. Có người chọn thành phố mình từng sống. Có người lại nhớ về một nơi chỉ vì một chuyến đi, một người đặc biệt hay một khoảnh khắc rất nhỏ nhưng vẫn ở lại thật lâu trong ký ức. Từ những câu chuyện như vậy, Một Mảnh Việt Nam ra đời.")}
           </motion.p>
         </div>
 
@@ -65,14 +71,14 @@ export default function AboutUsSection() {
                 <Heart className="w-6 h-6 fill-current text-[#E6C36A]" />
               </div>
               <h3 className="font-display font-black text-xl text-foreground uppercase tracking-tight mb-4">
-                💛 Gần Gũi Với Người Trẻ
+                {t("aboutUs.card1Title", "💛 Gần Gũi Với Người Trẻ")}
               </h3>
               <p className="text-foreground-muted leading-relaxed font-medium">
-                Chúng mình muốn kể về Việt Nam theo một cách gần gũi hơn với người trẻ. Không phải bằng những câu chuyện quá xa vời, mà bằng những điều quen thuộc có thể nhìn thấy, chạm vào và mang theo mỗi ngày.
+                {t("aboutUs.card1Desc", "Chúng mình muốn kể về Việt Nam theo một cách gần gũi hơn với người trẻ. Không phải bằng những câu chuyện quá xa vời, mà bằng những điều quen thuộc có thể nhìn thấy, chạm vào và mang theo mỗi ngày.")}
               </p>
             </div>
             <div className="pt-6 mt-6 border-t border-foreground/10 text-xs font-bold uppercase tracking-widest text-foreground/40">
-              TRẢI NGHIỆM ĐỜI THƯỜNG
+              {t("aboutUs.card1Tag", "TRẢI NGHIỆM ĐỜI THƯỜNG")}
             </div>
           </motion.div>
 
@@ -89,17 +95,17 @@ export default function AboutUsSection() {
                 <MapPin className="w-6 h-6 text-primary-green" />
               </div>
               <h3 className="font-display font-black text-xl text-foreground uppercase tracking-tight mb-4">
-                📍 Nơi Đó Có Ý Nghĩa Gì?
+                {t("aboutUs.card2Title", "📍 Nơi Đó Có Ý Nghĩa Gì?")}
               </h3>
               <p className="text-foreground-muted leading-relaxed font-medium mb-3">
-                Với chúng mình, giá trị của một nơi không chỉ nằm ở việc nơi đó nổi tiếng đến đâu. Điều quan trọng hơn là: <span className="font-bold text-foreground">Nơi đó có ý nghĩa gì với bạn?</span>
+                {t("aboutUs.card2Desc", "Với chúng mình, giá trị của một nơi không chỉ nằm ở việc nơi đó nổi tiếng đến đâu. Điều quan trọng hơn là: Nơi đó có ý nghĩa gì với bạn?")}
               </p>
               <p className="text-foreground-muted leading-relaxed font-medium text-sm">
-                Mỗi người sẽ có một Việt Nam rất khác nhau. Có thể là một con phố quen, một chuyến đi cùng bạn bè, một buổi sáng ở quê nhà hay một nơi mình vẫn luôn muốn quay lại. 🌿
+                {t("aboutUs.card2Sub", "Mỗi người sẽ có một Việt Nam rất khác nhau. Có thể là một con phố quen, một chuyến đi cùng bạn bè, một buổi sáng ở quê nhà hay một nơi mình vẫn luôn muốn quay lại. 🌿")}
               </p>
             </div>
             <div className="pt-6 mt-6 border-t border-foreground/10 text-xs font-bold uppercase tracking-widest text-foreground/40">
-              KÝ ỨC CÁ NHÂN
+              {t("aboutUs.card2Tag", "KÝ ỨC CÁ NHÂN")}
             </div>
           </motion.div>
 
@@ -116,14 +122,14 @@ export default function AboutUsSection() {
                 <Puzzle className="w-6 h-6 text-terracotta" />
               </div>
               <h3 className="font-display font-black text-xl text-foreground uppercase tracking-tight mb-4">
-                🧩 Bức Tranh Lớn Hơn
+                {t("aboutUs.card3Title", "🧩 Bức Tranh Lớn Hơn")}
               </h3>
               <p className="text-foreground-muted leading-relaxed font-medium">
-                Khi những câu chuyện ấy được đặt cạnh nhau, chúng tạo nên một bức tranh lớn hơn về Việt Nam — một Việt Nam được tạo nên từ địa danh, ký ức và những kết nối rất riêng của mỗi người. Đó cũng là điều Một Mảnh Việt Nam muốn lưu giữ.
+                {t("aboutUs.card3Desc", "Khi những câu chuyện ấy được đặt cạnh nhau, chúng tạo nên một bức tranh lớn hơn về Việt Nam — một Việt Nam được tạo nên từ địa danh, ký ức và những kết nối rất riêng của mỗi người. Đó cũng là điều Một Mảnh Việt Nam muốn lưu giữ.")}
               </p>
             </div>
             <div className="pt-6 mt-6 border-t border-foreground/10 text-xs font-bold uppercase tracking-widest text-foreground/40">
-              KẾT NỐI DI SẢN
+              {t("aboutUs.card3Tag", "KẾT NỐI DI SẢN")}
             </div>
           </motion.div>
         </div>
@@ -143,13 +149,13 @@ export default function AboutUsSection() {
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-gold/20 text-gold text-xs font-bold uppercase tracking-widest mb-4">
                 <MessageSquareQuote className="w-4 h-4" />
-                LỜI NGỎ TỪ CHÚNG MÌNH
+                {t("aboutUs.bannerNote", "LỜI NGỎ TỪ CHÚNG MÌNH")}
               </div>
               <h3 className="text-2xl md:text-3xl font-display font-black uppercase tracking-tight text-white mb-3">
-                💭 Một Mảnh Việt Nam của bạn là nơi nào?
+                {t("aboutUs.bannerTitle", "💭 Một Mảnh Việt Nam của bạn là nơi nào?")}
               </h3>
               <p className="text-[#F5F2EB]/80 text-base md:text-lg font-medium leading-relaxed">
-                Hãy kể cho chúng mình nghe câu chuyện phía sau địa danh đó. Mỗi góc nhìn, mỗi ký ức của bạn chính là một mảnh ghép quý giá làm trọn vẹn thêm hành trình này.
+                {t("aboutUs.bannerDesc", "Hãy kể cho chúng mình nghe câu chuyện phía sau địa danh đó. Mỗi góc nhìn, mỗi ký ức của bạn chính là một mảnh ghép quý giá làm trọn vẹn thêm hành trình này.")}
               </p>
             </div>
 
@@ -158,16 +164,16 @@ export default function AboutUsSection() {
                 href="/story-hub"
                 className="group inline-flex items-center gap-3 px-8 py-4 bg-terracotta text-white font-bold tracking-widest text-xs uppercase hover:bg-terracotta-hover transition-all shadow-[4px_4px_0px_rgba(230,195,106,1)] hover:translate-x-[2px] hover:translate-y-[2px]"
               >
-                GỬI CÂU CHUYỆN CỦA BẠN
+                {t("aboutUs.bannerBtn", "GỬI CÂU CHUYỆN CỦA BẠN")}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               
               <div className="text-center lg:text-right">
                 <p className="text-xs uppercase tracking-[0.25em] text-gold font-bold">
-                  🇻🇳 MỘT MẢNH VIỆT NAM
+                  {t("aboutUs.bannerBrand", "🇻🇳 MỘT MẢNH VIỆT NAM")}
                 </p>
                 <p className="text-xs italic text-[#F5F2EB]/70 font-serif mt-1">
-                  “Mang một mảnh Việt Nam theo bên mình.”
+                  {t("aboutUs.bannerSlogan", "“Mang một mảnh Việt Nam theo bên mình.”")}
                 </p>
               </div>
             </div>

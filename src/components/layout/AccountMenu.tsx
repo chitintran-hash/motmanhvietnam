@@ -4,10 +4,12 @@ import { useState, useRef, useEffect } from 'react';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { User, LogOut, Package, Shield, ChevronDown, Layers } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function AccountMenu({ session }: { session: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const { t, lang } = useLanguage();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -36,13 +38,13 @@ export default function AccountMenu({ session }: { session: any }) {
       {isOpen && (
         <div className="absolute right-0 top-full mt-4 w-56 bg-white border border-foreground/10 shadow-[4px_4px_0px_rgba(0,0,0,0.05)] rounded-xl overflow-hidden flex flex-col py-2 z-50">
           <Link href="/profile" className="flex items-center gap-3 px-4 py-3 hover:bg-background-alt transition-colors text-sm font-bold text-foreground">
-            <User className="w-4 h-4" /> Tài khoản của tôi
+            <User className="w-4 h-4" /> {t('nav.myAccount', 'Tài khoản của tôi')}
           </Link>
           <Link href="/profile/orders" className="flex items-center gap-3 px-4 py-3 hover:bg-background-alt transition-colors text-sm font-bold text-foreground">
-            <Package className="w-4 h-4" /> Đơn hàng
+            <Package className="w-4 h-4" /> {t('nav.myOrders', 'Đơn hàng')}
           </Link>
           <Link href="/profile/collections" className="flex items-center gap-3 px-4 py-3 hover:bg-background-alt transition-colors text-sm font-bold text-foreground">
-            <Layers className="w-4 h-4" /> Bộ sưu tập
+            <Layers className="w-4 h-4" /> {lang === 'en' ? 'My Collection' : 'Bộ sưu tập'}
           </Link>
           
           {isAdmin && (
@@ -50,7 +52,7 @@ export default function AccountMenu({ session }: { session: any }) {
           )}
           {isAdmin && (
             <Link href="/admin" className="flex items-center gap-3 px-4 py-3 hover:bg-background-alt transition-colors text-sm font-bold text-terracotta">
-              <Shield className="w-4 h-4" /> QUẢN TRỊ
+              <Shield className="w-4 h-4" /> {t('nav.admin', 'QUẢN TRỊ')}
             </Link>
           )}
           
@@ -60,7 +62,7 @@ export default function AccountMenu({ session }: { session: any }) {
             onClick={() => signOut({ callbackUrl: '/' })}
             className="flex items-center gap-3 px-4 py-3 hover:bg-background-alt transition-colors text-sm font-bold text-red-500 w-full text-left"
           >
-            <LogOut className="w-4 h-4" /> Đăng xuất
+            <LogOut className="w-4 h-4" /> {t('nav.logout', 'Đăng xuất')}
           </button>
         </div>
       )}
