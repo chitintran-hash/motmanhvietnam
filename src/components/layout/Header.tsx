@@ -60,16 +60,16 @@ export default function Header({ session }: { session?: any }) {
   }, []);
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-background/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-5'}`}>
-      <div className="container mx-auto px-6 max-w-[1400px] flex items-center justify-between">
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-background/90 backdrop-blur-md shadow-sm py-2 sm:py-3' : 'bg-transparent py-3 sm:py-5'}`}>
+      <div className="container mx-auto px-3 sm:px-6 max-w-[1400px] flex items-center justify-between gap-2">
         {/* Left: Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-2 group shrink-0">
           <Image 
             src="/images/logo.png" 
             alt="Một Mảnh Việt Nam" 
             width={240} 
             height={80} 
-            className="h-16 md:h-20 w-auto object-contain transition-transform group-hover:scale-105 mix-blend-multiply"
+            className="h-11 sm:h-16 md:h-20 w-auto object-contain transition-transform group-hover:scale-105 mix-blend-multiply"
             priority
           />
         </Link>
@@ -88,7 +88,7 @@ export default function Header({ session }: { session?: any }) {
           ))}
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
           <button 
             onClick={() => setIsSearchOpen(true)} 
             className="hidden md:flex p-2 text-foreground-muted hover:text-terracotta transition-colors"
@@ -113,28 +113,30 @@ export default function Header({ session }: { session?: any }) {
             )}
           </div>
           
-          {/* Language Switcher Desktop */}
-          <div className="hidden md:flex items-center gap-1.5 border-l border-foreground/10 pl-4 text-xs font-bold">
+          {/* Language Switcher - Luôn hiển thị trên CẢ MOBILE LẪN DESKTOP */}
+          <div className="flex items-center gap-1 border-l border-foreground/15 pl-2 sm:pl-3 text-xs font-bold shrink-0">
             <button 
               type="button"
               onClick={() => setLang('vi')} 
-              className={`px-2 py-0.5 rounded cursor-pointer transition-all ${
+              className={`px-2 py-1 rounded cursor-pointer transition-all text-[11px] sm:text-xs font-black ${
                 lang === 'vi' 
-                  ? 'bg-terracotta text-white font-black shadow-sm' 
-                  : 'text-foreground/50 hover:text-foreground'
+                  ? 'bg-terracotta text-white shadow-sm ring-1 ring-terracotta/40' 
+                  : 'text-foreground/60 hover:text-foreground bg-foreground/5'
               }`}
+              title="Tiếng Việt"
             >
               VI
             </button>
-            <span className="text-foreground/20 font-normal">|</span>
+            <span className="text-foreground/30 font-normal text-[10px]">|</span>
             <button 
               type="button"
               onClick={() => setLang('en')} 
-              className={`px-2 py-0.5 rounded cursor-pointer transition-all ${
+              className={`px-2 py-1 rounded cursor-pointer transition-all text-[11px] sm:text-xs font-black ${
                 lang === 'en' 
-                  ? 'bg-terracotta text-white font-black shadow-sm' 
-                  : 'text-foreground/50 hover:text-foreground'
+                  ? 'bg-terracotta text-white shadow-sm ring-1 ring-terracotta/40' 
+                  : 'text-foreground/60 hover:text-foreground bg-foreground/5'
               }`}
+              title="English"
             >
               EN
             </button>
@@ -150,7 +152,7 @@ export default function Header({ session }: { session?: any }) {
           </Link>
           
           <button 
-            className="md:hidden p-2 hover:bg-foreground/5 rounded-full transition-colors"
+            className="md:hidden p-2 hover:bg-foreground/5 rounded-full transition-colors cursor-pointer"
             onClick={() => setIsMobileMenuOpen(true)}
             aria-label="Menu"
           >
@@ -169,29 +171,31 @@ export default function Header({ session }: { session?: any }) {
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="fixed inset-0 bg-[#FAF7F2] z-[100] flex flex-col px-6 py-8 md:hidden overflow-y-auto"
           >
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-6">
               <span className="font-serif font-semibold text-xl text-foreground">
                 {t("nav.siteName", "Một Mảnh Việt Nam")}
               </span>
               <button 
                 onClick={() => setIsMobileMenuOpen(false)} 
-                className="p-2 hover:bg-foreground/5 rounded-full transition-colors"
+                className="p-2 hover:bg-foreground/5 rounded-full transition-colors cursor-pointer"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
 
-            {/* Mobile Language Switcher */}
-            <div className="flex items-center gap-3 p-3 bg-white border border-foreground/10 rounded-xl mb-6 shadow-sm">
-              <span className="text-xs font-bold text-foreground/60 uppercase tracking-wider">
-                {lang === 'vi' ? 'Ngôn ngữ:' : 'Language:'}
-              </span>
-              <div className="flex items-center gap-2">
+            {/* Mobile Language Switcher nổi bật trong Drawer */}
+            <div className="bg-white border-2 border-foreground/15 rounded-2xl p-4 mb-6 shadow-[3px_3px_0px_rgba(42,42,39,0.06)]">
+              <div className="text-xs font-black uppercase tracking-wider text-foreground/60 mb-2.5 flex items-center gap-1.5">
+                <span>🌐 {lang === 'vi' ? 'Ngôn ngữ hiển thị / Language' : 'Display Language / Ngôn ngữ'}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2.5">
                 <button
                   type="button"
                   onClick={() => setLang('vi')}
-                  className={`px-3 py-1 rounded-lg text-xs font-black transition-colors ${
-                    lang === 'vi' ? 'bg-terracotta text-white' : 'bg-foreground/5 text-foreground'
+                  className={`py-2.5 px-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 border-2 cursor-pointer ${
+                    lang === 'vi' 
+                      ? 'bg-terracotta text-white border-terracotta shadow-sm' 
+                      : 'bg-[#FAF7F2] text-foreground border-foreground/10 hover:border-foreground/30'
                   }`}
                 >
                   🇻🇳 Tiếng Việt
@@ -199,8 +203,10 @@ export default function Header({ session }: { session?: any }) {
                 <button
                   type="button"
                   onClick={() => setLang('en')}
-                  className={`px-3 py-1 rounded-lg text-xs font-black transition-colors ${
-                    lang === 'en' ? 'bg-terracotta text-white' : 'bg-foreground/5 text-foreground'
+                  className={`py-2.5 px-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 border-2 cursor-pointer ${
+                    lang === 'en' 
+                      ? 'bg-terracotta text-white border-terracotta shadow-sm' 
+                      : 'bg-[#FAF7F2] text-foreground border-foreground/10 hover:border-foreground/30'
                   }`}
                 >
                   🇬🇧 English
@@ -208,12 +214,12 @@ export default function Header({ session }: { session?: any }) {
               </div>
             </div>
             
-            <nav className="flex flex-col gap-6">
+            <nav className="flex flex-col gap-5">
               {navLinks.map((link) => (
                 <Link 
                   key={link.name} 
                   href={link.href} 
-                  className="text-xl font-serif font-medium hover:text-terracotta transition-colors"
+                  className="text-lg font-serif font-medium hover:text-terracotta transition-colors py-1 border-b border-foreground/5"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {link.name}
