@@ -4,9 +4,18 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ShieldCheck, Truck, CheckCircle2, User, Phone, MapPin, Mail, AlertCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Truck, CheckCircle2, User, Phone, MapPin, Mail, AlertCircle, Loader2, Sparkles, Building2, Home, ChevronDown } from "lucide-react";
 import { getAuthSession, createOrder } from "./actions";
 import { useLanguage } from "@/context/LanguageContext";
+import { 
+  VIETNAM_PROVINCES, 
+  POPULAR_PROVINCES, 
+  POPULAR_DISTRICTS, 
+  getDistricts, 
+  fetchWards, 
+  District, 
+  Ward 
+} from "@/lib/vietnam-address";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -20,10 +29,103 @@ export default function CheckoutPage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
   const [note, setNote] = useState("");
+
+  // Detailed address states
+  const [selectedProvinceCode, setSelectedProvinceCode] = useState<number | "">("");
+  const [selectedProvinceName, setSelectedProvinceName] = useState("");
+  const [districtsList, setDistrictsList] = useState<District[]>([]);
+  const [selectedDistrictCode, setSelectedDistrictCode] = useState<number | "">("");
+  const [selectedDistrictName, setSelectedDistrictName] = useState("");
+  const [wardsList, setWardsList] = useState<Ward[]>([]);
+  const [selectedWardCode, setSelectedWardCode] = useState<number | "">("");
+  const [selectedWardName, setSelectedWardName] = useState("");
+  const [loadingWards, setLoadingWards] = useState(false);
+  const [isManualWard, setIsManualWard] = useState(false);
+  const [manualWard, setManualWard] = useState("");
+  const [streetAddress, setStreetAddress] = useState("");
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSelectProvince = (codeStr: string) => {
+    const code = Number(codeStr);
+    if (!code) {
+      setSelectedProvinceCode("");
+      setSelectedProvinceName("");
+      setDistrictsList([]);
+      setSelectedDistrictCode("");
+      setSelectedDistrictName("");
+      setWardsList([]);
+      setSelectedWardCode("");
+      setSelectedWardName("");
+      setManualWard("");
+      return;
+    }
+    const prov = VIETNAM_PROVINCES.find((p) => p.code === code);
+    if (prov) {
+      setSelectedProvinceCode(code);
+      setSelectedProvinceName(prov.name);
+      const districts = getDistricts(code);
+      setDistrictsList(districts);
+      setSelectedDistrictCode("");
+      setSelectedDistrictName("");
+      setWardsList([]);
+      setSelectedWardCode("");
+      setSelectedWardName("");
+      setManualWard("");
+    }
+  };
+
+  const handleSelectDistrict = (codeStr: string) => {
+    const code = Number(codeStr);
+    if (!code) {
+      setSelectedDistrictCode("");
+      setSelectedDistrictName("");
+      setWardsList([]);
+      setSelectedWardCode("");
+      setSelectedWardName("");
+      setManualWard("");
+      return;
+    }
+    const dist = districtsList.find((d) => d.code === code);
+    if (dist) {
+      setSelectedDistrictCode(code);
+      setSelectedDistrictName(dist.name);
+      setSelectedWardCode("");
+      setSelectedWardName("");
+      setManualWard("");
+      setLoadingWards(true);
+      fetchWards(code).then((wards) => {
+        setWardsList(wards);
+        setLoadingWards(false);
+      });
+    }
+  };
+
+  const handleSelectWard = (codeStr: string) => {
+    const code = Number(codeStr);
+    if (!code) {
+      setSelectedWardCode("");
+      setSelectedWardName("");
+      return;
+    }
+    const w = wardsList.find((item) => item.code === code);
+    if (w) {
+      setSelectedWardCode(code);
+      setSelectedWardName(w.name);
+      setIsManualWard(false);
+    }
+  };
+
+  const effectiveWard = isManualWard ? manualWard.trim() : selectedWardName;
+  const addressParts = [
+    streetAddress.trim(),
+    effectiveWard,
+    selectedDistrictName,
+    selectedProvinceName
+  ].filter(Boolean);
+  const fullAddress = addressParts.join(", ");
 
   useEffect(() => {
     // 1. Kiểm tra session
@@ -76,7 +178,27 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (!address.trim()) {
+    if (!selectedProvinceName) {
+      setErrorMessage(t("checkout.errProvince", "Vui lòng chọn Tỉnh / Thành phố nhận hàng."));
+      return;
+    }
+
+    if (!selectedDistrictName) {
+      setErrorMessage(t("checkout.errDistrict", "Vui lòng chọn Quận / Huyện nhận hàng."));
+      return;
+    }
+
+    if (!effectiveWard) {
+      setErrorMessage(t("checkout.errWard", "Vui lòng chọn hoặc nhập Phường / Xã nhận hàng."));
+      return;
+    }
+
+    if (!streetAddress.trim()) {
+      setErrorMessage(t("checkout.errStreetAddress", "Vui lòng nhập số nhà, tên đường cụ thể."));
+      return;
+    }
+
+    if (!fullAddress.trim()) {
       setErrorMessage(t("checkout.errAddress", "Vui lòng nhập địa chỉ nhận hàng chi tiết."));
       return;
     }
@@ -93,7 +215,7 @@ export default function CheckoutPage() {
         customer_name: name,
         customer_email: email || session.user.email,
         phone: phone.trim(),
-        address: address.trim(),
+        address: fullAddress,
         note: note.trim(),
         items: items,
         total_amount: total
@@ -292,18 +414,242 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-2">
-                    {t("checkout.address", "Địa chỉ nhận hàng chi tiết")} <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    required
-                    rows={3}
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder={t("checkout.addressPlaceholder", "Số nhà, tên đường, Phường/Xã, Quận/Huyện, Tỉnh/Thành phố...")}
-                    className="w-full p-4 bg-[#FAF9F5] border-2 border-foreground/15 rounded-xl font-medium text-foreground focus:outline-none focus:border-terracotta transition-colors text-sm"
-                  />
+                {/* CHỌN ĐỊA CHỈ GIAO HÀNG CHI TIẾT */}
+                <div className="pt-2 border-t border-foreground/10 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-foreground/80">
+                      {t("checkout.address", "Địa chỉ giao hàng chi tiết")} <span className="text-red-500">*</span>
+                    </label>
+                    <span className="text-[11px] font-bold text-terracotta bg-terracotta/10 px-2.5 py-0.5 rounded-md border border-terracotta/20">
+                      Chuẩn xác 4 cấp
+                    </span>
+                  </div>
+
+                  {/* 1. GỢI Ý CHỌN NHANH TỈNH / THÀNH PHỐ */}
+                  <div>
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-foreground/60 mb-2">
+                      <Sparkles className="w-3.5 h-3.5 text-terracotta" />
+                      <span>{t("checkout.quickSuggestTitle", "Gợi ý chọn nhanh Tỉnh / Thành phố:")}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {POPULAR_PROVINCES.map((p) => {
+                        const isSelected = selectedProvinceCode === p.code;
+                        return (
+                          <button
+                            key={p.code}
+                            type="button"
+                            onClick={() => handleSelectProvince(p.code.toString())}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
+                              isSelected
+                                ? "bg-terracotta text-white border-terracotta shadow-sm scale-105"
+                                : "bg-[#FAF9F5] text-foreground/80 border-foreground/15 hover:border-terracotta hover:bg-white"
+                            }`}
+                          >
+                            <span>{p.icon}</span>
+                            <span>{p.name}</span>
+                            {isSelected && <CheckCircle2 className="w-3.5 h-3.5 ml-0.5" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* 2. CHỌN TỈNH/THÀNH VÀ QUẬN/HUYỆN (GRID 2 CỘT) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Tỉnh / Thành phố */}
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-1.5">
+                        {t("checkout.province", "Tỉnh / Thành phố")} <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <select
+                          required
+                          value={selectedProvinceCode}
+                          onChange={(e) => handleSelectProvince(e.target.value)}
+                          className="w-full px-4 py-3 bg-[#FAF9F5] border-2 border-foreground/15 rounded-xl font-medium text-foreground focus:outline-none focus:border-terracotta transition-colors text-sm appearance-none pr-10 cursor-pointer"
+                        >
+                          <option value="">{t("checkout.provincePlaceholder", "-- Chọn Tỉnh / Thành phố --")}</option>
+                          <optgroup label="Tỉnh / Thành phố trực thuộc Trung ương">
+                            {POPULAR_PROVINCES.map((p) => (
+                              <option key={`pop-${p.code}`} value={p.code}>
+                                {p.name}
+                              </option>
+                            ))}
+                          </optgroup>
+                          <optgroup label="Tất cả 63 Tỉnh / Thành">
+                            {VIETNAM_PROVINCES.map((p) => (
+                              <option key={p.code} value={p.code}>
+                                {p.name}
+                              </option>
+                            ))}
+                          </optgroup>
+                        </select>
+                        <ChevronDown className="w-4 h-4 text-foreground/40 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
+                    </div>
+
+                    {/* Quận / Huyện */}
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-1.5">
+                        {t("checkout.district", "Quận / Huyện")} <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <select
+                          required
+                          disabled={!selectedProvinceCode}
+                          value={selectedDistrictCode}
+                          onChange={(e) => handleSelectDistrict(e.target.value)}
+                          className="w-full px-4 py-3 bg-[#FAF9F5] border-2 border-foreground/15 rounded-xl font-medium text-foreground focus:outline-none focus:border-terracotta transition-colors text-sm appearance-none pr-10 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          <option value="">
+                            {selectedProvinceCode
+                              ? t("checkout.districtPlaceholder", "-- Chọn Quận / Huyện --")
+                              : t("checkout.selectProvinceFirst", "-- Chọn Tỉnh/Thành trước --")}
+                          </option>
+                          {districtsList.map((d) => (
+                            <option key={d.code} value={d.code}>
+                              {d.name}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="w-4 h-4 text-foreground/40 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* GỢI Ý QUẬN/HUYỆN TRUNG TÂM CHO TỈNH ĐANG CHỌN (NẾU CÓ) */}
+                  {selectedProvinceCode && POPULAR_DISTRICTS[Number(selectedProvinceCode)] && (
+                    <div className="bg-[#FAF9F5] p-3 rounded-xl border border-foreground/10">
+                      <div className="text-[11px] font-bold text-foreground/60 mb-2 flex items-center gap-1.5">
+                        <Building2 className="w-3.5 h-3.5 text-terracotta" />
+                        <span>{t("checkout.quickDistrictTitle", "Gợi ý Quận / Huyện trung tâm:")}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {POPULAR_DISTRICTS[Number(selectedProvinceCode)].map((distName) => {
+                          const matchedDistrict = districtsList.find((d) => d.name === distName);
+                          if (!matchedDistrict) return null;
+                          const isSelected = selectedDistrictCode === matchedDistrict.code;
+                          return (
+                            <button
+                              key={matchedDistrict.code}
+                              type="button"
+                              onClick={() => handleSelectDistrict(matchedDistrict.code.toString())}
+                              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
+                                isSelected
+                                  ? "bg-foreground text-white border-foreground shadow-xs"
+                                  : "bg-white text-foreground/75 border-foreground/15 hover:border-foreground/30 hover:bg-neutral-50"
+                              }`}
+                            >
+                              {matchedDistrict.name}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 3. CHỌN PHƯỜNG/XÃ VÀ SỐ NHÀ, TÊN ĐƯỜNG (GRID 2 CỘT) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Phường / Xã */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70">
+                          {t("checkout.ward", "Phường / Xã")} <span className="text-red-500">*</span>
+                        </label>
+                        {selectedDistrictCode && (
+                          <button
+                            type="button"
+                            onClick={() => setIsManualWard(!isManualWard)}
+                            className="text-[11px] text-terracotta font-bold hover:underline cursor-pointer"
+                          >
+                            {isManualWard
+                              ? t("checkout.dropdownWardSwitch", "Chọn từ danh sách")
+                              : t("checkout.manualWardSwitch", "Nhập tay Phường/Xã")}
+                          </button>
+                        )}
+                      </div>
+
+                      {isManualWard ? (
+                        <input
+                          type="text"
+                          required
+                          value={manualWard}
+                          onChange={(e) => setManualWard(e.target.value)}
+                          placeholder={t("checkout.manualWardPlaceholder", "Nhập tên Phường hoặc Xã...")}
+                          className="w-full px-4 py-3 bg-[#FAF9F5] border-2 border-foreground/15 rounded-xl font-medium text-foreground focus:outline-none focus:border-terracotta transition-colors text-sm"
+                        />
+                      ) : (
+                        <div className="relative">
+                          <select
+                            required
+                            disabled={!selectedDistrictCode || loadingWards}
+                            value={selectedWardCode}
+                            onChange={(e) => handleSelectWard(e.target.value)}
+                            className="w-full px-4 py-3 bg-[#FAF9F5] border-2 border-foreground/15 rounded-xl font-medium text-foreground focus:outline-none focus:border-terracotta transition-colors text-sm appearance-none pr-10 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                          >
+                            <option value="">
+                              {loadingWards
+                                ? t("checkout.loadingWards", "Đang tải danh sách Phường/Xã...")
+                                : selectedDistrictCode
+                                ? t("checkout.wardPlaceholder", "-- Chọn Phường / Xã --")
+                                : t("checkout.selectDistrictFirst", "-- Chọn Quận/Huyện trước --")}
+                            </option>
+                            {wardsList.map((w) => (
+                              <option key={w.code} value={w.code}>
+                                {w.name}
+                              </option>
+                            ))}
+                          </select>
+                          {loadingWards ? (
+                            <Loader2 className="w-4 h-4 text-terracotta animate-spin absolute right-4 top-1/2 -translate-y-1/2" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4 text-foreground/40 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Số nhà, tên đường cụ thể */}
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-1.5">
+                        {t("checkout.streetAddress", "Số nhà, tên đường, tòa nhà...")} <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <Home className="w-4 h-4 text-foreground/40 absolute left-4 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          required
+                          value={streetAddress}
+                          onChange={(e) => setStreetAddress(e.target.value)}
+                          placeholder={t("checkout.streetAddressPlaceholder", "Số 123 Đường Lê Lợi, Căn hộ A2...")}
+                          className="w-full pl-11 pr-4 py-3 bg-[#FAF9F5] border-2 border-foreground/15 rounded-xl font-medium text-foreground focus:outline-none focus:border-terracotta transition-colors text-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* HỘP XEM TRƯỚC ĐỊA CHỈ GIAO HÀNG ĐẦY ĐỦ (LIVE PREVIEW) */}
+                  {fullAddress && (
+                    <div className="bg-gradient-to-r from-terracotta/[0.08] via-terracotta/[0.03] to-white border-2 border-terracotta/30 p-4 rounded-xl flex items-start gap-3 shadow-xs">
+                      <MapPin className="w-5 h-5 text-terracotta shrink-0 mt-0.5" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-black uppercase tracking-wider text-terracotta">
+                            {t("checkout.addressPreviewTitle", "Địa chỉ nhận hàng đầy đủ:")}
+                          </span>
+                          {streetAddress.trim() && effectiveWard && selectedDistrictName && selectedProvinceName && (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                              <CheckCircle2 className="w-3 h-3" />
+                              Đầy đủ 4 cấp
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm font-bold text-foreground leading-relaxed break-words">
+                          {fullAddress}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>
