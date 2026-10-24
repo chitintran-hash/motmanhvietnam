@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Map, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Map, ChevronLeft, ChevronRight, Search, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -9,24 +9,36 @@ import { useLanguage } from "@/context/LanguageContext";
 
 const carouselSlides = [
   {
-    id: "hanoi",
-    city: "HÀ NỘI",
-    image: "/images/hanoi-hero-new.png",
-  },
-  {
     id: "saigon",
     city: "SÀI GÒN",
+    landmark: "Chợ Bến Thành",
+    landmarkEn: "Ben Thanh Market",
+    searchQuery: "Chợ Bến Thành",
+    searchQueryEn: "Ben Thanh Market",
     image: "/images/saigon-hero.png",
   },
   {
     id: "danang",
     city: "ĐÀ NẴNG",
+    landmark: "Cầu Rồng Đà Nẵng",
+    landmarkEn: "Dragon Bridge Da Nang",
+    searchQuery: "Cầu Rồng Đà Nẵng",
+    searchQueryEn: "Dragon Bridge Da Nang",
     image: "/images/danang-hero.png",
+  },
+  {
+    id: "hanoi",
+    city: "HÀ NỘI",
+    landmark: "Hồ Gươm",
+    landmarkEn: "Hoan Kiem Lake",
+    searchQuery: "Hồ Gươm",
+    searchQueryEn: "Hoan Kiem Lake",
+    image: "/images/hanoi-hero-new.png",
   }
 ];
 
 export default function Hero() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [activeSlide, setActiveSlide] = useState(0);
 
   const nextSlide = () => setActiveSlide((p) => (p + 1) % carouselSlides.length);
@@ -37,6 +49,18 @@ export default function Hero() {
     if (id === "saigon") return t("hero.cities.saigon", defaultCity);
     if (id === "danang") return t("hero.cities.danang", defaultCity);
     return defaultCity;
+  };
+
+  const getLandmarkLabel = (id: string, defaultLandmark: string) => {
+    if (id === "hanoi") return t("hero.landmarks.hanoi", defaultLandmark);
+    if (id === "saigon") return t("hero.landmarks.saigon", defaultLandmark);
+    if (id === "danang") return t("hero.landmarks.danang", defaultLandmark);
+    return defaultLandmark;
+  };
+
+  const getSearchUrl = (slide: typeof carouselSlides[0]) => {
+    const query = lang === 'en' ? slide.searchQueryEn : slide.searchQuery;
+    return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
   };
 
   useEffect(() => {
@@ -153,6 +177,12 @@ export default function Hero() {
                     opacity = 0; // Hide previous to keep focus on next
                   }
 
+                  const landmarkText = getLandmarkLabel(
+                    slide.id, 
+                    lang === 'en' ? slide.landmarkEn : slide.landmark
+                  );
+                  const searchUrl = getSearchUrl(slide);
+
                   return (
                     <motion.div
                       key={slide.id}
@@ -160,32 +190,64 @@ export default function Hero() {
                       animate={{ x, scale, zIndex, rotate, opacity }}
                       transition={{ duration: 0.6, type: "spring", bounce: 0.2 }}
                       className="absolute w-[85%] max-w-[420px] aspect-[4/5]"
-                      onClick={() => isNext && nextSlide()}
                     >
-                      {/* Scrapbook Frame */}
-                      <div 
-                        className={`w-full h-full bg-cream p-4 shadow-[10px_10px_30px_rgba(0,0,0,0.15)] relative ${isNext ? 'cursor-pointer' : ''}`}
-                        style={{ 
-                          borderRadius: "2% 3% 2% 4% / 3% 2% 4% 2%",
-                          border: "1px solid rgba(0,0,0,0.05)"
+                      <a
+                        href={searchUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => {
+                          if (isNext) {
+                            setActiveSlide(index);
+                          }
                         }}
+                        className="block w-full h-full cursor-pointer group select-none"
+                        title={`${t("hero.searchGoogle", "Khám phá trên Google")}: ${landmarkText}`}
                       >
-                        {/* Inner Image Area */}
-                        <div className="relative w-full h-[85%] overflow-hidden bg-beige" style={{ borderRadius: "1% 2% 1% 2% / 2% 1% 2% 1%" }}>
-                          <Image 
-                            src={slide.image} 
-                            alt={slide.city} 
-                            fill 
-                            className="object-cover sepia-[0.1] contrast-[1.1] saturate-[1.1] filter" 
-                          />
-                          <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.1)] pointer-events-none"></div>
-                        </div>
+                        {/* Scrapbook Frame */}
+                        <div 
+                          className="w-full h-full bg-cream p-4 shadow-[10px_10px_30px_rgba(0,0,0,0.15)] relative group-hover:shadow-[16px_16px_45px_rgba(0,0,0,0.25)] group-hover:-translate-y-1 transition-all duration-300"
+                          style={{ 
+                            borderRadius: "2% 3% 2% 4% / 3% 2% 4% 2%",
+                            border: "1px solid rgba(0,0,0,0.06)"
+                          }}
+                        >
+                          {/* Inner Image Area */}
+                          <div className="relative w-full h-[85%] overflow-hidden bg-beige" style={{ borderRadius: "1% 2% 1% 2% / 2% 1% 2% 1%" }}>
+                            <Image 
+                              src={slide.image} 
+                              alt={landmarkText} 
+                              fill 
+                              className="object-cover sepia-[0.1] contrast-[1.1] saturate-[1.1] filter group-hover:scale-105 transition-transform duration-500" 
+                            />
+                            <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.1)] pointer-events-none"></div>
 
-                        {/* Label */}
-                        <div className="absolute bottom-4 left-0 w-full flex justify-center items-center px-6">
-                           <span className="font-display font-black text-4xl tracking-wider text-foreground/80">{getCityLabel(slide.id, slide.city)}</span>
+                            {/* Top-Right Landmark Search Pill Badge */}
+                            <div className="absolute top-3 right-3 bg-cream/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md flex items-center gap-1.5 text-xs font-bold text-foreground/85 group-hover:bg-primary-red group-hover:text-cream transition-all duration-300 z-10 border border-foreground/10">
+                              <Search className="w-3.5 h-3.5" />
+                              <span>{landmarkText}</span>
+                              <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                            </div>
+
+                            {/* Bottom Image Hover Hint Banner */}
+                            <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-cream opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-between text-xs font-medium z-10">
+                              <span className="flex items-center gap-1.5">
+                                <Search className="w-3.5 h-3.5 text-amber-300" />
+                                {t("hero.searchGoogleHint", "Tìm hiểu trên Google Search")}
+                              </span>
+                              <span className="text-[10px] font-bold uppercase tracking-wider bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded border border-white/20">
+                                Google ↗
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Label */}
+                          <div className="absolute bottom-4 left-0 w-full flex justify-center items-center px-6">
+                            <span className="font-display font-black text-4xl tracking-wider text-foreground/80 group-hover:text-primary-red transition-colors">
+                              {getCityLabel(slide.id, slide.city)}
+                            </span>
+                          </div>
                         </div>
-                      </div>
+                      </a>
                     </motion.div>
                   );
                 })}

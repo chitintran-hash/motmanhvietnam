@@ -32,7 +32,14 @@ export const translations = {
         hanoi: "HÀ NỘI",
         saigon: "SÀI GÒN",
         danang: "ĐÀ NẴNG"
-      }
+      },
+      landmarks: {
+        hanoi: "Hồ Gươm",
+        saigon: "Chợ Bến Thành",
+        danang: "Cầu Rồng Đà Nẵng"
+      },
+      searchGoogleHint: "Tìm hiểu trên Google Search",
+      searchGoogle: "Khám phá trên Google"
     },
     aboutTeaser: {
       badge: "TRẢI NGHIỆM SƯU TẦM",
@@ -304,7 +311,14 @@ export const translations = {
         hanoi: "HANOI",
         saigon: "SAIGON",
         danang: "DA NANG"
-      }
+      },
+      landmarks: {
+        hanoi: "Hoan Kiem Lake",
+        saigon: "Ben Thanh Market",
+        danang: "Dragon Bridge Da Nang"
+      },
+      searchGoogleHint: "Explore on Google Search",
+      searchGoogle: "Explore on Google"
     },
     aboutTeaser: {
       badge: "COLLECTING EXPERIENCE",
